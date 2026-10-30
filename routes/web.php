@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\EventoController;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -11,6 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::resource('eventos', EventoController::class)->only(['index']);
     Route::resource('categorias', CategoriaController::class);
 });
 

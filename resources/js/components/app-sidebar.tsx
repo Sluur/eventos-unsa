@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Tags } from 'lucide-react';
+
+import { BookOpen, CalendarDays, FolderGit2, LayoutGrid, Tags } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { Link, usePage } from '@inertiajs/react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -19,14 +20,14 @@ import type { NavItem } from '@/types';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/dashboard',
         icon: LayoutGrid,
     },
-    {
-        title: 'Categorías',
-        href: '/categorias',
-        icon: Tags,
-    },
+];
+
+const navConPermiso: { item: NavItem; permiso: string }[] = [
+    { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
+    { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -43,7 +44,18 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
+
+    const itemsVisibles = [
+        ...mainNavItems,
+        ...navConPermiso
+            .filter((n) => permisos.includes(n.permiso))
+            .map((n) => n.item),
+    ];
+
+    
     return (
+
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
@@ -58,7 +70,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={itemsVisibles} />
             </SidebarContent>
 
             <SidebarFooter>
