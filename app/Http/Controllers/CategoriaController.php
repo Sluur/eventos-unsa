@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateCategoriaRequest;
 use App\Models\Categoria;
 use Inertia\Inertia;
 
+use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
@@ -14,6 +15,7 @@ class CategoriaController extends Controller
     /**
      * Display a listing of the resource.
      */
+    #[Middleware('permission:gestionar categorias')]
     public function index()
 {
     $categorias = Categoria::orderBy('nombre')->get();
@@ -23,11 +25,13 @@ class CategoriaController extends Controller
     ]);
 }
 
+#[Middleware('permission:gestionar categorias')]
 public function create()
 {
     return Inertia::render('Categorias/Create');
 }
 
+#[Middleware('permission:gestionar categorias')]
 public function store(StoreCategoriaRequest $request)
 {
     Categoria::create($request->validated());
@@ -40,6 +44,7 @@ public function store(StoreCategoriaRequest $request)
     /**
      * Display the specified resource.
      */
+    #[Middleware('permission:gestionar categorias')]
     public function show(string $id)
     {
         //
@@ -48,6 +53,7 @@ public function store(StoreCategoriaRequest $request)
     /**
      * Show the form for editing the specified resource.
      */
+    #[Middleware('permission:gestionar categorias')]
     public function edit(Categoria $categoria)
     {
         return Inertia::render('Categorias/Edit', [
@@ -57,7 +63,9 @@ public function store(StoreCategoriaRequest $request)
 
     /**
      * Update the specified resource in storage.
-     */
+
+    */
+    #[Middleware('permission:gestionar categorias')]
     public function update(UpdateCategoriaRequest $request, Categoria $categoria)
     {
         $categoria->update($request->validated());
@@ -70,12 +78,19 @@ public function store(StoreCategoriaRequest $request)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Categoria $categoria)
-    {
-        $categoria->delete();
-
+#[Middleware('permission:gestionar categorias')]
+public function destroy(Categoria $categoria)
+{
+    if ($categoria->eventos()->exists()) {
         return redirect()
             ->route('categorias.index')
-            ->with('success', 'Categoría eliminada correctamente.');
+            ->with('error', 'No se puede eliminar: hay eventos con esta categoría.');
     }
+
+    $categoria->delete();
+
+    return redirect()
+        ->route('categorias.index')
+        ->with('success', 'Categoría eliminada correctamente.');
+}
 }
