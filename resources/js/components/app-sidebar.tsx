@@ -1,5 +1,5 @@
 
-import { BookOpen, CalendarDays, FolderGit2, LayoutGrid, Tags } from 'lucide-react';
+import { BookOpen, CalendarDays, FolderGit2, LayoutGrid, MapPin, Tags } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { Link, usePage } from '@inertiajs/react';
 import { NavFooter } from '@/components/nav-footer';
@@ -28,6 +28,7 @@ const mainNavItems: NavItem[] = [
 const navConPermiso: { item: NavItem; permiso: string }[] = [
     { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
     { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
+    { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
 ];
 
 const footerNavItems: NavItem[] = [
