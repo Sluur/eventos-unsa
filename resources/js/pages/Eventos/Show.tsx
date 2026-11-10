@@ -1,5 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, CalendarDays, MapPin, Mic, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -36,6 +37,10 @@ interface Props {
     evento: Evento;
     puedeGestionar: boolean;
     inscriptos: Inscripto[];
+    puedeInscribirse: boolean;
+    estaInscripto: boolean;
+    motivoSinInscripcion: string | null;
+    yaPaso: boolean;
     flash?: {
         success?: string;
         error?: string;
@@ -66,7 +71,16 @@ const formatearHora = (fecha: string) =>
         minute: '2-digit',
     });
 
-export default function Show({ evento, puedeGestionar, inscriptos, flash }: Props) {
+export default function Show({
+    evento,
+    puedeGestionar,
+    inscriptos,
+    puedeInscribirse,
+    estaInscripto,
+    motivoSinInscripcion,
+    yaPaso,
+    flash,
+}: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
         { title: evento.titulo, href: `/eventos/${evento.id}` },
@@ -74,6 +88,16 @@ export default function Show({ evento, puedeGestionar, inscriptos, flash }: Prop
 
     const porcentaje = Math.min(100, Math.round((evento.inscriptos_count / evento.cupo) * 100));
     const lugaresLibres = Math.max(0, evento.cupo - evento.inscriptos_count);
+
+    const inscribirme = () => {
+        router.post(`/eventos/${evento.id}/inscripcion`, {}, { preserveScroll: true });
+    };
+
+    const cancelarInscripcion = () => {
+        if (confirm('¿Seguro que querés cancelar tu inscripción?')) {
+            router.delete(`/eventos/${evento.id}/inscripcion`, { preserveScroll: true });
+        }
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -189,6 +213,32 @@ export default function Show({ evento, puedeGestionar, inscriptos, flash }: Prop
                                     : `Quedan ${lugaresLibres} ${lugaresLibres === 1 ? 'lugar' : 'lugares'}.`}
                             </p>
                         </div>
+
+                        {puedeInscribirse && estaInscripto && (
+                            <div className="flex flex-col gap-2">
+                                <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
+                                    Estás inscripto en esta charla.
+                                </div>
+                                {!yaPaso && (
+                                    <Button variant="outline" onClick={cancelarInscripcion}>
+                                        Cancelar inscripción
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
+                        {puedeInscribirse && !estaInscripto && (
+                            <div className="flex flex-col gap-2">
+                                <Button onClick={inscribirme} disabled={motivoSinInscripcion !== null}>
+                                    Inscribirme
+                                </Button>
+                                {motivoSinInscripcion && (
+                                    <p className="text-center text-sm text-muted-foreground">
+                                        {motivoSinInscripcion}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

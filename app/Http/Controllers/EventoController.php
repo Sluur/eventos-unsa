@@ -137,10 +137,19 @@ public function index(Request $request)
                 ->get()
             : [];
 
+        $miInscripcion = $evento->inscripciones()
+            ->where('user_id', $usuario->id)
+            ->where('estado', 'confirmada')
+            ->exists();
+
         return Inertia::render('Eventos/Show', [
             'evento' => $evento,
             'puedeGestionar' => $puedeGestionar,
             'inscriptos' => $inscriptos,
+            'puedeInscribirse' => $usuario->can('inscribirse eventos'),
+            'estaInscripto' => $miInscripcion,
+            'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
+            'yaPaso' => $evento->yaPaso(),
         ]);
     }
 
