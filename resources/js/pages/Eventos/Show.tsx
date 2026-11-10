@@ -1,5 +1,5 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, MapPin, Mic, User } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { ArrowLeft, CalendarDays, ClipboardCheck, MapPin, Mic, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
@@ -81,6 +81,12 @@ export default function Show({
     yaPaso,
     flash,
 }: Props) {
+    const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
+    const puedeTomarAsistencia =
+        puedeGestionar &&
+        permisos.includes('tomar asistencia') &&
+        ['publicado', 'finalizado'].includes(evento.estado);
+
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
         { title: evento.titulo, href: `/eventos/${evento.id}` },
@@ -246,6 +252,14 @@ export default function Show({
                     <div className="rounded-xl border">
                         <div className="flex items-center justify-between p-4">
                             <h2 className="font-medium">Inscriptos ({inscriptos.length})</h2>
+                            {puedeTomarAsistencia && (
+                                <Button size="sm" asChild>
+                                    <Link href={`/eventos/${evento.id}/asistencia`}>
+                                        <ClipboardCheck className="size-4" />
+                                        Tomar asistencia
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
