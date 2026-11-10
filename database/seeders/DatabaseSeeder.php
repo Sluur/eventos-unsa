@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         DisertanteSeeder::class,
         EventoSeeder::class,
         InscripcionSeeder::class,
+        DemoCharlaSeeder::class,
     ]);
 }
 }
