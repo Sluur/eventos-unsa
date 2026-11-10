@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { CalendarDays, MapPin, Search } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { CalendarDays, MapPin, Plus, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,10 @@ interface Props {
     eventos: EventosPaginados;
     categorias: { id: number; nombre: string }[];
     filtros: Filtros;
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eventos', href: '/eventos' }];
@@ -66,7 +70,8 @@ const formatearFecha = (fecha: string) =>
         minute: '2-digit',
     });
 
-export default function Index({ eventos, categorias, filtros }: Props) {
+export default function Index({ eventos, categorias, filtros, flash }: Props) {
+    const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
     const [buscar, setBuscar] = useState(filtros.buscar ?? '');
     const [categoria, setCategoria] = useState(filtros.categoria ?? '');
     const [estado, setEstado] = useState(filtros.estado ?? '');
@@ -117,12 +122,34 @@ export default function Index({ eventos, categorias, filtros }: Props) {
             <Head title="Eventos" />
 
             <div className="flex flex-col gap-4 p-4 md:p-6">
-                <div>
-                    <h1 className="text-2xl font-semibold">Eventos</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Charlas, talleres y actividades de la facultad.
-                    </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h1 className="text-2xl font-semibold">Eventos</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Charlas, talleres y actividades de la facultad.
+                        </p>
+                    </div>
+
+                    {permisos.includes('crear eventos') && (
+                        <Button asChild>
+                            <Link href="/eventos/create">
+                                <Plus className="size-4" />
+                                Nueva charla
+                            </Link>
+                        </Button>
+                    )}
                 </div>
+
+                {flash?.success && (
+                    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
+                        {flash.success}
+                    </div>
+                )}
+                {flash?.error && (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
+                        {flash.error}
+                    </div>
+                )}
 
                 <form
                     onSubmit={aplicarFiltros}

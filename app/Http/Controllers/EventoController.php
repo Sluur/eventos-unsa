@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreEventoRequest;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
+use App\Models\Disertante;
 use App\Models\Evento;
+use App\Models\Lugar;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Inertia\Inertia;
 
@@ -69,20 +72,44 @@ public function index(Request $request)
     ]);
 }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    #[Middleware('permission:crear eventos')]
     public function create()
     {
-        //
+        return Inertia::render('Eventos/Create', [
+            'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
+            'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    #[Middleware('permission:crear eventos')]
+    public function store(StoreEventoRequest $request)
     {
-        //
+        $datos = $request->validated();
+
+        // Por ahora solo se cargan charlas
+        $charla = Categoria::where('nombre', 'Charla')->firstOrFail();
+
+        $evento = Evento::create([
+            'titulo' => $datos['titulo'],
+            'descripcion' => $datos['descripcion'],
+            'fecha_inicio' => $datos['fecha_inicio'],
+            'fecha_fin' => $datos['fecha_fin'],
+            'lugar_id' => $datos['lugar_id'],
+            'cupo' => $datos['cupo'],
+            'estado' => $datos['estado'],
+            'categoria_id' => $charla->id,
+            'organizador_id' => $request->user()->id,
+        ]);
+
+        $evento->disertantes()->sync($datos['disertantes'] ?? []);
+
+        $mensaje = $evento->estado === 'publicado'
+            ? 'Charla publicada correctamente.'
+            : 'Charla guardada como borrador.';
+
+        return redirect()
+            ->route('eventos.index')
+            ->with('success', $mensaje);
     }
 
     /**
