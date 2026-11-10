@@ -54,4 +54,10 @@ class Evento extends Model
     {
         return $this->hasMany(Inscripcion::class);
     }
+
+    // Solo el organizador del evento o un admin pueden gestionarlo
+    public function puedeGestionar(User $usuario): bool
+    {
+        return $this->organizador_id === $usuario->id || $usuario->hasRole('admin');
+    }
 }

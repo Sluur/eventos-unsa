@@ -252,7 +252,12 @@ export default function Index({ eventos, categorias, filtros, flash }: Props) {
                                 return (
                                     <tr key={evento.id} className="border-t hover:bg-muted/30">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium">{evento.titulo}</div>
+                                            <Link
+                                                href={`/eventos/${evento.id}`}
+                                                className="font-medium hover:underline"
+                                            >
+                                                {evento.titulo}
+                                            </Link>
                                             <div className="text-xs text-muted-foreground">
                                                 {evento.categoria.nombre}
                                             </div>

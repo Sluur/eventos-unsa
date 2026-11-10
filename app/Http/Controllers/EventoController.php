@@ -108,16 +108,40 @@ public function index(Request $request)
             : 'Charla guardada como borrador.';
 
         return redirect()
-            ->route('eventos.index')
+            ->route('eventos.show', $evento)
             ->with('success', $mensaje);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    #[Middleware('permission:listar eventos')]
+    public function show(Request $request, Evento $evento)
     {
-        //
+        $usuario = $request->user();
+
+        // El alumno no puede ver borradores ni cancelados
+        if (!$usuario->can('crear eventos') && !in_array($evento->estado, ['publicado', 'finalizado'], true)) {
+            abort(404);
+        }
+
+        $evento->load(['categoria', 'lugar', 'organizador:id,name', 'disertantes'])
+            ->loadCount(['inscripciones as inscriptos_count' => function ($query) {
+                $query->where('estado', 'confirmada');
+            }]);
+
+        $puedeGestionar = $evento->puedeGestionar($usuario);
+
+        $inscriptos = $puedeGestionar
+            ? $evento->inscripciones()
+                ->with('user:id,name,email')
+                ->where('estado', 'confirmada')
+                ->orderBy('created_at')
+                ->get()
+            : [];
+
+        return Inertia::render('Eventos/Show', [
+            'evento' => $evento,
+            'puedeGestionar' => $puedeGestionar,
+            'inscriptos' => $inscriptos,
+        ]);
     }
 
     /**
