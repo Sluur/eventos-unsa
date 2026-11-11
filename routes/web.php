@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
@@ -22,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::put('eventos/{evento}/asistencia', [AsistenciaController::class, 'update'])->name('eventos.asistencia.update');
     Route::resource('categorias', CategoriaController::class);
     Route::resource('lugares', LugarController::class)->parameters(['lugares' => 'lugar'])->except(['show']);
+    Route::resource('disertantes', DisertanteController::class)->except(['show']);
 });
 
 require __DIR__.'/settings.php';
