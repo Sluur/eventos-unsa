@@ -55,11 +55,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'descargar reportes',
         ]);
 
-     
         $usuarios = [
-            ['name' => 'Administrador', 'email' => 'admin@eventos.test', 'rol' => 'admin'],
-            ['name' => 'María Organizadora', 'email' => 'organizador@eventos.test', 'rol' => 'organizador'],
-            ['name' => 'Juan Alumno', 'email' => 'alumno@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Laura Gómez', 'email' => 'admin@eventos.test', 'rol' => 'admin'],
+            ['name' => 'Martín Ríos', 'email' => 'organizador@eventos.test', 'rol' => 'organizador'],
+            ['name' => 'Sofía Medina', 'email' => 'alumno@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Tomás Herrera', 'email' => 'alumno2@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Valentina Cruz', 'email' => 'valentina.cruz@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Diego Paz', 'email' => 'diego.paz@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Camila Ortiz', 'email' => 'camila.ortiz@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Nicolás Vera', 'email' => 'nicolas.vera@eventos.test', 'rol' => 'alumno'],
         ];
 
         foreach ($usuarios as $datos) {
@@ -72,8 +76,5 @@ class RolesAndPermissionsSeeder extends Seeder
                 ]
             )->assignRole($datos['rol']);
         }
-
-        User::factory()->count(2)->create()->each(fn ($u) => $u->assignRole('organizador'));
-        User::factory()->count(30)->create()->each(fn ($u) => $u->assignRole('alumno'));
     }
 }

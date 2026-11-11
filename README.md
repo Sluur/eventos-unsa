@@ -65,11 +65,11 @@ El sistema queda en http://localhost:8000.
 
 Todos con contraseña `password`.
 
-| Rol | Email |
-|---|---|
-| Administrador | admin@eventos.test |
-| Organizador | organizador@eventos.test |
-| Alumno | alumno@eventos.test |
-| Alumno | alumno2@eventos.test |
+| Rol | Nombre | Email |
+|---|---|---|
+| Administrador | Laura Gómez | admin@eventos.test |
+| Organizador | Martín Ríos | organizador@eventos.test |
+| Alumno | Sofía Medina | alumno@eventos.test |
+| Alumno | Tomás Herrera | alumno2@eventos.test |
 
 Los datos de prueba incluyen dos charlas de `organizador@eventos.test`: una próxima con un solo lugar libre y otra que ya pasó con la asistencia sin tomar.
