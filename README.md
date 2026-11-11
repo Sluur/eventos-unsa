@@ -67,9 +67,11 @@ Todos con contraseña `password`.
 
 | Rol | Nombre | Email |
 |---|---|---|
-| Administrador | Laura Gómez | admin@eventos.test |
-| Organizador | Martín Ríos | organizador@eventos.test |
-| Alumno | Sofía Medina | alumno@eventos.test |
-| Alumno | Tomás Herrera | alumno2@eventos.test |
+| Administrador | Rodrigo Haro | rodrigo@eventos.test |
+| Alumno | Oriana Figueroa | oriana@eventos.test |
+| Alumno | Alejandro Haro | alejandro@eventos.test |
+| Alumno | Franco Castilla | franco@eventos.test |
 
-Los datos de prueba incluyen dos charlas de `organizador@eventos.test`: una próxima con un solo lugar libre y otra que ya pasó con la asistencia sin tomar.
+El rol organizador existe pero no tiene usuarios cargados. Los disertantes se cargan desde su sección y no inician sesión.
+
+Los datos de prueba incluyen cinco eventos de Rodrigo Haro: una charla próxima con un solo lugar libre, una que ya pasó con la asistencia sin tomar, otra próxima con cupo amplio, una en borrador y un taller finalizado.
