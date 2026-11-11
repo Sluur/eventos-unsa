@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             CategoriaSeeder::class,
             LugarSeeder::class,
             DisertanteSeeder::class,
-            EventoSeeder::class,
             DemoCharlaSeeder::class,
         ]);
     }

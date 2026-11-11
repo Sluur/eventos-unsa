@@ -11,22 +11,22 @@ class DisertanteSeeder extends Seeder
     {
         $disertantes = [
             [
-                'nombre' => 'Andrea',
-                'apellido' => 'Villalba',
-                'email' => 'andrea.villalba@unsa.test',
-                'biografia' => 'Docente de la carrera de Informática.',
+                'nombre' => 'Diego',
+                'apellido' => 'Rodríguez',
+                'email' => 'diego@eventos.test',
+                'biografia' => 'Profesor de Programación en la carrera de Informática.',
             ],
             [
-                'nombre' => 'Ricardo',
-                'apellido' => 'Sosa',
-                'email' => 'ricardo.sosa@unsa.test',
-                'biografia' => 'Desarrollador backend, graduado de la facultad.',
+                'nombre' => 'Carlos',
+                'apellido' => 'Nocera',
+                'email' => 'carlos@eventos.test',
+                'biografia' => 'Profesor de Bases de Datos y desarrollador backend.',
             ],
             [
-                'nombre' => 'Paula',
-                'apellido' => 'Mendoza',
-                'email' => 'paula.mendoza@unsa.test',
-                'biografia' => 'Diseñadora web y ayudante de cátedra.',
+                'nombre' => 'Cristian',
+                'apellido' => 'Martínez',
+                'email' => 'cristian@eventos.test',
+                'biografia' => 'Profesor de Redes y administrador de sistemas.',
             ],
         ];
 

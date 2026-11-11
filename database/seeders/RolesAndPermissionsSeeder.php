@@ -56,14 +56,10 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $usuarios = [
-            ['name' => 'Laura Gómez', 'email' => 'admin@eventos.test', 'rol' => 'admin'],
-            ['name' => 'Martín Ríos', 'email' => 'organizador@eventos.test', 'rol' => 'organizador'],
-            ['name' => 'Sofía Medina', 'email' => 'alumno@eventos.test', 'rol' => 'alumno'],
-            ['name' => 'Tomás Herrera', 'email' => 'alumno2@eventos.test', 'rol' => 'alumno'],
-            ['name' => 'Valentina Cruz', 'email' => 'valentina.cruz@eventos.test', 'rol' => 'alumno'],
-            ['name' => 'Diego Paz', 'email' => 'diego.paz@eventos.test', 'rol' => 'alumno'],
-            ['name' => 'Camila Ortiz', 'email' => 'camila.ortiz@eventos.test', 'rol' => 'alumno'],
-            ['name' => 'Nicolás Vera', 'email' => 'nicolas.vera@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Rodrigo Haro', 'email' => 'rodrigo@eventos.test', 'rol' => 'admin'],
+            ['name' => 'Oriana Figueroa', 'email' => 'oriana@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Alejandro Haro', 'email' => 'alejandro@eventos.test', 'rol' => 'alumno'],
+            ['name' => 'Franco Castilla', 'email' => 'franco@eventos.test', 'rol' => 'alumno'],
         ];
 
         foreach ($usuarios as $datos) {
