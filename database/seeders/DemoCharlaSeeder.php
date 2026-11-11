@@ -14,7 +14,7 @@ class DemoCharlaSeeder extends Seeder
 {
     public function run(): void
     {
-        $organizador = User::where('email', 'rodrigo@eventos.test')->firstOrFail();
+        $organizador = User::where('email', 'organizador@eventos.test')->firstOrFail();
         $charla = Categoria::where('nombre', 'Charla')->value('id');
         $taller = Categoria::where('nombre', 'Taller')->value('id');
 

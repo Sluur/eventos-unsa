@@ -57,6 +57,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $usuarios = [
             ['name' => 'Rodrigo Haro', 'email' => 'rodrigo@eventos.test', 'rol' => 'admin'],
+            ['name' => 'Neo', 'email' => 'organizador@eventos.test', 'rol' => 'organizador'],
             ['name' => 'Oriana Figueroa', 'email' => 'oriana@eventos.test', 'rol' => 'alumno'],
             ['name' => 'Alejandro Haro', 'email' => 'alejandro@eventos.test', 'rol' => 'alumno'],
             ['name' => 'Franco Castilla', 'email' => 'franco@eventos.test', 'rol' => 'alumno'],

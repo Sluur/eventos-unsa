@@ -68,10 +68,15 @@ Todos con contraseña `password`.
 | Rol | Nombre | Email |
 |---|---|---|
 | Administrador | Rodrigo Haro | rodrigo@eventos.test |
+| Organizador | Neo | organizador@eventos.test |
 | Alumno | Oriana Figueroa | oriana@eventos.test |
 | Alumno | Alejandro Haro | alejandro@eventos.test |
 | Alumno | Franco Castilla | franco@eventos.test |
 
-El rol organizador existe pero no tiene usuarios cargados. Los disertantes se cargan desde su sección y no inician sesión.
+- **Administrador:** configura categorías y lugares y puede hacer todo.
+- **Organizador:** carga disertantes, crea charlas y toma asistencia.
+- **Alumno:** se inscribe a las charlas y cancela su inscripción.
 
-Los datos de prueba incluyen cinco eventos de Rodrigo Haro: una charla próxima con un solo lugar libre, una que ya pasó con la asistencia sin tomar, otra próxima con cupo amplio, una en borrador y un taller finalizado.
+Los disertantes se cargan desde su sección y no inician sesión.
+
+Los datos de prueba incluyen cinco eventos organizados por Neo: una charla próxima con un solo lugar libre, una que ya pasó con la asistencia sin tomar, otra próxima con cupo amplio, una en borrador y un taller finalizado.
