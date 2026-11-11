@@ -1,5 +1,5 @@
 
-import { CalendarDays, LayoutGrid, MapPin, Tags } from 'lucide-react';
+import { CalendarDays, LayoutGrid, MapPin, Mic, Tags } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { Link, usePage } from '@inertiajs/react';
 import { NavMain } from '@/components/nav-main';
@@ -28,6 +28,7 @@ const navConPermiso: { item: NavItem; permiso: string }[] = [
     { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
     { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
     { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
+    { item: { title: 'Disertantes', href: '/disertantes', icon: Mic }, permiso: 'gestionar disertantes' },
 ];
 
 export function AppSidebar() {
