@@ -6,6 +6,8 @@ use App\Http\Requests\CancelarEventoRequest;
 use App\Http\Requests\StoreEventoRequest;
 use App\Http\Requests\UpdateEventoRequest;
 use Illuminate\Http\Request;
+use App\Mail\EventoCancelado;
+use App\Mail\EventoModificado;
 use App\Models\Categoria;
 use App\Models\Disertante;
 use App\Models\Evento;
@@ -222,6 +224,7 @@ public function index(Request $request)
         }
 
         $datos = $request->validated();
+        $antes = $this->datosQueSeAvisan($evento);
 
         $evento->update([
             'titulo' => $datos['titulo'],
@@ -247,6 +250,19 @@ public function index(Request $request)
 
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
 
+        // Si cambió la fecha, la hora o el lugar, se avisa a los inscriptos qué cambió
+        $ahora = $this->datosQueSeAvisan($evento->refresh());
+        $cambios = [];
+        foreach ($antes as $campo => $valor) {
+            if ($valor !== $ahora[$campo]) {
+                $cambios[] = ['campo' => $campo, 'antes' => $valor, 'ahora' => $ahora[$campo]];
+            }
+        }
+
+        if ($cambios) {
+            $this->avisarInscriptos($evento, fn ($inscripcion) => new EventoModificado($inscripcion, $cambios));
+        }
+
         return redirect()
             ->route('eventos.show', $evento)
             ->with('success', 'Evento actualizado correctamente.');
@@ -268,7 +284,7 @@ public function index(Request $request)
             'motivo_cancelacion' => $request->validated()['motivo'],
         ]);
 
-        // Pendiente: acá se manda el mail de aviso a los inscriptos
+        $this->avisarInscriptos($evento, fn ($inscripcion) => new EventoCancelado($inscripcion));
 
         return redirect()
             ->route('eventos.show', $evento)
@@ -292,6 +308,22 @@ public function index(Request $request)
         return redirect()
             ->route('eventos.index')
             ->with('success', 'Evento eliminado correctamente.');
+    }
+
+    private function datosQueSeAvisan(Evento $evento): array
+    {
+        return [
+            'Inicio' => $evento->fecha_inicio->format('d/m/Y H:i'),
+            'Fin' => $evento->fecha_fin->format('d/m/Y H:i'),
+            'Lugar' => $evento->lugar()->value('nombre'),
+        ];
+    }
+
+    // Manda un mail a cada inscripción activa (pendientes y confirmadas)
+    private function avisarInscriptos(Evento $evento, callable $crearMail): void
+    {
+        $evento->inscripciones()->activas()->with('user')->get()
+            ->each(fn ($inscripcion) => $inscripcion->avisar($crearMail($inscripcion)));
     }
 
     private function categoriasParaFormulario()

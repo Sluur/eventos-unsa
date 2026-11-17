@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Mail\EventoCancelado;
+use App\Mail\EventoModificado;
 use App\Mail\InscripcionAceptada;
 use App\Mail\InscripcionConfirmada;
 use App\Mail\InscripcionRechazada;
@@ -127,6 +129,60 @@ class MailsTest extends TestCase
 
         // La segunda corrida no repite
         $this->artisan('eventos:enviar-recordatorios')->expectsOutput('Recordatorios enviados: 0');
+    }
+
+    private function datosEdicion(Evento $evento, array $cambios = []): array
+    {
+        return array_merge([
+            'titulo' => $evento->titulo,
+            'descripcion' => $evento->descripcion,
+            'fecha_inicio' => $evento->fecha_inicio->format('Y-m-d\TH:i'),
+            'fecha_fin' => $evento->fecha_fin->format('Y-m-d\TH:i'),
+            'categoria_id' => $evento->categoria_id,
+            'lugar_id' => $evento->lugar_id,
+            'cupo' => $evento->cupo,
+            'estado' => $evento->estado,
+        ], $cambios);
+    }
+
+    public function test_b5_cancelado_avisa_con_el_motivo()
+    {
+        $git = $this->evento('Git y GitHub para trabajos en grupo');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->patch("/eventos/{$git->id}/cancelar", ['motivo' => 'Se corta la luz en todo el edificio.']);
+
+        // franco y los dos invitados
+        Mail::assertQueued(EventoCancelado::class, 3);
+        Mail::assertQueued(EventoCancelado::class, fn ($mail) => $mail->hasTo('lucia.gomez@example.com'));
+
+        $inscripcion = $git->inscripciones()->whereNull('user_id')->first();
+        (new EventoCancelado($inscripcion))->assertSeeInHtml('Se corta la luz en todo el edificio.');
+    }
+
+    public function test_b5_modificado_avisa_que_cambio()
+    {
+        $git = $this->evento('Git y GitHub para trabajos en grupo');
+        $magna = Lugar::where('nombre', 'Aula Magna')->value('id');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->put("/eventos/{$git->id}", $this->datosEdicion($git, ['lugar_id' => $magna]))
+            ->assertSessionHasNoErrors();
+
+        Mail::assertQueued(EventoModificado::class, 3);
+        Mail::assertQueued(EventoModificado::class, fn ($mail) => $mail->cambios === [
+            ['campo' => 'Lugar', 'antes' => 'Aula 101', 'ahora' => 'Aula Magna'],
+        ]);
+    }
+
+    public function test_b5_cambiar_solo_el_titulo_no_avisa()
+    {
+        $git = $this->evento('Git y GitHub para trabajos en grupo');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->put("/eventos/{$git->id}", $this->datosEdicion($git, ['titulo' => 'Git en equipo']));
+
+        Mail::assertNotQueued(EventoModificado::class);
     }
 
     public function test_el_mail_lleva_los_datos_del_evento()
