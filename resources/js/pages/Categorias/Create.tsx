@@ -1,8 +1,11 @@
 import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import FormField from '@/components/form-field';
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -27,47 +30,42 @@ export default function Create() {
         <>
             <Head title="Nueva categoría" />
 
-            <div className="p-4 md:p-6">
-                <div className="max-w-xl rounded-xl border p-6">
-                    <h1 className="mb-6 text-2xl font-semibold">Nueva categoría</h1>
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 md:py-10">
+                <PageHeader titulo="Nueva categoría" />
 
-                    <form onSubmit={submit} className="flex flex-col gap-5">
-                        <div className="grid gap-2">
-                            <Label htmlFor="nombre">Nombre</Label>
-                            <Input
-                                id="nombre"
-                                value={data.nombre}
-                                onChange={(e) => setData('nombre', e.target.value)}
-                            />
-                            {errors.nombre && (
-                                <p className="text-sm text-red-600">{errors.nombre}</p>
-                            )}
-                        </div>
+                <Card>
+                    <CardContent>
+                        <form onSubmit={submit} className="flex flex-col gap-5">
+                            <FormField label="Nombre" htmlFor="nombre" error={errors.nombre}>
+                                <Input
+                                    id="nombre"
+                                    value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)}
+                                    aria-invalid={!!errors.nombre}
+                                />
+                            </FormField>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="descripcion">Descripción</Label>
-                            <textarea
-                                id="descripcion"
-                                rows={4}
-                                value={data.descripcion}
-                                onChange={(e) => setData('descripcion', e.target.value)}
-                                className="rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                            />
-                            {errors.descripcion && (
-                                <p className="text-sm text-red-600">{errors.descripcion}</p>
-                            )}
-                        </div>
+                            <FormField label="Descripción" htmlFor="descripcion" error={errors.descripcion}>
+                                <Textarea
+                                    id="descripcion"
+                                    rows={4}
+                                    value={data.descripcion}
+                                    onChange={(e) => setData('descripcion', e.target.value)}
+                                    aria-invalid={!!errors.descripcion}
+                                />
+                            </FormField>
 
-                        <div className="flex gap-2">
-                            <Button type="submit" disabled={processing}>
-                                {processing ? 'Guardando...' : 'Guardar'}
-                            </Button>
-                            <Button variant="outline" asChild>
-                                <Link href="/categorias">Cancelar</Link>
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                            <div className="flex gap-2">
+                                <Button type="submit" disabled={processing}>
+                                    {processing ? 'Guardando...' : 'Guardar'}
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href="/categorias">Cancelar</Link>
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </>
     );

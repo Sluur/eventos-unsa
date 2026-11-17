@@ -1,7 +1,12 @@
 import { Head, Link, setLayoutProps } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Mic, Pencil, Plus, Trash2 } from 'lucide-react';
 import ConfirmDelete from '@/components/confirm-delete';
+import EmptyState from '@/components/empty-state';
+import PageHeader from '@/components/page-header';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -16,9 +21,7 @@ interface Props {
     disertantes: Disertante[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Disertantes', href: '/disertantes' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Disertantes', href: '/disertantes' }];
 
 export default function Index({ disertantes }: Props) {
     setLayoutProps({ breadcrumbs });
@@ -27,78 +30,68 @@ export default function Index({ disertantes }: Props) {
         <>
             <Head title="Disertantes" />
 
-            <div className="flex flex-col gap-4 p-4 md:p-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold">Disertantes</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Personas que dan las charlas y talleres.
-                        </p>
-                    </div>
-
+            <div className="flex flex-col gap-6 px-4 py-6 md:py-10">
+                <PageHeader titulo="Disertantes" descripcion="Personas que dan las charlas y talleres.">
                     <Button asChild>
                         <Link href="/disertantes/create">
-                            <Plus className="size-4" />
+                            <Plus />
                             Nuevo disertante
                         </Link>
                     </Button>
-                </div>
+                </PageHeader>
 
-                <div className="overflow-x-auto rounded-xl border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-muted/50 text-left">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">Nombre</th>
-                                <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                    Email
-                                </th>
-                                <th className="hidden px-4 py-3 font-medium md:table-cell">
-                                    Eventos
-                                </th>
-                                <th className="px-4 py-3 text-right font-medium">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {disertantes.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                                        No hay disertantes cargados.
-                                    </td>
-                                </tr>
-                            )}
-
-                            {disertantes.map((disertante) => (
-                                <tr key={disertante.id} className="border-t hover:bg-muted/30">
-                                    <td className="px-4 py-3 font-medium">
-                                        {disertante.apellido}, {disertante.nombre}
-                                    </td>
-                                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                                        {disertante.email}
-                                    </td>
-                                    <td className="hidden px-4 py-3 md:table-cell">
-                                        {disertante.eventos_count}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex justify-end gap-2">
-                                            <Button variant="outline" size="sm" asChild>
-                                                <Link href={`/disertantes/${disertante.id}/edit`}>
-                                                    <Pencil className="size-4" />
-                                                    <span className="hidden sm:inline">Editar</span>
-                                                </Link>
-                                            </Button>
-                                            <ConfirmDelete url={`/disertantes/${disertante.id}`} titulo="¿Eliminar el disertante?">
-                                                <Button variant="destructive" size="sm">
-                                                    <Trash2 className="size-4" />
-                                                    <span className="hidden sm:inline">Eliminar</span>
+                <Card className="py-0">
+                    {disertantes.length === 0 ? (
+                        <EmptyState icono={Mic} titulo="No hay disertantes cargados" />
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="pl-6">Nombre</TableHead>
+                                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                                    <TableHead className="hidden md:table-cell">Eventos</TableHead>
+                                    <TableHead className="pr-6 text-right">Acciones</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {disertantes.map((disertante) => (
+                                    <TableRow key={disertante.id}>
+                                        <TableCell className="pl-6 font-medium">
+                                            {disertante.apellido}, {disertante.nombre}
+                                        </TableCell>
+                                        <TableCell className="hidden text-muted-foreground md:table-cell">
+                                            {disertante.email}
+                                        </TableCell>
+                                        <TableCell className="hidden md:table-cell">
+                                            <Badge variant="secondary" className="rounded-full">
+                                                {disertante.eventos_count}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="pr-6">
+                                            <div className="flex justify-end gap-1">
+                                                <Button variant="ghost" size="sm" asChild>
+                                                    <Link href={`/disertantes/${disertante.id}/edit`}>
+                                                        <Pencil />
+                                                        <span className="hidden sm:inline">Editar</span>
+                                                    </Link>
                                                 </Button>
-                                            </ConfirmDelete>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                                <ConfirmDelete
+                                                    url={`/disertantes/${disertante.id}`}
+                                                    titulo="¿Eliminar el disertante?"
+                                                >
+                                                    <Button variant="ghost" size="sm" className="text-destructive">
+                                                        <Trash2 />
+                                                        <span className="hidden sm:inline">Eliminar</span>
+                                                    </Button>
+                                                </ConfirmDelete>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
+                </Card>
             </div>
         </>
     );

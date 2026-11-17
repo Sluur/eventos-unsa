@@ -1,7 +1,13 @@
 import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
+import { Users } from 'lucide-react';
 import type { FormEvent } from 'react';
+import EmptyState from '@/components/empty-state';
+import InputError from '@/components/input-error';
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -51,6 +57,12 @@ export default function Asistencia({ evento, inscriptos }: Props) {
         );
     };
 
+    const todosMarcados = inscriptos.length > 0 && data.asistentes.length === inscriptos.length;
+
+    const marcarTodos = (valor: boolean) => {
+        setData('asistentes', valor ? inscriptos.map((i) => i.id) : []);
+    };
+
     const submit = (e: FormEvent) => {
         e.preventDefault();
         put(`/eventos/${evento.id}/asistencia`);
@@ -62,56 +74,63 @@ export default function Asistencia({ evento, inscriptos }: Props) {
         <>
             <Head title={`Asistencia - ${evento.titulo}`} />
 
-            <div className="flex flex-col gap-4 p-4 md:p-6">
-                <div>
-                    <h1 className="text-2xl font-semibold">Tomar asistencia</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {evento.titulo} · {formatearFecha(evento.fecha_inicio)}
-                    </p>
-                </div>
+            <div className="flex flex-col gap-6 px-4 py-6 md:py-10">
+                <PageHeader
+                    titulo="Tomar asistencia"
+                    descripcion={`${evento.titulo} · ${formatearFecha(evento.fecha_inicio)}`}
+                />
 
                 <form onSubmit={submit} className="flex flex-col gap-4">
-                    <div className="overflow-x-auto rounded-xl border">
-                        <table className="w-full text-sm">
-                            <thead className="bg-muted/50 text-left">
-                                <tr>
-                                    <th className="w-16 px-4 py-3 font-medium">Asistió</th>
-                                    <th className="px-4 py-3 font-medium">Nombre</th>
-                                    <th className="hidden px-4 py-3 font-medium md:table-cell">Email</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {inscriptos.length === 0 && (
-                                    <tr>
-                                        <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
-                                            No hay inscriptos en este evento.
-                                        </td>
-                                    </tr>
-                                )}
-                                {inscriptos.map((inscripcion) => (
-                                    <tr key={inscripcion.id} className="border-t hover:bg-muted/30">
-                                        <td className="px-4 py-3">
+                    <Card className="py-0">
+                        {inscriptos.length === 0 ? (
+                            <EmptyState icono={Users} titulo="No hay inscriptos en este evento" />
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-12 pl-6">
                                             <Checkbox
-                                                id={`asistio-${inscripcion.id}`}
-                                                checked={data.asistentes.includes(inscripcion.id)}
-                                                onCheckedChange={(valor) => marcar(inscripcion.id, valor === true)}
+                                                checked={todosMarcados}
+                                                onCheckedChange={(v) => marcarTodos(v === true)}
+                                                aria-label="Marcar todos"
                                             />
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <label htmlFor={`asistio-${inscripcion.id}`} className="cursor-pointer">
-                                                {inscripcion.user.name}
-                                            </label>
-                                        </td>
-                                        <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                                            {inscripcion.user.email}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                        </TableHead>
+                                        <TableHead>Nombre</TableHead>
+                                        <TableHead className="hidden md:table-cell">Email</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {inscriptos.map((inscripcion) => (
+                                        <TableRow
+                                            key={inscripcion.id}
+                                            data-state={data.asistentes.includes(inscripcion.id) ? 'selected' : undefined}
+                                        >
+                                            <TableCell className="pl-6">
+                                                <Checkbox
+                                                    id={`asistio-${inscripcion.id}`}
+                                                    checked={data.asistentes.includes(inscripcion.id)}
+                                                    onCheckedChange={(v) => marcar(inscripcion.id, v === true)}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <label
+                                                    htmlFor={`asistio-${inscripcion.id}`}
+                                                    className="cursor-pointer font-medium"
+                                                >
+                                                    {inscripcion.user.name}
+                                                </label>
+                                            </TableCell>
+                                            <TableCell className="hidden text-muted-foreground md:table-cell">
+                                                {inscripcion.user.email}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </Card>
 
-                    {errors.asistentes && <p className="text-sm text-red-600">{errors.asistentes}</p>}
+                    <InputError message={errors.asistentes} />
 
                     <div className="flex flex-wrap items-center gap-2">
                         <Button type="submit" disabled={processing || inscriptos.length === 0}>
@@ -120,7 +139,7 @@ export default function Asistencia({ evento, inscriptos }: Props) {
                         <Button variant="outline" asChild>
                             <Link href={`/eventos/${evento.id}`}>Cancelar</Link>
                         </Button>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground sm:ml-auto">
                             {data.asistentes.length} de {inscriptos.length} presentes
                         </span>
                     </div>

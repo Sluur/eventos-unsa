@@ -1,8 +1,11 @@
 import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import FormField from '@/components/form-field';
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -29,72 +32,63 @@ export default function Create() {
         <>
             <Head title="Nuevo disertante" />
 
-            <div className="p-4 md:p-6">
-                <div className="max-w-xl rounded-xl border p-6">
-                    <h1 className="mb-6 text-2xl font-semibold">Nuevo disertante</h1>
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-6 md:py-10">
+                <PageHeader titulo="Nuevo disertante" />
 
-                    <form onSubmit={submit} className="flex flex-col gap-5">
-                        <div className="grid gap-2">
-                            <Label htmlFor="nombre">Nombre</Label>
-                            <Input
-                                id="nombre"
-                                value={data.nombre}
-                                onChange={(e) => setData('nombre', e.target.value)}
-                            />
-                            {errors.nombre && (
-                                <p className="text-sm text-red-600">{errors.nombre}</p>
-                            )}
-                        </div>
+                <Card>
+                    <CardContent>
+                        <form onSubmit={submit} className="flex flex-col gap-5">
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <FormField label="Nombre" htmlFor="nombre" error={errors.nombre}>
+                                    <Input
+                                        id="nombre"
+                                        value={data.nombre}
+                                        onChange={(e) => setData('nombre', e.target.value)}
+                                        aria-invalid={!!errors.nombre}
+                                    />
+                                </FormField>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="apellido">Apellido</Label>
-                            <Input
-                                id="apellido"
-                                value={data.apellido}
-                                onChange={(e) => setData('apellido', e.target.value)}
-                            />
-                            {errors.apellido && (
-                                <p className="text-sm text-red-600">{errors.apellido}</p>
-                            )}
-                        </div>
+                                <FormField label="Apellido" htmlFor="apellido" error={errors.apellido}>
+                                    <Input
+                                        id="apellido"
+                                        value={data.apellido}
+                                        onChange={(e) => setData('apellido', e.target.value)}
+                                        aria-invalid={!!errors.apellido}
+                                    />
+                                </FormField>
+                            </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-red-600">{errors.email}</p>
-                            )}
-                        </div>
+                            <FormField label="Email" htmlFor="email" error={errors.email}>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={data.email}
+                                    onChange={(e) => setData('email', e.target.value)}
+                                    aria-invalid={!!errors.email}
+                                />
+                            </FormField>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="biografia">Biografía</Label>
-                            <textarea
-                                id="biografia"
-                                rows={4}
-                                value={data.biografia}
-                                onChange={(e) => setData('biografia', e.target.value)}
-                                className="rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                            />
-                            {errors.biografia && (
-                                <p className="text-sm text-red-600">{errors.biografia}</p>
-                            )}
-                        </div>
+                            <FormField label="Biografía" htmlFor="biografia" error={errors.biografia}>
+                                <Textarea
+                                    id="biografia"
+                                    rows={4}
+                                    value={data.biografia}
+                                    onChange={(e) => setData('biografia', e.target.value)}
+                                    aria-invalid={!!errors.biografia}
+                                />
+                            </FormField>
 
-                        <div className="flex gap-2">
-                            <Button type="submit" disabled={processing}>
-                                {processing ? 'Guardando...' : 'Guardar'}
-                            </Button>
-                            <Button variant="outline" asChild>
-                                <Link href="/disertantes">Cancelar</Link>
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                            <div className="flex gap-2">
+                                <Button type="submit" disabled={processing}>
+                                    {processing ? 'Guardando...' : 'Guardar'}
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href="/disertantes">Cancelar</Link>
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </>
     );
