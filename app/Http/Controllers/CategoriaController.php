@@ -5,43 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCategoriaRequest;
 use App\Http\Requests\UpdateCategoriaRequest;
 use App\Models\Categoria;
-use Inertia\Inertia;
-
 use Illuminate\Routing\Attributes\Controllers\Middleware;
-use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CategoriaController extends Controller
 {
     #[Middleware('permission:gestionar categorias')]
     public function index()
-{
-    $categorias = Categoria::orderBy('nombre')->get();
+    {
+        $categorias = Categoria::orderBy('nombre')->get();
 
-    return Inertia::render('Categorias/Index', [
-        'categorias' => $categorias,
-    ]);
-}
-
-#[Middleware('permission:gestionar categorias')]
-public function create()
-{
-    return Inertia::render('Categorias/Create');
-}
-
-#[Middleware('permission:gestionar categorias')]
-public function store(StoreCategoriaRequest $request)
-{
-    Categoria::create($request->validated());
-
-    return redirect()
-        ->route('categorias.index')
-        ->with('success', 'Categoría creada correctamente.');
-}
+        return Inertia::render('Categorias/Index', [
+            'categorias' => $categorias,
+        ]);
+    }
 
     #[Middleware('permission:gestionar categorias')]
-    public function show(string $id)
+    public function create()
     {
-        //
+        return Inertia::render('Categorias/Create');
+    }
+
+    #[Middleware('permission:gestionar categorias')]
+    public function store(StoreCategoriaRequest $request)
+    {
+        Categoria::create($request->validated());
+
+        return redirect()
+            ->route('categorias.index')
+            ->with('success', 'Categoría creada correctamente.');
     }
 
     #[Middleware('permission:gestionar categorias')]
@@ -62,19 +54,19 @@ public function store(StoreCategoriaRequest $request)
             ->with('success', 'Categoría actualizada correctamente.');
     }
 
-#[Middleware('permission:gestionar categorias')]
-public function destroy(Categoria $categoria)
-{
-    if ($categoria->eventos()->exists()) {
+    #[Middleware('permission:gestionar categorias')]
+    public function destroy(Categoria $categoria)
+    {
+        if ($categoria->eventos()->exists()) {
+            return redirect()
+                ->route('categorias.index')
+                ->with('error', 'No se puede eliminar: hay eventos con esta categoría.');
+        }
+
+        $categoria->delete();
+
         return redirect()
             ->route('categorias.index')
-            ->with('error', 'No se puede eliminar: hay eventos con esta categoría.');
+            ->with('success', 'Categoría eliminada correctamente.');
     }
-
-    $categoria->delete();
-
-    return redirect()
-        ->route('categorias.index')
-        ->with('success', 'Categoría eliminada correctamente.');
-}
 }

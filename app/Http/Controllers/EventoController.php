@@ -17,68 +17,68 @@ use Inertia\Inertia;
 
 class EventoController extends Controller
 {
-#[Middleware('permission:listar eventos')]
-public function index(Request $request)
-{
-    $buscar = trim($request->input('buscar', ''));
-    $categoria = $request->input('categoria', '');
-    $estado = $request->input('estado', '');
-    $orden = $request->input('orden', 'fecha_inicio');
-    $direccion = $request->input('direccion', 'asc');
-    $porPagina = (int) $request->input('por_pagina', 10);
+    #[Middleware('permission:listar eventos')]
+    public function index(Request $request)
+    {
+        $buscar = trim($request->input('buscar', ''));
+        $categoria = $request->input('categoria', '');
+        $estado = $request->input('estado', '');
+        $orden = $request->input('orden', 'fecha_inicio');
+        $direccion = $request->input('direccion', 'asc');
+        $porPagina = (int) $request->input('por_pagina', 10);
 
-    // cualquiera puede tocar la url, por eso valido contra una lista
-    if (!in_array($orden, ['titulo', 'fecha_inicio', 'cupo'], true)) {
-        $orden = 'fecha_inicio';
-    }
-    if (!in_array($direccion, ['asc', 'desc'], true)) {
-        $direccion = 'asc';
-    }
-    if (!in_array($porPagina, [5, 10, 20], true)) {
-        $porPagina = 10;
-    }
+        // cualquiera puede tocar la url, por eso valido contra una lista
+        if (!in_array($orden, ['titulo', 'fecha_inicio', 'cupo'], true)) {
+            $orden = 'fecha_inicio';
+        }
+        if (!in_array($direccion, ['asc', 'desc'], true)) {
+            $direccion = 'asc';
+        }
+        if (!in_array($porPagina, [5, 10, 20], true)) {
+            $porPagina = 10;
+        }
 
-    $eventos = Evento::with(['categoria', 'lugar'])
-        ->withCount(['inscripciones as inscriptos_count' => function ($query) {
-            $query->activas();
-        }])
-        ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
-            $query->where(function ($query) use ($request) {
-                $query->whereIn('estado', ['publicado', 'finalizado'])
-                    ->orWhere(function ($query) use ($request) {
-                        $query->where('estado', 'cancelado')
-                            ->whereHas('inscripciones', function ($query) use ($request) {
-                                $query->where('user_id', $request->user()->id)->activas();
-                            });
-                    });
-            });
-        })
-        ->when($buscar !== '', function ($query) use ($buscar) {
-            $query->where('titulo', 'like', "%{$buscar}%");
-        })
-        ->when($request->filled('categoria'), function ($query) use ($categoria) {
-            $query->where('categoria_id', $categoria);
-        })
-        ->when($request->filled('estado'), function ($query) use ($estado) {
-            $query->where('estado', $estado);
-        })
-        ->orderBy($orden, $direccion)
-        ->paginate($porPagina)
-        ->withQueryString();
+        $eventos = Evento::with(['categoria', 'lugar'])
+            ->withCount(['inscripciones as inscriptos_count' => function ($query) {
+                $query->activas();
+            }])
+            ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
+                $query->where(function ($query) use ($request) {
+                    $query->whereIn('estado', ['publicado', 'finalizado'])
+                        ->orWhere(function ($query) use ($request) {
+                            $query->where('estado', 'cancelado')
+                                ->whereHas('inscripciones', function ($query) use ($request) {
+                                    $query->where('user_id', $request->user()->id)->activas();
+                                });
+                        });
+                });
+            })
+            ->when($buscar !== '', function ($query) use ($buscar) {
+                $query->where('titulo', 'like', "%{$buscar}%");
+            })
+            ->when($request->filled('categoria'), function ($query) use ($categoria) {
+                $query->where('categoria_id', $categoria);
+            })
+            ->when($request->filled('estado'), function ($query) use ($estado) {
+                $query->where('estado', $estado);
+            })
+            ->orderBy($orden, $direccion)
+            ->paginate($porPagina)
+            ->withQueryString();
 
-    return Inertia::render('Eventos/Index', [
-        'eventos' => $eventos,
-        'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
-        'filtros' => [
-            'buscar' => $buscar,
-            'categoria' => $categoria,
-            'estado' => $estado,
-            'orden' => $orden,
-            'direccion' => $direccion,
-            'por_pagina' => $porPagina,
-        ],
-    ]);
-}
+        return Inertia::render('Eventos/Index', [
+            'eventos' => $eventos,
+            'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
+            'filtros' => [
+                'buscar' => $buscar,
+                'categoria' => $categoria,
+                'estado' => $estado,
+                'orden' => $orden,
+                'direccion' => $direccion,
+                'por_pagina' => $porPagina,
+            ],
+        ]);
+    }
 
     #[Middleware('permission:crear eventos')]
     public function create(Request $request)

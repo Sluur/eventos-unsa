@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Menu } from 'lucide-react';
+import { CalendarDays, House, MapPin, Menu, Mic, Tags } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,7 +19,6 @@ import {
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
-import { useMenu } from '@/hooks/use-menu';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
@@ -27,11 +26,21 @@ type Props = {
     breadcrumbs?: BreadcrumbItem[];
 };
 
+const menu: { item: NavItem; permiso?: string }[] = [
+    { item: { title: 'Inicio', href: '/', icon: House } },
+    { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
+    { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
+    { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
+    { item: { title: 'Disertantes', href: '/disertantes', icon: Mic }, permiso: 'gestionar disertantes' },
+];
+
 export function AppHeader({ breadcrumbs = [] }: Props) {
-    const { auth } = usePage().props;
+    const page = usePage();
+    const { auth } = page.props;
+    const permisos = (page.props as { permisos?: string[] }).permisos ?? [];
     const getInitials = useInitials();
     const { isCurrentOrParentUrl } = useCurrentUrl();
-    const items = useMenu();
+    const items = menu.filter((m) => !m.permiso || permisos.includes(m.permiso)).map((m) => m.item);
 
     // inicio es la cartelera, no se marca como activo
     const estaActivo = (href: NavItem['href']) => href !== '/' && isCurrentOrParentUrl(href);

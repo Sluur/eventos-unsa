@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');
     Route::get('eventos/{evento}/asistencia', [AsistenciaController::class, 'edit'])->name('eventos.asistencia.edit');
     Route::put('eventos/{evento}/asistencia', [AsistenciaController::class, 'update'])->name('eventos.asistencia.update');
-    Route::resource('categorias', CategoriaController::class);
+    Route::resource('categorias', CategoriaController::class)->except(['show']);
     Route::resource('lugares', LugarController::class)->parameters(['lugares' => 'lugar'])->except(['show']);
     Route::resource('disertantes', DisertanteController::class)->except(['show']);
 });
