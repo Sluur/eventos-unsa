@@ -1,7 +1,6 @@
 import { diaDelMes, mesCorto } from '@/lib/fechas';
 import { cn } from '@/lib/utils';
 
-// Fecha como hoja de almanaque: el mes arriba en una franja y el día grande abajo
 export default function FechaBloque({ fecha, grande = false }: { fecha: string; grande?: boolean }) {
     return (
         <div

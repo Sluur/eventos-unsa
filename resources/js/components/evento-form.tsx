@@ -51,7 +51,6 @@ interface Props {
     acciones: ReactNode;
 }
 
-// Formulario compartido entre alta y edición de eventos
 export default function EventoForm({
     form,
     categorias,
@@ -66,7 +65,6 @@ export default function EventoForm({
     const [preview, setPreview] = useState<string | null>(null);
     const [inputKey, setInputKey] = useState(0);
 
-    // Vista previa de la imagen elegida
     useEffect(() => {
         if (!data.imagen) {
             setPreview(null);

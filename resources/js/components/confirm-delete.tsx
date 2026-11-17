@@ -21,7 +21,6 @@ interface Props {
     children: ReactNode;
 }
 
-// Pide confirmación antes de mandar el DELETE
 export default function ConfirmDelete({
     url,
     titulo,

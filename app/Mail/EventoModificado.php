@@ -7,9 +7,6 @@ use Illuminate\Mail\Mailables\Envelope;
 
 class EventoModificado extends MailDeInscripcion
 {
-    /**
-     * @param  array<int, array{campo: string, antes: string, ahora: string}>  $cambios
-     */
     public function __construct(Inscripcion $inscripcion, public array $cambios)
     {
         parent::__construct($inscripcion);

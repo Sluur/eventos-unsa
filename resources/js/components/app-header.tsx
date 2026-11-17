@@ -33,14 +33,13 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const items = useMenu();
 
-    // "Inicio" es la cartelera, fuera del panel: nunca queda marcado
+    // inicio es la cartelera, no se marca como activo
     const estaActivo = (href: NavItem['href']) => href !== '/' && isCurrentOrParentUrl(href);
 
     return (
         <>
             <header className="sticky top-0 z-30 border-b bg-card">
                 <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4">
-                    {/* Menú en celular */}
                     <div className="md:hidden">
                         <Sheet>
                             <SheetTrigger asChild>

@@ -8,7 +8,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Queue\SerializesModels;
 
-// Base de los mails que reciben los inscriptos: saludo, datos del evento y botón "Ver evento"
 abstract class MailDeInscripcion extends Mailable
 {
     use Queueable, SerializesModels;
@@ -19,7 +18,6 @@ abstract class MailDeInscripcion extends Mailable
 
     abstract protected function vista(): string;
 
-    // Datos propios de cada mail
     protected function datos(): array
     {
         return [];
@@ -41,7 +39,6 @@ abstract class MailDeInscripcion extends Mailable
         );
     }
 
-    // El registrado va al panel; el invitado a la cartelera, si el evento sigue publicado
     protected function urlEvento(): ?string
     {
         $evento = $this->inscripcion->evento;

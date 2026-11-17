@@ -11,7 +11,6 @@ interface Props {
     documentacion: string | null;
 }
 
-// Inscripción sin cuenta para eventos abiertos al público
 export default function InscripcionInvitadoForm({ eventoId, documentacion }: Props) {
     const flash = (usePage().props as { flash?: { success?: string | null } }).flash;
     const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm<{

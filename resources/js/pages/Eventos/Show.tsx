@@ -154,7 +154,6 @@ export default function Show({
                     className="h-32 w-full rounded-lg border sm:h-56"
                 />
 
-                {/* Encabezado */}
                 <div className="flex items-start gap-4 sm:gap-6">
                     <FechaBloque fecha={evento.fecha_inicio} grande />
                     <div className="flex min-w-0 flex-col gap-2">
@@ -219,7 +218,6 @@ export default function Show({
                     </Alert>
                 )}
 
-                {/* Barra de cupo y acciones */}
                 <Card className="py-4">
                     <CardContent className="flex flex-col gap-4 px-5 sm:flex-row sm:items-center">
                         <div className="flex flex-1 flex-col gap-2">

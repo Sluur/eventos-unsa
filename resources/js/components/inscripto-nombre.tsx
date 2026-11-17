@@ -12,7 +12,6 @@ export const nombreInscripto = (i: InscriptoPersona) =>
 
 export const emailInscripto = (i: InscriptoPersona) => i.user?.email ?? i.email_invitado ?? '';
 
-// Nombre del inscripto, con la marca "Invitado" si no tiene cuenta
 export default function InscriptoNombre({ inscripto, conEmail = false }: { inscripto: InscriptoPersona; conEmail?: boolean }) {
     return (
         <div className="flex flex-col">

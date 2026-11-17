@@ -32,7 +32,6 @@ class MensajeEventoController extends Controller
             $inscripcion->avisar(new MensajeInscriptos($inscripcion, $datos['asunto'], $datos['cuerpo']));
         }
 
-        // Queda el historial de lo que se mandó
         MensajeEvento::create([
             ...$datos,
             'evento_id' => $evento->id,

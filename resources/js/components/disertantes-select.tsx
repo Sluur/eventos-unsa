@@ -29,7 +29,6 @@ interface Props {
 
 const nombreCompleto = (d: DisertanteOpcion) => `${d.apellido}, ${d.nombre}`;
 
-// Selector múltiple con búsqueda mientras se escribe
 export default function DisertantesSelect({ id, disertantes, value, onChange, invalido }: Props) {
     const [abierto, setAbierto] = useState(false);
 

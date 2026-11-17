@@ -25,7 +25,6 @@ interface Props {
 export default function CategoriaForm({ form, onSubmit, acciones }: Props) {
     const { data, setData, errors } = form;
 
-    // Pedir documentación implica que alguien la revise
     const cambiarDocumentacion = (valor: boolean) => {
         setData({
             ...data,

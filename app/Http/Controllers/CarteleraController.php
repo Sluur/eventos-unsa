@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
-// Parte pública: no hace falta iniciar sesión
 class CarteleraController extends Controller
 {
     public function index(Request $request)
@@ -69,7 +68,6 @@ class CarteleraController extends Controller
         ]);
     }
 
-    // Inscripción sin cuenta; el request ya verifica que el evento esté abierto al público
     public function inscribir(StoreInscripcionInvitadoRequest $request, Evento $evento)
     {
         $datos = $request->validated();
@@ -77,7 +75,6 @@ class CarteleraController extends Controller
         $resultado = DB::transaction(function () use ($evento, $datos) {
             $evento = Evento::whereKey($evento->id)->lockForUpdate()->first();
 
-            // Si la misma persona ya se había anotado (y canceló o la rechazaron) reusamos esa fila
             $previa = Inscripcion::where('evento_id', $evento->id)
                 ->whereNull('user_id')
                 ->where(function ($query) use ($datos) {
@@ -137,7 +134,6 @@ class CarteleraController extends Controller
         return back()->with('success', $mensaje);
     }
 
-    // Pasa por el login (si hace falta) y vuelve al evento dentro del panel
     public function ingresar(Evento $evento)
     {
         return redirect()->route('eventos.show', $evento);

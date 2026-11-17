@@ -5,7 +5,6 @@ namespace App\Mail;
 use App\Models\Inscripcion;
 use Illuminate\Mail\Mailables\Envelope;
 
-// Mensaje que escribe el organizador a los inscriptos del evento
 class MensajeInscriptos extends MailDeInscripcion
 {
     public function __construct(Inscripcion $inscripcion, public string $asunto, public string $cuerpo)

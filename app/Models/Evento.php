@@ -44,7 +44,6 @@ class Evento extends Model
         return Attribute::get(fn () => $this->imagen ? Storage::disk('public')->url($this->imagen) : null);
     }
 
-    // Borra el archivo de la imagen del disco, si tiene
     public function borrarImagen(): void
     {
         if ($this->imagen) {
@@ -83,13 +82,11 @@ class Evento extends Model
         return $this->hasMany(Inscripcion::class);
     }
 
-    // Lugares tomados: pendientes + confirmadas
     public function lugaresOcupados(): int
     {
         return $this->inscripciones()->activas()->count();
     }
 
-    // Con aprobación la inscripción arranca pendiente
     public function estadoInicialInscripcion(): string
     {
         return $this->categoria->requiere_aprobacion ? 'pendiente' : 'confirmada';
@@ -100,7 +97,6 @@ class Evento extends Model
         return $this->fecha_inicio->isPast();
     }
 
-    // Devuelve por qué no se puede inscribir nadie más, o null si se puede
     public function motivoSinInscripcion(int $ocupados): ?string
     {
         if ($this->estado === 'cancelado') {
@@ -126,19 +122,16 @@ class Evento extends Model
         return null;
     }
 
-    // Pasó la fecha límite de inscripción
     public function inscripcionCerrada(): bool
     {
         return $this->inscripcion_hasta !== null && $this->inscripcion_hasta->isPast();
     }
 
-    // Finalizados y cancelados ya no se tocan
     public function sePuedeEditar(): bool
     {
         return !in_array($this->estado, ['finalizado', 'cancelado'], true);
     }
 
-    // Solo el organizador del evento o un admin pueden gestionarlo
     public function puedeGestionar(User $usuario): bool
     {
         return $this->organizador_id === $usuario->id || $usuario->hasRole('admin');

@@ -21,7 +21,7 @@ class InscripcionController extends Controller
         $archivo = $request->validated()['archivo'] ?? null;
 
         $resultado = DB::transaction(function () use ($evento, $usuario, $archivo) {
-            // Bloqueamos el evento para que dos inscripciones simultáneas no pasen el cupo
+            // lock para que dos inscripciones al mismo tiempo no pasen el cupo
             $evento = Evento::whereKey($evento->id)->lockForUpdate()->first();
 
             $inscripcion = Inscripcion::where('evento_id', $evento->id)
@@ -45,7 +45,6 @@ class InscripcionController extends Controller
                 'revisado_at' => null,
             ];
 
-            // La documentación queda en el disco privado, en una carpeta por evento
             if ($archivo) {
                 if ($inscripcion?->archivo) {
                     Storage::disk('local')->delete($inscripcion->archivo);
@@ -53,7 +52,6 @@ class InscripcionController extends Controller
                 $datos['archivo'] = $archivo->store("inscripciones/evento-{$evento->id}", 'local');
             }
 
-            // Si había cancelado o lo rechazaron, reactivamos la misma inscripción
             if ($inscripcion) {
                 $inscripcion->update($datos);
             } else {
@@ -84,7 +82,6 @@ class InscripcionController extends Controller
         return redirect()->route('eventos.show', $evento)->with('success', $mensaje);
     }
 
-    // Solo el dueño de la inscripción, el organizador del evento o un admin
     public function archivo(Request $request, Inscripcion $inscripcion)
     {
         $usuario = $request->user();

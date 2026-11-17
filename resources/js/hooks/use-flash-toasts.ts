@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 
 type Flash = { success?: string | null; error?: string | null };
 
-// Muestra los mensajes flash del backend como toasts
 export function useFlashToasts(): void {
     useEffect(() => {
         return router.on('success', (event) => {

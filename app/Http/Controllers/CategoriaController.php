@@ -12,9 +12,6 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     #[Middleware('permission:gestionar categorias')]
     public function index()
 {
@@ -41,18 +38,12 @@ public function store(StoreCategoriaRequest $request)
         ->with('success', 'Categoría creada correctamente.');
 }
 
-    /**
-     * Display the specified resource.
-     */
     #[Middleware('permission:gestionar categorias')]
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     #[Middleware('permission:gestionar categorias')]
     public function edit(Categoria $categoria)
     {
@@ -61,10 +52,6 @@ public function store(StoreCategoriaRequest $request)
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-
-    */
     #[Middleware('permission:gestionar categorias')]
     public function update(UpdateCategoriaRequest $request, Categoria $categoria)
     {
@@ -75,9 +62,6 @@ public function store(StoreCategoriaRequest $request)
             ->with('success', 'Categoría actualizada correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
 #[Middleware('permission:gestionar categorias')]
 public function destroy(Categoria $categoria)
 {

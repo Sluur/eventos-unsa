@@ -19,7 +19,6 @@ class DemoCharlaSeeder extends Seeder
         $charla = Categoria::where('nombre', 'Charla')->value('id');
         $taller = Categoria::where('nombre', 'Taller')->value('id');
 
-        // Queda un solo lugar libre y está abierta al público
         $inicio = now()->addDays(7)->setTime(18, 0);
 
         $git = Evento::create([
@@ -38,7 +37,6 @@ class DemoCharlaSeeder extends Seeder
         $git->disertantes()->attach(Disertante::where('email', 'diego@eventos.test')->pluck('id'));
         $this->inscribir($git, ['franco@eventos.test']);
 
-        // Dos invitados que se anotaron desde la cartelera, sin cuenta
         foreach ([
             ['Lucía', 'Gómez', 'lucia.gomez@example.com', '40123456'],
             ['Martín', 'Ríos', 'martin.rios@example.com', '41234567'],
@@ -53,7 +51,6 @@ class DemoCharlaSeeder extends Seeder
             ]);
         }
 
-        // Ya pasó y falta tomar asistencia
         $inicio = now()->subDays(2)->setTime(18, 0);
 
         $sql = Evento::create([
@@ -70,7 +67,6 @@ class DemoCharlaSeeder extends Seeder
         $sql->disertantes()->attach(Disertante::where('email', 'carlos@eventos.test')->pluck('id'));
         $this->inscribir($sql, ['oriana@eventos.test', 'alejandro@eventos.test', 'franco@eventos.test']);
 
-        // La inscripción ya cerró aunque falten dos semanas
         $inicio = now()->addDays(14)->setTime(17, 0);
 
         $redes = Evento::create([
@@ -119,7 +115,6 @@ class DemoCharlaSeeder extends Seeder
         $linux->disertantes()->attach(Disertante::whereIn('email', ['cristian@eventos.test', 'diego@eventos.test'])->pluck('id'));
         $this->inscribir($linux, ['alejandro@eventos.test', 'franco@eventos.test'], asistio: true);
 
-        // Cancelado con inscriptos
         $inicio = now()->addDays(10)->setTime(18, 0);
 
         $seguridad = Evento::create([
@@ -137,7 +132,6 @@ class DemoCharlaSeeder extends Seeder
         $seguridad->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
         $this->inscribir($seguridad, ['oriana@eventos.test', 'alejandro@eventos.test']);
 
-        // Empieza en menos de 24 horas, para probar los recordatorios
         $inicio = now()->addHours(20)->setMinute(0)->setSecond(0);
 
         $docker = Evento::create([
@@ -154,7 +148,6 @@ class DemoCharlaSeeder extends Seeder
         $docker->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
         $this->inscribir($docker, ['oriana@eventos.test', 'alejandro@eventos.test']);
 
-        // Curso con aprobación y documentación: una pendiente, una confirmada y una rechazada
         $inicio = now()->addDays(21)->setTime(17, 0);
 
         $python = Evento::create([
@@ -195,7 +188,6 @@ class DemoCharlaSeeder extends Seeder
         }
     }
 
-    // PDF mínimo de una página para tener un archivo de ejemplo
     private function pdfDeEjemplo(string $nombre): string
     {
         $texto = "BT /F1 18 Tf 72 720 Td (Certificado de alumno regular - {$nombre}) Tj ET";

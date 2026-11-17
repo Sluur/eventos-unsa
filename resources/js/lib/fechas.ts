@@ -1,4 +1,4 @@
-// Las fechas se guardan tal cual en la base (UTC), así que las mostramos sin convertir zona
+// las fechas se guardan sin zona horaria, por eso se muestran en utc
 
 export const formatearFecha = (fecha: string) =>
     new Date(fecha).toLocaleString('es-AR', {

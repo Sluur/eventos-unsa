@@ -14,7 +14,7 @@ class Inscripcion extends Model
 
     protected $table = 'inscripciones';
 
-    // Pendientes y confirmadas reservan lugar en el cupo
+    // pendientes tambien reservan cupo
     public const ACTIVAS = ['pendiente', 'confirmada'];
 
     protected $fillable = [
@@ -52,7 +52,6 @@ class Inscripcion extends Model
         return in_array($this->estado, self::ACTIVAS, true);
     }
 
-    // A los invitados se les escribe al email que dejaron
     public function emailDestino(): string
     {
         return $this->user?->email ?? $this->email_invitado;
@@ -63,7 +62,6 @@ class Inscripcion extends Model
         return $this->user?->name ?? trim("{$this->nombre_invitado} {$this->apellido_invitado}");
     }
 
-    // Manda el mail en cola a quien se inscribió
     public function avisar(Mailable $mail): void
     {
         Mail::to($this->emailDestino(), $this->nombreDestino())->queue($mail);

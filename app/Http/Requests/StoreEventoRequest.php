@@ -32,7 +32,6 @@ class StoreEventoRequest extends FormRequest
         ];
     }
 
-    // El cupo no puede ser mayor a lo que entra en el lugar elegido
     public function after(): array
     {
         return [

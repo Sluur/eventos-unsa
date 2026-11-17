@@ -10,7 +10,6 @@ interface Props {
     children: ReactNode;
 }
 
-// Label + campo + ayuda + error, igual en todos los formularios
 export default function FormField({ label, htmlFor, error, ayuda, children }: Props) {
     return (
         <div className="grid gap-2">

@@ -25,7 +25,6 @@ class EnviarRecordatorios extends Command
 
         foreach ($inscripciones as $inscripcion) {
             $inscripcion->avisar(new RecordatorioEvento($inscripcion));
-            // Se marca para no mandarlo de nuevo en la próxima corrida
             $inscripcion->update(['recordatorio_enviado_at' => now()]);
         }
 

@@ -32,7 +32,6 @@ interface Props {
     disertantes: DisertanteOpcion[];
 }
 
-// "2026-11-24T18:00:00.000000Z" -> "2026-11-24T18:00" para el input datetime-local
 const paraInput = (fecha: string) => fecha.slice(0, 16);
 
 export default function Edit({ evento, categorias, lugares, disertantes }: Props) {
@@ -60,7 +59,7 @@ export default function Edit({ evento, categorias, lugares, disertantes }: Props
 
     const guardar = (estado: 'borrador' | 'publicado') => (e: FormEvent) => {
         e.preventDefault();
-        // Con archivo hay que mandar POST con _method put
+        // con archivo hay que mandar post con _method put
         form.transform((datos) => ({ ...datos, estado, _method: 'put' }));
         form.post(`/eventos/${evento.id}`, { forceFormData: true });
     };

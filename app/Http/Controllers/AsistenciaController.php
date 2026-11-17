@@ -42,7 +42,6 @@ class AsistenciaController extends Controller
             (clone $confirmadas)->update(['asistio' => false]);
             (clone $confirmadas)->whereIn('id', $presentes)->update(['asistio' => true]);
 
-            // Si el evento ya terminó, al tomar asistencia queda finalizado
             if ($evento->estado === 'publicado' && $evento->fecha_fin->isPast()) {
                 $evento->update(['estado' => 'finalizado']);
             }

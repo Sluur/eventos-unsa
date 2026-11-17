@@ -7,7 +7,6 @@ export interface ReglasCategoria {
     documentacion_descripcion: string | null;
 }
 
-// Cómo funciona la inscripción según la categoría
 export default function CategoriaReglas({ categoria, className }: { categoria: ReglasCategoria; className?: string }) {
     const items = [];
 

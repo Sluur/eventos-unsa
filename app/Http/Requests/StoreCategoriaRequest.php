@@ -13,7 +13,6 @@ class StoreCategoriaRequest extends FormRequest
         return true;
     }
 
-    // Si no pide documentación, no tiene sentido guardar la descripción
     protected function prepareForValidation(): void
     {
         if (!$this->boolean('requiere_documentacion')) {
@@ -38,7 +37,6 @@ class StoreCategoriaRequest extends FormRequest
         ];
     }
 
-    // Si pide documentación, alguien la tiene que revisar
     public function after(): array
     {
         return [

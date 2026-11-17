@@ -17,9 +17,6 @@ use Inertia\Inertia;
 
 class EventoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
 #[Middleware('permission:listar eventos')]
 public function index(Request $request)
 {
@@ -30,7 +27,7 @@ public function index(Request $request)
     $direccion = $request->input('direccion', 'asc');
     $porPagina = (int) $request->input('por_pagina', 10);
 
-    // Validamos porque cualquiera puede modificar la URL a mano
+    // cualquiera puede tocar la url, por eso valido contra una lista
     if (!in_array($orden, ['titulo', 'fecha_inicio', 'cupo'], true)) {
         $orden = 'fecha_inicio';
     }
@@ -45,7 +42,6 @@ public function index(Request $request)
         ->withCount(['inscripciones as inscriptos_count' => function ($query) {
             $query->activas();
         }])
-        // Quien no puede crear eventos (alumno) no ve borradores, y de los cancelados solo en los que estaba inscripto
         ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
             $query->where(function ($query) use ($request) {
                 $query->whereIn('estado', ['publicado', 'finalizado'])
@@ -87,7 +83,6 @@ public function index(Request $request)
     #[Middleware('permission:crear eventos')]
     public function create(Request $request)
     {
-        // Duplicar: se precargan los datos de otro evento, sin fechas
         $original = $request->filled('duplicar')
             ? Evento::with('disertantes:id')->find($request->integer('duplicar'))
             : null;
@@ -151,7 +146,6 @@ public function index(Request $request)
 
         $estaInscripto = $miInscripcion?->estaActiva() ?? false;
 
-        // El alumno no ve borradores, y un cancelado solo si estaba inscripto
         $visible = in_array($evento->estado, ['publicado', 'finalizado'], true)
             || ($evento->estado === 'cancelado' && $estaInscripto);
 
@@ -242,7 +236,6 @@ public function index(Request $request)
             'estado' => $datos['estado'],
         ]);
 
-        // Al reemplazar o quitar la imagen se borra el archivo anterior
         if ($request->hasFile('imagen')) {
             $evento->borrarImagen();
             $evento->update(['imagen' => $request->file('imagen')->store('eventos', 'public')]);
@@ -253,7 +246,6 @@ public function index(Request $request)
 
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
 
-        // Si cambió la fecha, la hora o el lugar, se avisa a los inscriptos qué cambió
         $ahora = $this->datosQueSeAvisan($evento->refresh());
         $cambios = [];
         foreach ($antes as $campo => $valor) {
@@ -322,7 +314,6 @@ public function index(Request $request)
         ];
     }
 
-    // Manda un mail a cada inscripción activa (pendientes y confirmadas)
     private function avisarInscriptos(Evento $evento, callable $crearMail): void
     {
         $evento->inscripciones()->activas()->with('user')->get()

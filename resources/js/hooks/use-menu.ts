@@ -10,7 +10,6 @@ const items: { item: NavItem; permiso?: string }[] = [
     { item: { title: 'Disertantes', href: '/disertantes', icon: Mic }, permiso: 'gestionar disertantes' },
 ];
 
-// Items del menú que puede ver el usuario según sus permisos
 export function useMenu(): NavItem[] {
     const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
 

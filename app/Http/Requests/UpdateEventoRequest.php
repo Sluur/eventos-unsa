@@ -12,7 +12,7 @@ class UpdateEventoRequest extends StoreEventoRequest
         $reglas['quitar_imagen'] = ['boolean'];
         $evento = $this->route('evento');
 
-        // Si no se tocó la fecha de inicio, se puede guardar aunque ya haya pasado
+        // si no se toco la fecha se puede guardar aunque ya haya pasado
         if ($this->input('fecha_inicio') === $evento->fecha_inicio->format('Y-m-d\TH:i')) {
             $reglas['fecha_inicio'] = ['required', 'date'];
         }

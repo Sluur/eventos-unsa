@@ -8,7 +8,6 @@ interface Props {
     className?: string;
 }
 
-// Imagen del evento o, si no tiene, un fondo plano con un tono suave de la categoría
 export default function EventoImagen({ url, categoria, color, alt, className }: Props) {
     if (url) {
         return <img src={url} alt={alt} className={cn('object-cover', className)} />;

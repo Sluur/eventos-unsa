@@ -44,7 +44,6 @@ class RevisionInscripcionController extends Controller
                 return 'Esta inscripción ya fue revisada.';
             }
 
-            // Volvemos a mirar el cupo por si cambió mientras estaba pendiente
             $confirmadas = $evento->inscripciones()->where('estado', 'confirmada')->count();
             if ($confirmadas >= $evento->cupo) {
                 return 'No quedan lugares para aceptar esta inscripción.';

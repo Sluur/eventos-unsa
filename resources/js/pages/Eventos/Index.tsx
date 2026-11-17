@@ -58,7 +58,7 @@ type Vista = 'tarjetas' | 'tabla';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eventos', href: '/eventos' }];
 
-// Radix Select no acepta value vacío, usamos "todos" para "sin filtro"
+// radix no acepta value vacio, uso 'todos'
 const TODOS = 'todos';
 
 export default function Index({ eventos, categorias, filtros }: Props) {
@@ -74,7 +74,6 @@ export default function Index({ eventos, categorias, filtros }: Props) {
     const orden = filtros.orden ?? 'fecha_inicio';
     const direccion = filtros.direccion ?? 'asc';
 
-    // Siempre mandamos todos los criterios, así no se pierde ninguno
     const visitar = (cambios: Record<string, string | number> = {}) => {
         router.get(
             '/eventos',

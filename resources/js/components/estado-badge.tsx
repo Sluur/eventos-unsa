@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils';
 
 export type EstadoEvento = 'borrador' | 'publicado' | 'cancelado' | 'finalizado';
 
-// Tonos apagados que se leen en claro y oscuro
 const estilos: Record<EstadoEvento, string> = {
     borrador: 'bg-muted text-muted-foreground',
     publicado: 'bg-primary/12 text-primary',

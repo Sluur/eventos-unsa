@@ -4,7 +4,6 @@ import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
 import { useFlashToasts } from '@/hooks/use-flash-toasts';
 
-// Layout de la cartelera, sin necesidad de iniciar sesión
 export default function PublicLayout({ children }: { children: ReactNode }) {
     const { auth } = usePage().props;
 

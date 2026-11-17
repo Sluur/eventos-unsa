@@ -8,7 +8,6 @@ use Illuminate\Validation\Validator;
 
 class StoreInscripcionInvitadoRequest extends StoreInscripcionRequest
 {
-    // Solo eventos publicados y abiertos al público
     public function authorize(): bool
     {
         $evento = $this->route('evento');
@@ -36,7 +35,6 @@ class StoreInscripcionInvitadoRequest extends StoreInscripcionRequest
         ];
     }
 
-    // El mismo email o DNI no se puede inscribir dos veces al mismo evento
     public function after(): array
     {
         return [
