@@ -1,8 +1,18 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { CalendarDays, MapPin, Plus, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, MapPin, Plus, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import CupoBar from '@/components/cupo-bar';
+import EmptyState from '@/components/empty-state';
+import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
+import FechaBloque from '@/components/fecha-bloque';
+import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { formatearFecha, formatearHora } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -10,7 +20,7 @@ interface Evento {
     titulo: string;
     fecha_inicio: string;
     cupo: number;
-    estado: 'borrador' | 'publicado' | 'cancelado' | 'finalizado';
+    estado: EstadoEvento;
     inscriptos_count: number;
     categoria: { id: number; nombre: string };
     lugar: { id: number; nombre: string };
@@ -42,75 +52,68 @@ interface Props {
     filtros: Filtros;
 }
 
+type Vista = 'tarjetas' | 'tabla';
+
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eventos', href: '/eventos' }];
 
-const estilosEstado: Record<Evento['estado'], string> = {
-    borrador: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-    publicado: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-    cancelado: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-    finalizado: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
-};
-
-const claseSelect =
-    'h-9 rounded-md border bg-transparent px-3 text-sm shadow-xs focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:bg-input/30';
-
-// Las fechas se guardan tal cual en la base (UTC), así que las mostramos sin convertir zona
-const formatearFecha = (fecha: string) =>
-    new Date(fecha).toLocaleString('es-AR', {
-        timeZone: 'UTC',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+// Radix Select no acepta value vacío, usamos "todos" para "sin filtro"
+const TODOS = 'todos';
 
 export default function Index({ eventos, categorias, filtros }: Props) {
-    const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
+    const page = usePage();
+    const permisos = (page.props as { permisos?: string[] }).permisos ?? [];
+    const vistaUrl = new URL(page.url, 'http://localhost').searchParams.get('vista');
+    const vista: Vista = vistaUrl === 'tabla' ? 'tabla' : 'tarjetas';
+
     const [buscar, setBuscar] = useState(filtros.buscar ?? '');
     const [categoria, setCategoria] = useState(filtros.categoria ?? '');
     const [estado, setEstado] = useState(filtros.estado ?? '');
-    const [orden, setOrden] = useState(filtros.orden ?? 'fecha_inicio');
-    const [direccion, setDireccion] = useState(filtros.direccion ?? 'asc');
     const [porPagina, setPorPagina] = useState(filtros.por_pagina ?? 10);
+    const orden = filtros.orden ?? 'fecha_inicio';
+    const direccion = filtros.direccion ?? 'asc';
+
+    // Siempre mandamos todos los criterios, así no se pierde ninguno
+    const visitar = (cambios: Record<string, string | number> = {}) => {
+        router.get(
+            '/eventos',
+            {
+                buscar,
+                categoria,
+                estado,
+                orden,
+                direccion,
+                por_pagina: porPagina,
+                vista,
+                ...cambios,
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    };
 
     const aplicarFiltros = (e: FormEvent) => {
         e.preventDefault();
-        router.get('/eventos', {
-            buscar,
-            categoria,
-            estado,
-            orden,
-            direccion,
-            por_pagina: porPagina,
-        });
+        visitar();
     };
 
     const limpiarFiltros = () => {
-        router.get('/eventos');
+        setBuscar('');
+        setCategoria('');
+        setEstado('');
+        setPorPagina(10);
+        router.get('/eventos', { vista });
     };
 
     const ordenarPor = (campo: string) => {
-        let nuevaDireccion = 'asc';
-        if (orden === campo && direccion === 'asc') {
-            nuevaDireccion = 'desc';
-        }
-        setOrden(campo);
-        setDireccion(nuevaDireccion);
-        router.get('/eventos', {
-            buscar,
-            categoria,
-            estado,
-            orden: campo,
-            direccion: nuevaDireccion,
-            por_pagina: porPagina,
-        });
+        const nuevaDireccion = orden === campo && direccion === 'asc' ? 'desc' : 'asc';
+        visitar({ orden: campo, direccion: nuevaDireccion });
     };
 
-    const indicadorOrden = (campo: string) => {
-        if (orden !== campo) return ' ↕';
-        return direccion === 'asc' ? ' ↑' : ' ↓';
+    const iconoOrden = (campo: string) => {
+        if (orden !== campo) return <ArrowUpDown className="size-3.5 opacity-40" />;
+        return direccion === 'asc' ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />;
     };
+
+    const hayFiltros = filtros.buscar !== '' || filtros.categoria !== '' || filtros.estado !== '';
 
     setLayoutProps({ breadcrumbs });
 
@@ -118,172 +121,169 @@ export default function Index({ eventos, categorias, filtros }: Props) {
         <>
             <Head title="Eventos" />
 
-            <div className="flex flex-col gap-4 p-4 md:p-6">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold">Eventos</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Charlas, talleres y actividades de la facultad.
-                        </p>
-                    </div>
-
+            <div className="flex flex-col gap-6 px-4 py-6 md:py-10">
+                <PageHeader titulo="Eventos de la facultad" descripcion="Charlas, talleres y actividades.">
                     {permisos.includes('crear eventos') && (
                         <Button asChild>
                             <Link href="/eventos/create">
-                                <Plus className="size-4" />
+                                <Plus />
                                 Nueva charla
                             </Link>
                         </Button>
                     )}
-                </div>
+                </PageHeader>
 
-                <form
-                    onSubmit={aplicarFiltros}
-                    className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2 lg:grid-cols-5"
-                >
-                    <div className="relative lg:col-span-2">
-                        <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
-                        <Input
-                            value={buscar}
-                            onChange={(e) => setBuscar(e.target.value)}
-                            placeholder="Buscar por título..."
-                            className="pl-9"
-                        />
+                <form onSubmit={aplicarFiltros} className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                value={buscar}
+                                onChange={(e) => setBuscar(e.target.value)}
+                                placeholder="Buscar por título..."
+                                className="h-10 pl-9"
+                            />
+                        </div>
+                        <Button type="submit" className="h-10">
+                            Buscar
+                        </Button>
                     </div>
 
-                    <select
-                        value={categoria}
-                        onChange={(e) => setCategoria(e.target.value)}
-                        className={claseSelect}
-                    >
-                        <option value="">Todas las categorías</option>
-                        {categorias.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.nombre}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Select value={categoria || TODOS} onValueChange={(v) => setCategoria(v === TODOS ? '' : v)}>
+                            <SelectTrigger className="w-full sm:w-48" aria-label="Categoría">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={TODOS}>Todas las categorías</SelectItem>
+                                {categorias.map((c) => (
+                                    <SelectItem key={c.id} value={String(c.id)}>
+                                        {c.nombre}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
-                    <select
-                        value={estado}
-                        onChange={(e) => setEstado(e.target.value)}
-                        className={claseSelect}
-                    >
-                        <option value="">Todos los estados</option>
-                        <option value="publicado">Publicado</option>
-                        <option value="finalizado">Finalizado</option>
-                        <option value="borrador">Borrador</option>
-                        <option value="cancelado">Cancelado</option>
-                    </select>
+                        <Select value={estado || TODOS} onValueChange={(v) => setEstado(v === TODOS ? '' : v)}>
+                            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40" aria-label="Estado">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={TODOS}>Todos los estados</SelectItem>
+                                <SelectItem value="publicado">Publicado</SelectItem>
+                                <SelectItem value="finalizado">Finalizado</SelectItem>
+                                <SelectItem value="borrador">Borrador</SelectItem>
+                                <SelectItem value="cancelado">Cancelado</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                    <select
-                        value={porPagina}
-                        onChange={(e) => setPorPagina(Number(e.target.value))}
-                        className={claseSelect}
-                    >
-                        <option value={5}>5 por página</option>
-                        <option value={10}>10 por página</option>
-                        <option value={20}>20 por página</option>
-                    </select>
+                        <Select value={String(porPagina)} onValueChange={(v) => setPorPagina(Number(v))}>
+                            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-36" aria-label="Por página">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="5">5 por página</SelectItem>
+                                <SelectItem value="10">10 por página</SelectItem>
+                                <SelectItem value="20">20 por página</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                    <div className="flex gap-2 sm:col-span-2 lg:col-span-5">
-                        <Button type="submit">Buscar</Button>
-                        <Button type="button" variant="outline" onClick={limpiarFiltros}>
-                            Limpiar
+                        <Button type="submit" variant="secondary">
+                            Filtrar
                         </Button>
+                        {hayFiltros && (
+                            <Button type="button" variant="ghost" onClick={limpiarFiltros}>
+                                Limpiar
+                            </Button>
+                        )}
+
+                        <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            value={vista}
+                            onValueChange={(v) => v && visitar({ vista: v })}
+                            className="ml-auto"
+                        >
+                            <ToggleGroupItem value="tarjetas" aria-label="Ver como tarjetas">
+                                <LayoutGrid />
+                            </ToggleGroupItem>
+                            <ToggleGroupItem value="tabla" aria-label="Ver como tabla">
+                                <List />
+                            </ToggleGroupItem>
+                        </ToggleGroup>
                     </div>
                 </form>
 
-                <div className="overflow-x-auto rounded-xl border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-muted/50 text-left">
-                            <tr>
-                                <th
-                                    className="cursor-pointer px-4 py-3 font-medium select-none"
-                                    onClick={() => ordenarPor('titulo')}
-                                >
-                                    Evento{indicadorOrden('titulo')}
-                                </th>
-                                <th
-                                    className="cursor-pointer px-4 py-3 font-medium select-none"
-                                    onClick={() => ordenarPor('fecha_inicio')}
-                                >
-                                    Fecha{indicadorOrden('fecha_inicio')}
-                                </th>
-                                <th className="hidden px-4 py-3 font-medium lg:table-cell">Lugar</th>
-                                <th
-                                    className="cursor-pointer px-4 py-3 font-medium select-none"
-                                    onClick={() => ordenarPor('cupo')}
-                                >
-                                    Cupo{indicadorOrden('cupo')}
-                                </th>
-                                <th className="px-4 py-3 font-medium">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {eventos.data.length === 0 && (
-                                <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                                        No se encontraron eventos con esos filtros.
-                                    </td>
-                                </tr>
-                            )}
-
-                            {eventos.data.map((evento) => {
-                                const porcentaje = Math.min(
-                                    100,
-                                    Math.round((evento.inscriptos_count / evento.cupo) * 100),
-                                );
-
-                                return (
-                                    <tr key={evento.id} className="border-t hover:bg-muted/30">
-                                        <td className="px-4 py-3">
-                                            <Link
-                                                href={`/eventos/${evento.id}`}
-                                                className="font-medium hover:underline"
-                                            >
+                {eventos.data.length === 0 ? (
+                    <Card>
+                        <EmptyState
+                            icono={CalendarX}
+                            titulo="No hay eventos con esos filtros"
+                            descripcion="Probá con otra búsqueda o limpiá los filtros."
+                        />
+                    </Card>
+                ) : vista === 'tarjetas' ? (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {eventos.data.map((evento) => (
+                            <TarjetaEvento key={evento.id} evento={evento} />
+                        ))}
+                    </div>
+                ) : (
+                    <Card className="py-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="pl-6">
+                                        <button type="button" onClick={() => ordenarPor('titulo')} className="flex items-center gap-1">
+                                            Evento {iconoOrden('titulo')}
+                                        </button>
+                                    </TableHead>
+                                    <TableHead>
+                                        <button type="button" onClick={() => ordenarPor('fecha_inicio')} className="flex items-center gap-1">
+                                            Fecha {iconoOrden('fecha_inicio')}
+                                        </button>
+                                    </TableHead>
+                                    <TableHead className="hidden lg:table-cell">Lugar</TableHead>
+                                    <TableHead>
+                                        <button type="button" onClick={() => ordenarPor('cupo')} className="flex items-center gap-1">
+                                            Cupo {iconoOrden('cupo')}
+                                        </button>
+                                    </TableHead>
+                                    <TableHead className="pr-6">Estado</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {eventos.data.map((evento) => (
+                                    <TableRow key={evento.id}>
+                                        <TableCell className="pl-6">
+                                            <Link href={`/eventos/${evento.id}`} className="font-medium hover:text-primary">
                                                 {evento.titulo}
                                             </Link>
-                                            <div className="text-xs text-muted-foreground">
-                                                {evento.categoria.nombre}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <div className="flex items-center gap-1.5">
-                                                <CalendarDays className="size-4 text-muted-foreground" />
-                                                {formatearFecha(evento.fecha_inicio)}
-                                            </div>
-                                        </td>
-                                        <td className="hidden px-4 py-3 lg:table-cell">
-                                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                                                <MapPin className="size-4" />
-                                                {evento.lugar.nombre}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
+                                            <div className="text-xs text-muted-foreground">{evento.categoria.nombre}</div>
+                                        </TableCell>
+                                        <TableCell>{formatearFecha(evento.fecha_inicio)}</TableCell>
+                                        <TableCell className="hidden text-muted-foreground lg:table-cell">
+                                            {evento.lugar.nombre}
+                                        </TableCell>
+                                        <TableCell>
                                             <div className="text-xs">
                                                 {evento.inscriptos_count} / {evento.cupo}
                                             </div>
-                                            <div className="mt-1 h-1.5 w-20 rounded-full bg-muted">
-                                                <div
-                                                    className={`h-1.5 rounded-full ${porcentaje >= 100 ? 'bg-red-500' : 'bg-primary'}`}
-                                                    style={{ width: `${porcentaje}%` }}
-                                                />
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <span
-                                                className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${estilosEstado[evento.estado]}`}
-                                            >
-                                                {evento.estado}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                            <CupoBar
+                                                inscriptos={evento.inscriptos_count}
+                                                cupo={evento.cupo}
+                                                className="mt-1 h-1.5 w-20"
+                                            />
+                                        </TableCell>
+                                        <TableCell className="pr-6">
+                                            <EstadoBadge estado={evento.estado} />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Card>
+                )}
 
                 <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
                     <p className="text-sm text-muted-foreground">
@@ -314,5 +314,41 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                 </div>
             </div>
         </>
+    );
+}
+
+function TarjetaEvento({ evento }: { evento: Evento }) {
+    const libres = Math.max(0, evento.cupo - evento.inscriptos_count);
+
+    return (
+        <Link href={`/eventos/${evento.id}`} className="group">
+            <Card className="h-full gap-4 py-5 transition-colors group-hover:border-primary/40">
+                <CardContent className="flex gap-4 px-5">
+                    <FechaBloque fecha={evento.fecha_inicio} />
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="truncate text-xs text-muted-foreground">{evento.categoria.nombre}</span>
+                            <EstadoBadge estado={evento.estado} />
+                        </div>
+                        <h3 className="line-clamp-2 leading-snug font-semibold group-hover:text-primary">
+                            {evento.titulo}
+                        </h3>
+                        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <MapPin className="size-3.5 shrink-0" />
+                            <span className="truncate">
+                                {evento.lugar.nombre} · {formatearHora(evento.fecha_inicio)} h
+                            </span>
+                        </p>
+                    </div>
+                </CardContent>
+                <CardContent className="mt-auto flex flex-col gap-1.5 px-5">
+                    <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} className="h-1.5" />
+                    <p className="text-xs text-muted-foreground">
+                        {libres === 0 ? 'Sin lugares' : `${libres} ${libres === 1 ? 'lugar libre' : 'lugares libres'}`} ·{' '}
+                        {evento.inscriptos_count} de {evento.cupo}
+                    </p>
+                </CardContent>
+            </Card>
+        </Link>
     );
 }

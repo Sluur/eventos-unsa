@@ -1,7 +1,15 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, ClipboardCheck, MapPin, Mic, User } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, User, Users } from 'lucide-react';
 import ConfirmDelete from '@/components/confirm-delete';
+import CupoBar from '@/components/cupo-bar';
+import EmptyState from '@/components/empty-state';
+import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
+import FechaBloque from '@/components/fecha-bloque';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatearFechaLarga, formatearHora } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -18,7 +26,7 @@ interface Evento {
     fecha_inicio: string;
     fecha_fin: string;
     cupo: number;
-    estado: 'borrador' | 'publicado' | 'cancelado' | 'finalizado';
+    estado: EstadoEvento;
     inscriptos_count: number;
     categoria: { id: number; nombre: string };
     lugar: { id: number; nombre: string; direccion: string | null };
@@ -43,30 +51,6 @@ interface Props {
     yaPaso: boolean;
 }
 
-const estilosEstado: Record<Evento['estado'], string> = {
-    borrador: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-    publicado: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
-    cancelado: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-    finalizado: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
-};
-
-const formatearFecha = (fecha: string) =>
-    new Date(fecha).toLocaleString('es-AR', {
-        timeZone: 'UTC',
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-
-const formatearHora = (fecha: string) =>
-    new Date(fecha).toLocaleTimeString('es-AR', {
-        timeZone: 'UTC',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-
 export default function Show({
     evento,
     puedeGestionar,
@@ -87,7 +71,6 @@ export default function Show({
         { title: evento.titulo, href: `/eventos/${evento.id}` },
     ];
 
-    const porcentaje = Math.min(100, Math.round((evento.inscriptos_count / evento.cupo) * 100));
     const lugaresLibres = Math.max(0, evento.cupo - evento.inscriptos_count);
 
     const inscribirme = () => {
@@ -100,187 +83,208 @@ export default function Show({
         <>
             <Head title={evento.titulo} />
 
-            <div className="flex flex-col gap-4 p-4 md:p-6">
-                <div>
-                    <Link
-                        href="/eventos"
-                        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-                    >
-                        <ArrowLeft className="size-4" />
-                        Volver al listado
-                    </Link>
+            <div className="flex flex-col gap-6 px-4 py-6 md:py-10">
+                <Link
+                    href="/eventos"
+                    className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                >
+                    <ArrowLeft className="size-4" />
+                    Volver al listado
+                </Link>
+
+                {/* Encabezado */}
+                <div className="flex items-start gap-4 sm:gap-6">
+                    <FechaBloque fecha={evento.fecha_inicio} grande />
+                    <div className="flex min-w-0 flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm text-muted-foreground">{evento.categoria.nombre}</span>
+                            <EstadoBadge estado={evento.estado} />
+                        </div>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{evento.titulo}</h1>
+                    </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-3">
-                    <div className="flex flex-col gap-4 rounded-xl border p-6 lg:col-span-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm text-muted-foreground">
-                                {evento.categoria.nombre}
-                            </span>
-                            <span
-                                className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${estilosEstado[evento.estado]}`}
-                            >
-                                {evento.estado}
-                            </span>
-                        </div>
-
-                        <h1 className="text-2xl font-semibold">{evento.titulo}</h1>
-
-                        <p className="text-sm whitespace-pre-line">{evento.descripcion}</p>
-
-                        <div className="grid gap-3 text-sm sm:grid-cols-2">
-                            <div className="flex items-start gap-2">
-                                <CalendarDays className="mt-0.5 size-4 text-muted-foreground" />
-                                <div>
-                                    <div className="capitalize">{formatearFecha(evento.fecha_inicio)}</div>
-                                    <div className="text-muted-foreground">
-                                        Hasta las {formatearHora(evento.fecha_fin)}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-2">
-                                <MapPin className="mt-0.5 size-4 text-muted-foreground" />
-                                <div>
-                                    <div>{evento.lugar.nombre}</div>
-                                    {evento.lugar.direccion && (
-                                        <div className="text-muted-foreground">{evento.lugar.direccion}</div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-2">
-                                <User className="mt-0.5 size-4 text-muted-foreground" />
-                                <div>
-                                    <div className="text-muted-foreground">Organiza</div>
-                                    <div>{evento.organizador.name}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h2 className="mb-2 font-medium">Disertantes</h2>
-                            {evento.disertantes.length === 0 && (
-                                <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
-                            )}
-                            <ul className="flex flex-col gap-2">
-                                {evento.disertantes.map((d) => (
-                                    <li key={d.id} className="flex items-start gap-2 text-sm">
-                                        <Mic className="mt-0.5 size-4 text-muted-foreground" />
-                                        <div>
-                                            <div className="font-medium">
-                                                {d.nombre} {d.apellido}
-                                            </div>
-                                            {d.biografia && (
-                                                <div className="text-muted-foreground">{d.biografia}</div>
-                                            )}
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="flex h-fit flex-col gap-4 rounded-xl border p-6">
-                        <div>
-                            <div className="flex items-baseline justify-between">
-                                <h2 className="font-medium">Cupo</h2>
-                                <span className="text-sm">
+                {/* Barra de cupo y acciones */}
+                <Card className="py-4">
+                    <CardContent className="flex flex-col gap-4 px-5 sm:flex-row sm:items-center">
+                        <div className="flex flex-1 flex-col gap-2">
+                            <div className="flex items-baseline justify-between text-sm">
+                                <span className="font-medium">
+                                    {lugaresLibres === 0
+                                        ? 'No quedan lugares'
+                                        : `Quedan ${lugaresLibres} ${lugaresLibres === 1 ? 'lugar' : 'lugares'}`}
+                                </span>
+                                <span className="text-muted-foreground">
                                     {evento.inscriptos_count} / {evento.cupo}
                                 </span>
                             </div>
-                            <div className="mt-2 h-2 w-full rounded-full bg-muted">
-                                <div
-                                    className={`h-2 rounded-full ${porcentaje >= 100 ? 'bg-red-500' : 'bg-primary'}`}
-                                    style={{ width: `${porcentaje}%` }}
-                                />
-                            </div>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                {lugaresLibres === 0
-                                    ? 'No quedan lugares.'
-                                    : `Quedan ${lugaresLibres} ${lugaresLibres === 1 ? 'lugar' : 'lugares'}.`}
-                            </p>
+                            <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
                         </div>
 
-                        {puedeInscribirse && estaInscripto && (
-                            <div className="flex flex-col gap-2">
-                                <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
-                                    Estás inscripto en esta charla.
+                        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                            {puedeInscribirse && estaInscripto && (
+                                <>
+                                    <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                                        <CircleCheck className="size-4" />
+                                        Estás inscripto
+                                    </span>
+                                    {!yaPaso && (
+                                        <ConfirmDelete
+                                            url={`/eventos/${evento.id}/inscripcion`}
+                                            titulo="¿Cancelar tu inscripción?"
+                                            descripcion="Vas a liberar tu lugar y otra persona lo puede ocupar."
+                                            textoBoton="Cancelar inscripción"
+                                            textoCancelar="Volver"
+                                        >
+                                            <Button variant="outline">Cancelar inscripción</Button>
+                                        </ConfirmDelete>
+                                    )}
+                                </>
+                            )}
+
+                            {puedeInscribirse && !estaInscripto && (
+                                <div className="flex flex-col items-stretch gap-1 sm:items-end">
+                                    <Button onClick={inscribirme} disabled={motivoSinInscripcion !== null}>
+                                        Inscribirme
+                                    </Button>
+                                    {motivoSinInscripcion && (
+                                        <p className="text-sm text-muted-foreground">{motivoSinInscripcion}</p>
+                                    )}
                                 </div>
-                                {!yaPaso && (
-                                    <ConfirmDelete
-                                        url={`/eventos/${evento.id}/inscripcion`}
-                                        titulo="¿Cancelar tu inscripción?"
-                                        descripcion="Vas a liberar tu lugar y otra persona lo puede ocupar."
-                                        textoBoton="Cancelar inscripción"
-                                        textoCancelar="Volver"
-                                    >
-                                        <Button variant="outline">Cancelar inscripción</Button>
-                                    </ConfirmDelete>
-                                )}
-                            </div>
-                        )}
+                            )}
 
-                        {puedeInscribirse && !estaInscripto && (
-                            <div className="flex flex-col gap-2">
-                                <Button onClick={inscribirme} disabled={motivoSinInscripcion !== null}>
-                                    Inscribirme
-                                </Button>
-                                {motivoSinInscripcion && (
-                                    <p className="text-center text-sm text-muted-foreground">
-                                        {motivoSinInscripcion}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {puedeGestionar && (
-                    <div className="rounded-xl border">
-                        <div className="flex items-center justify-between p-4">
-                            <h2 className="font-medium">Inscriptos ({inscriptos.length})</h2>
                             {puedeTomarAsistencia && (
-                                <Button size="sm" asChild>
+                                <Button variant="outline" asChild>
                                     <Link href={`/eventos/${evento.id}/asistencia`}>
-                                        <ClipboardCheck className="size-4" />
+                                        <ClipboardCheck />
                                         Tomar asistencia
                                     </Link>
                                 </Button>
                             )}
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead className="bg-muted/50 text-left">
-                                    <tr>
-                                        <th className="px-4 py-3 font-medium">#</th>
-                                        <th className="px-4 py-3 font-medium">Nombre</th>
-                                        <th className="hidden px-4 py-3 font-medium md:table-cell">Email</th>
-                                        <th className="px-4 py-3 font-medium">Asistió</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inscriptos.length === 0 && (
-                                        <tr>
-                                            <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                                                Todavía no hay inscriptos.
-                                            </td>
-                                        </tr>
+                    </CardContent>
+                </Card>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <Card className="lg:col-span-2">
+                        <CardHeader>
+                            <CardTitle>Sobre el evento</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-6">
+                            <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
+
+                            <div className="grid gap-4 text-sm sm:grid-cols-3">
+                                <Dato icono={CalendarDays} titulo="Cuándo">
+                                    <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
+                                    <span className="text-muted-foreground">
+                                        Hasta las {formatearHora(evento.fecha_fin)}
+                                    </span>
+                                </Dato>
+                                <Dato icono={MapPin} titulo="Dónde">
+                                    <span>{evento.lugar.nombre}</span>
+                                    {evento.lugar.direccion && (
+                                        <span className="text-muted-foreground">{evento.lugar.direccion}</span>
                                     )}
-                                    {inscriptos.map((inscripcion, i) => (
-                                        <tr key={inscripcion.id} className="border-t">
-                                            <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                                            <td className="px-4 py-3">{inscripcion.user.name}</td>
-                                            <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                                                {inscripcion.user.email}
-                                            </td>
-                                            <td className="px-4 py-3">{inscripcion.asistio ? 'Sí' : '-'}</td>
-                                        </tr>
+                                </Dato>
+                                <Dato icono={User} titulo="Organiza">
+                                    <span>{evento.organizador.name}</span>
+                                </Dato>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="h-fit">
+                        <CardHeader>
+                            <CardTitle>Disertantes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {evento.disertantes.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
+                            ) : (
+                                <ul className="flex flex-col gap-4">
+                                    {evento.disertantes.map((d) => (
+                                        <li key={d.id} className="flex items-start gap-3 text-sm">
+                                            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                                <Mic className="size-4" />
+                                            </div>
+                                            <div>
+                                                <div className="font-medium">
+                                                    {d.nombre} {d.apellido}
+                                                </div>
+                                                {d.biografia && (
+                                                    <div className="text-muted-foreground">{d.biografia}</div>
+                                                )}
+                                            </div>
+                                        </li>
                                     ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                </ul>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {puedeGestionar && (
+                    <Card className="gap-0 pb-0">
+                        <CardHeader className="pb-4">
+                            <CardTitle>Inscriptos ({inscriptos.length})</CardTitle>
+                        </CardHeader>
+                        {inscriptos.length === 0 ? (
+                            <EmptyState icono={Users} titulo="Todavía no hay inscriptos" />
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-12 pl-6">#</TableHead>
+                                        <TableHead>Nombre</TableHead>
+                                        <TableHead className="hidden md:table-cell">Email</TableHead>
+                                        <TableHead className="pr-6">Asistencia</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {inscriptos.map((inscripcion, i) => (
+                                        <TableRow key={inscripcion.id}>
+                                            <TableCell className="pl-6 text-muted-foreground">{i + 1}</TableCell>
+                                            <TableCell className="font-medium">{inscripcion.user.name}</TableCell>
+                                            <TableCell className="hidden text-muted-foreground md:table-cell">
+                                                {inscripcion.user.email}
+                                            </TableCell>
+                                            <TableCell className="pr-6">
+                                                {inscripcion.asistio ? (
+                                                    <Badge className="rounded-full border-transparent bg-primary/15 text-primary">
+                                                        Asistió
+                                                    </Badge>
+                                                ) : (
+                                                    <span className="text-muted-foreground">-</span>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </Card>
                 )}
             </div>
         </>
+    );
+}
+
+function Dato({
+    icono: Icono,
+    titulo,
+    children,
+}: {
+    icono: typeof CalendarDays;
+    titulo: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div className="flex items-start gap-2.5">
+            <Icono className="mt-0.5 size-4 shrink-0 text-primary" />
+            <div className="flex flex-col">
+                <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{titulo}</span>
+                {children}
+            </div>
+        </div>
     );
 }
