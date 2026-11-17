@@ -91,12 +91,12 @@ export default function DisertantesSelect({ id, disertantes, value, onChange, in
             {seleccionados.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                     {seleccionados.map((d) => (
-                        <Badge key={d.id} variant="secondary" className="gap-1 rounded-full py-1 pr-1 pl-2.5">
+                        <Badge key={d.id} variant="secondary" className="gap-1 py-1 pr-1 pl-2">
                             {nombreCompleto(d)}
                             <button
                                 type="button"
                                 onClick={() => alternar(d.id)}
-                                className="rounded-full p-0.5 hover:bg-foreground/10"
+                                className="rounded-sm p-0.5 hover:bg-foreground/10"
                                 aria-label={`Quitar ${nombreCompleto(d)}`}
                             >
                                 <X className="size-3" />

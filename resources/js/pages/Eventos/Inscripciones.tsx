@@ -71,7 +71,7 @@ export default function Inscripciones({ evento, inscripciones, requiereDocumenta
                         {pestanias.map((p) => (
                             <TabsTrigger key={p.estado} value={p.estado} className="gap-1.5">
                                 {p.titulo}
-                                <Badge variant="secondary" className="rounded-full px-1.5">
+                                <Badge variant="secondary" className="px-1.5 tabular-nums">
                                     {de(p.estado).length}
                                 </Badge>
                             </TabsTrigger>

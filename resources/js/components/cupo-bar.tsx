@@ -13,7 +13,7 @@ export default function CupoBar({ inscriptos, cupo, className }: Props) {
     return (
         <Progress
             value={porcentaje}
-            className={cn(porcentaje >= 100 && '[&>[data-slot=progress-indicator]]:bg-red-500', className)}
+            className={cn('bg-muted', porcentaje >= 100 && '[&>[data-slot=progress-indicator]]:bg-destructive', className)}
         />
     );
 }

@@ -63,7 +63,7 @@ export default function Index({ disertantes }: Props) {
                                             {disertante.email}
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">
-                                            <Badge variant="secondary" className="rounded-full">
+                                            <Badge variant="secondary" className="tabular-nums">
                                                 {disertante.eventos_count}
                                             </Badge>
                                         </TableCell>

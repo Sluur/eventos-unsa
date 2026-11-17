@@ -162,7 +162,7 @@ export default function Show({
                             <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
                             <EstadoBadge estado={evento.estado} />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{evento.titulo}</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{evento.titulo}</h1>
                     </div>
                 </div>
 
@@ -435,7 +435,7 @@ export default function Show({
                                             </TableCell>
                                             <TableCell className="pr-6">
                                                 {inscripcion.asistio ? (
-                                                    <Badge className="rounded-full border-transparent bg-primary/15 text-primary">
+                                                    <Badge className="border-transparent bg-primary/12 text-primary">
                                                         Asistió
                                                     </Badge>
                                                 ) : (

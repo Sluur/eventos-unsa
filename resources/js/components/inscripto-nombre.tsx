@@ -19,7 +19,7 @@ export default function InscriptoNombre({ inscripto, conEmail = false }: { inscr
             <span className="flex flex-wrap items-center gap-1.5 font-medium">
                 {nombreInscripto(inscripto)}
                 {!inscripto.user && (
-                    <Badge variant="outline" className="rounded-full text-[10px] font-normal">
+                    <Badge variant="outline" className="px-1.5 py-0 text-[11px] font-normal text-muted-foreground">
                         Invitado
                     </Badge>
                 )}
