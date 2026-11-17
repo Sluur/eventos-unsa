@@ -3,7 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
 use Laravel\Fortify\Features;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -15,6 +17,8 @@ class RegistrationTest extends TestCase
         parent::setUp();
 
         $this->skipUnlessFortifyHas(Features::registration());
+
+        Role::findOrCreate('alumno');
     }
 
     public function test_registration_screen_can_be_rendered()
@@ -35,5 +39,6 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertTrue(User::where('email', 'test@example.com')->first()->hasRole('alumno'));
     }
 }
