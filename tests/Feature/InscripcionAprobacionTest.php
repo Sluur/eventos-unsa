@@ -8,6 +8,8 @@ use App\Models\Inscripcion;
 use App\Models\Lugar;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class InscripcionAprobacionTest extends TestCase
@@ -70,6 +72,41 @@ class InscripcionAprobacionTest extends TestCase
         $this->actingAs($this->usuario('franco@eventos.test'))
             ->post("/eventos/{$taller->id}/inscripcion")
             ->assertSessionHas('error', 'No quedan lugares disponibles.');
+    }
+
+    public function test_curso_pide_el_archivo()
+    {
+        $curso = $this->eventoDe('Curso');
+
+        $this->actingAs($this->usuario('oriana@eventos.test'))
+            ->post("/eventos/{$curso->id}/inscripcion")
+            ->assertSessionHasErrors(['archivo' => 'Tenés que subir: Certificado de alumno regular.']);
+
+        $this->actingAs($this->usuario('oriana@eventos.test'))
+            ->post("/eventos/{$curso->id}/inscripcion", ['archivo' => UploadedFile::fake()->create('cv.docx', 50)])
+            ->assertSessionHasErrors('archivo');
+    }
+
+    public function test_curso_guarda_el_archivo_privado_y_solo_lo_bajan_quienes_corresponde()
+    {
+        Storage::fake('local');
+        $curso = $this->eventoDe('Curso');
+        $oriana = $this->usuario('oriana@eventos.test');
+
+        $this->actingAs($oriana)
+            ->post("/eventos/{$curso->id}/inscripcion", [
+                'archivo' => UploadedFile::fake()->create('certificado.pdf', 200, 'application/pdf'),
+            ])
+            ->assertSessionHas('success');
+
+        $inscripcion = Inscripcion::where('evento_id', $curso->id)->where('user_id', $oriana->id)->sole();
+        $this->assertSame('pendiente', $inscripcion->estado);
+        $this->assertStringStartsWith("inscripciones/evento-{$curso->id}/", $inscripcion->archivo);
+        Storage::disk('local')->assertExists($inscripcion->archivo);
+
+        $this->actingAs($oriana)->get("/inscripciones/{$inscripcion->id}/archivo")->assertOk();
+        $this->actingAs($this->usuario('organizador@eventos.test'))->get("/inscripciones/{$inscripcion->id}/archivo")->assertOk();
+        $this->actingAs($this->usuario('franco@eventos.test'))->get("/inscripciones/{$inscripcion->id}/archivo")->assertForbidden();
     }
 
     public function test_rechazada_puede_volver_a_inscribirse()

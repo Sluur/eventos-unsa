@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('eventos/{evento}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
     Route::post('eventos/{evento}/inscripcion', [InscripcionController::class, 'store'])->name('eventos.inscripcion.store');
     Route::delete('eventos/{evento}/inscripcion', [InscripcionController::class, 'destroy'])->name('eventos.inscripcion.destroy');
+    Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');
     Route::get('eventos/{evento}/asistencia', [AsistenciaController::class, 'edit'])->name('eventos.asistencia.edit');
     Route::put('eventos/{evento}/asistencia', [AsistenciaController::class, 'update'])->name('eventos.asistencia.update');
     Route::resource('categorias', CategoriaController::class);

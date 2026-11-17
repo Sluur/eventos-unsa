@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInscripcionRequest;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InscripcionController extends Controller
 {
     #[Middleware('permission:inscribirse eventos')]
-    public function store(Request $request, Evento $evento)
+    public function store(StoreInscripcionRequest $request, Evento $evento)
     {
         $usuario = $request->user();
+        $archivo = $request->validated()['archivo'] ?? null;
 
-        $resultado = DB::transaction(function () use ($evento, $usuario) {
+        $resultado = DB::transaction(function () use ($evento, $usuario, $archivo) {
             // Bloqueamos el evento para que dos inscripciones simultáneas no pasen el cupo
             $evento = Evento::whereKey($evento->id)->lockForUpdate()->first();
 
@@ -39,6 +42,14 @@ class InscripcionController extends Controller
                 'revisado_por' => null,
                 'revisado_at' => null,
             ];
+
+            // La documentación queda en el disco privado, en una carpeta por evento
+            if ($archivo) {
+                if ($inscripcion?->archivo) {
+                    Storage::disk('local')->delete($inscripcion->archivo);
+                }
+                $datos['archivo'] = $archivo->store("inscripciones/evento-{$evento->id}", 'local');
+            }
 
             // Si había cancelado o lo rechazaron, reactivamos la misma inscripción
             if ($inscripcion) {
@@ -65,6 +76,23 @@ class InscripcionController extends Controller
             : 'Te inscribiste correctamente.';
 
         return redirect()->route('eventos.show', $evento)->with('success', $mensaje);
+    }
+
+    // Solo el dueño de la inscripción, el organizador del evento o un admin
+    public function archivo(Request $request, Inscripcion $inscripcion)
+    {
+        $usuario = $request->user();
+
+        abort_unless(
+            $inscripcion->user_id === $usuario->id || $inscripcion->evento->puedeGestionar($usuario),
+            403
+        );
+
+        abort_unless($inscripcion->archivo && Storage::disk('local')->exists($inscripcion->archivo), 404);
+
+        $extension = pathinfo($inscripcion->archivo, PATHINFO_EXTENSION);
+
+        return Storage::disk('local')->download($inscripcion->archivo, "documentacion-{$inscripcion->id}.{$extension}");
     }
 
     #[Middleware('permission:inscribirse eventos')]

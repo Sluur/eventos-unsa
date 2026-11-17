@@ -1,6 +1,7 @@
-import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
+import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, FileText, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
+import CategoriaReglas from '@/components/categoria-reglas';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
@@ -9,10 +10,12 @@ import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EstadoInscripcionBadge, { type EstadoInscripcion } from '@/components/estado-inscripcion-badge';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
+import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatearFechaLarga, formatearHora } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
@@ -37,7 +40,14 @@ interface Evento {
     motivo_cancelacion: string | null;
     imagen_url: string | null;
     inscriptos_count: number;
-    categoria: { id: number; nombre: string; color: string | null };
+    categoria: {
+        id: number;
+        nombre: string;
+        color: string | null;
+        requiere_aprobacion: boolean;
+        requiere_documentacion: boolean;
+        documentacion_descripcion: string | null;
+    };
     lugar: { id: number; nombre: string; direccion: string | null };
     organizador: { id: number; name: string };
     disertantes: Disertante[];
@@ -56,7 +66,7 @@ interface Props {
     inscriptos: Inscripto[];
     puedeInscribirse: boolean;
     estaInscripto: boolean;
-    miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null } | null;
+    miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null; archivo: string | null } | null;
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
     inscripcionCerrada: boolean;
@@ -90,8 +100,15 @@ export default function Show({
 
     const lugaresLibres = Math.max(0, evento.cupo - evento.inscriptos_count);
 
+    const requiereDocumentacion = evento.categoria.requiere_documentacion;
+    const inscripcion = useForm<{ archivo: File | null }>({ archivo: null });
+
     const inscribirme = () => {
-        router.post(`/eventos/${evento.id}/inscripcion`, {}, { preserveScroll: true });
+        inscripcion.post(`/eventos/${evento.id}/inscripcion`, {
+            preserveScroll: true,
+            forceFormData: requiereDocumentacion,
+            onSuccess: () => inscripcion.reset(),
+        });
     };
 
     setLayoutProps({ breadcrumbs });
@@ -190,6 +207,7 @@ export default function Show({
                                 </span>
                             </div>
                             <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
+                            {puedeInscribirse && <CategoriaReglas categoria={evento.categoria} />}
                             {evento.estado === 'publicado' && !yaPaso && evento.inscripcion_hasta && (
                                 <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <Clock className="size-3.5" />
@@ -203,6 +221,14 @@ export default function Show({
                         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                             {puedeInscribirse && estaInscripto && (
                                 <>
+                                    {miInscripcion?.archivo && (
+                                        <Button variant="ghost" size="sm" asChild>
+                                            <a href={`/inscripciones/${miInscripcion.id}/archivo`}>
+                                                <FileText />
+                                                Mi documentación
+                                            </a>
+                                        </Button>
+                                    )}
                                     {miInscripcion?.estado === 'pendiente' ? (
                                         <EstadoInscripcionBadge estado="pendiente" />
                                     ) : (
@@ -238,8 +264,27 @@ export default function Show({
                                             <span className="text-xs text-muted-foreground">Podés volver a inscribirte.</span>
                                         </div>
                                     )}
-                                    <Button onClick={inscribirme} disabled={motivoSinInscripcion !== null}>
-                                        Inscribirme
+                                    {requiereDocumentacion && motivoSinInscripcion === null && (
+                                        <div className="flex flex-col gap-1.5">
+                                            <label htmlFor="archivo" className="text-sm font-medium">
+                                                Subí: {evento.categoria.documentacion_descripcion}
+                                            </label>
+                                            <Input
+                                                id="archivo"
+                                                type="file"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={(e) => inscripcion.setData('archivo', e.target.files?.[0] ?? null)}
+                                                aria-invalid={!!inscripcion.errors.archivo}
+                                            />
+                                            <span className="text-xs text-muted-foreground">PDF, JPG o PNG de hasta 5 MB.</span>
+                                            <InputError message={inscripcion.errors.archivo} />
+                                        </div>
+                                    )}
+                                    <Button
+                                        onClick={inscribirme}
+                                        disabled={motivoSinInscripcion !== null || inscripcion.processing}
+                                    >
+                                        {inscripcion.processing ? 'Enviando...' : 'Inscribirme'}
                                     </Button>
                                     {motivoSinInscripcion && (
                                         <p className="text-sm text-muted-foreground">{motivoSinInscripcion}</p>
