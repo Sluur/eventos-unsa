@@ -26,16 +26,16 @@ class UpdateEventoRequest extends StoreEventoRequest
             ...parent::after(),
             function (Validator $validator) {
                 $evento = $this->route('evento');
-                $confirmadas = $evento->inscripciones()->where('estado', 'confirmada')->count();
+                $ocupados = $evento->lugaresOcupados();
 
-                if (!$validator->errors()->has('cupo') && (int) $this->input('cupo') < $confirmadas) {
+                if (!$validator->errors()->has('cupo') && (int) $this->input('cupo') < $ocupados) {
                     $validator->errors()->add(
                         'cupo',
-                        "El cupo no puede ser menor a la cantidad de inscriptos confirmados ({$confirmadas})."
+                        "El cupo no puede ser menor a la cantidad de inscriptos, contando los pendientes ({$ocupados})."
                     );
                 }
 
-                if ($this->input('estado') === 'borrador' && $confirmadas > 0) {
+                if ($this->input('estado') === 'borrador' && $ocupados > 0) {
                     $validator->errors()->add(
                         'estado',
                         'No se puede pasar a borrador un evento que ya tiene inscriptos.'

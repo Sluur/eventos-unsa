@@ -78,13 +78,25 @@ class Evento extends Model
         return $this->hasMany(Inscripcion::class);
     }
 
+    // Lugares tomados: pendientes + confirmadas
+    public function lugaresOcupados(): int
+    {
+        return $this->inscripciones()->activas()->count();
+    }
+
+    // Con aprobación la inscripción arranca pendiente
+    public function estadoInicialInscripcion(): string
+    {
+        return $this->categoria->requiere_aprobacion ? 'pendiente' : 'confirmada';
+    }
+
     public function yaPaso(): bool
     {
         return $this->fecha_inicio->isPast();
     }
 
     // Devuelve por qué no se puede inscribir nadie más, o null si se puede
-    public function motivoSinInscripcion(int $confirmadas): ?string
+    public function motivoSinInscripcion(int $ocupados): ?string
     {
         if ($this->estado === 'cancelado') {
             return 'El evento fue cancelado.';
@@ -102,7 +114,7 @@ class Evento extends Model
             return 'La inscripción cerró el '.$this->inscripcion_hasta->format('d/m \a \l\a\s H:i').'.';
         }
 
-        if ($confirmadas >= $this->cupo) {
+        if ($ocupados >= $this->cupo) {
             return 'No quedan lugares disponibles.';
         }
 

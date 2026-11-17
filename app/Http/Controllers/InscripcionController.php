@@ -15,7 +15,7 @@ class InscripcionController extends Controller
     {
         $usuario = $request->user();
 
-        $error = DB::transaction(function () use ($evento, $usuario) {
+        $resultado = DB::transaction(function () use ($evento, $usuario) {
             // Bloqueamos el evento para que dos inscripciones simultáneas no pasen el cupo
             $evento = Evento::whereKey($evento->id)->lockForUpdate()->first();
 
@@ -23,38 +23,48 @@ class InscripcionController extends Controller
                 ->where('user_id', $usuario->id)
                 ->first();
 
-            if ($inscripcion && $inscripcion->estado === 'confirmada') {
-                return 'Ya estás inscripto en este evento.';
+            if ($inscripcion?->estaActiva()) {
+                return ['error' => 'Ya estás inscripto en este evento.'];
             }
 
-            $confirmadas = $evento->inscripciones()->where('estado', 'confirmada')->count();
-
-            $motivo = $evento->motivoSinInscripcion($confirmadas);
+            $motivo = $evento->motivoSinInscripcion($evento->lugaresOcupados());
             if ($motivo) {
-                return $motivo;
+                return ['error' => $motivo];
             }
 
-            // Si había cancelado antes, reactivamos la misma inscripción
+            $datos = [
+                'estado' => $evento->estadoInicialInscripcion(),
+                'asistio' => false,
+                'motivo_rechazo' => null,
+                'revisado_por' => null,
+                'revisado_at' => null,
+            ];
+
+            // Si había cancelado o lo rechazaron, reactivamos la misma inscripción
             if ($inscripcion) {
-                $inscripcion->update(['estado' => 'confirmada', 'asistio' => false]);
+                $inscripcion->update($datos);
             } else {
-                Inscripcion::create([
+                $inscripcion = Inscripcion::create([
+                    ...$datos,
                     'user_id' => $usuario->id,
                     'evento_id' => $evento->id,
-                    'estado' => 'confirmada',
                 ]);
             }
 
-            return null;
+            return ['estado' => $inscripcion->estado];
         });
 
-        if ($error) {
-            return redirect()->route('eventos.show', $evento)->with('error', $error);
+        if (isset($resultado['error'])) {
+            return redirect()->route('eventos.show', $evento)->with('error', $resultado['error']);
         }
 
-        return redirect()
-            ->route('eventos.show', $evento)
-            ->with('success', 'Te inscribiste correctamente.');
+        // Pendiente: acá se manda el mail de confirmación o de "inscripción recibida"
+
+        $mensaje = $resultado['estado'] === 'pendiente'
+            ? 'Recibimos tu inscripción. Queda pendiente hasta que el organizador la revise.'
+            : 'Te inscribiste correctamente.';
+
+        return redirect()->route('eventos.show', $evento)->with('success', $mensaje);
     }
 
     #[Middleware('permission:inscribirse eventos')]
@@ -62,7 +72,7 @@ class InscripcionController extends Controller
     {
         $inscripcion = Inscripcion::where('evento_id', $evento->id)
             ->where('user_id', $request->user()->id)
-            ->where('estado', 'confirmada')
+            ->activas()
             ->first();
 
         if (!$inscripcion) {

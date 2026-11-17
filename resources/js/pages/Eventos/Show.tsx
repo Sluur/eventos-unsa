@@ -6,6 +6,7 @@ import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
+import EstadoInscripcionBadge, { type EstadoInscripcion } from '@/components/estado-inscripcion-badge';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -55,6 +56,7 @@ interface Props {
     inscriptos: Inscripto[];
     puedeInscribirse: boolean;
     estaInscripto: boolean;
+    miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null } | null;
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
     inscripcionCerrada: boolean;
@@ -66,6 +68,7 @@ export default function Show({
     inscriptos,
     puedeInscribirse,
     estaInscripto,
+    miInscripcion,
     motivoSinInscripcion,
     yaPaso,
     inscripcionCerrada,
@@ -200,10 +203,14 @@ export default function Show({
                         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                             {puedeInscribirse && estaInscripto && (
                                 <>
-                                    <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                                        <CircleCheck className="size-4" />
-                                        Estás inscripto
-                                    </span>
+                                    {miInscripcion?.estado === 'pendiente' ? (
+                                        <EstadoInscripcionBadge estado="pendiente" />
+                                    ) : (
+                                        <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                                            <CircleCheck className="size-4" />
+                                            Estás inscripto
+                                        </span>
+                                    )}
                                     {!yaPaso && evento.estado !== 'cancelado' && (
                                         <ConfirmDelete
                                             url={`/eventos/${evento.id}/inscripcion`}
@@ -220,6 +227,17 @@ export default function Show({
 
                             {puedeInscribirse && !estaInscripto && (
                                 <div className="flex flex-col items-stretch gap-1 sm:items-end">
+                                    {miInscripcion?.estado === 'rechazada' && (
+                                        <div className="flex flex-col gap-1 text-sm sm:items-end">
+                                            <EstadoInscripcionBadge estado="rechazada" />
+                                            {miInscripcion.motivo_rechazo && (
+                                                <span className="text-muted-foreground">
+                                                    Motivo: {miInscripcion.motivo_rechazo}
+                                                </span>
+                                            )}
+                                            <span className="text-xs text-muted-foreground">Podés volver a inscribirte.</span>
+                                        </div>
+                                    )}
                                     <Button onClick={inscribirme} disabled={motivoSinInscripcion !== null}>
                                         Inscribirme
                                     </Button>

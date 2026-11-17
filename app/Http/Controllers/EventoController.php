@@ -41,7 +41,7 @@ public function index(Request $request)
 
     $eventos = Evento::with(['categoria', 'lugar'])
         ->withCount(['inscripciones as inscriptos_count' => function ($query) {
-            $query->where('estado', 'confirmada');
+            $query->activas();
         }])
         // Quien no puede crear eventos (alumno) no ve borradores, y de los cancelados solo en los que estaba inscripto
         ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
@@ -50,7 +50,7 @@ public function index(Request $request)
                     ->orWhere(function ($query) use ($request) {
                         $query->where('estado', 'cancelado')
                             ->whereHas('inscripciones', function ($query) use ($request) {
-                                $query->where('user_id', $request->user()->id)->where('estado', 'confirmada');
+                                $query->where('user_id', $request->user()->id)->activas();
                             });
                     });
             });
@@ -145,12 +145,13 @@ public function index(Request $request)
 
         $miInscripcion = $evento->inscripciones()
             ->where('user_id', $usuario->id)
-            ->where('estado', 'confirmada')
-            ->exists();
+            ->first(['id', 'estado', 'motivo_rechazo', 'archivo']);
+
+        $estaInscripto = $miInscripcion?->estaActiva() ?? false;
 
         // El alumno no ve borradores, y un cancelado solo si estaba inscripto
         $visible = in_array($evento->estado, ['publicado', 'finalizado'], true)
-            || ($evento->estado === 'cancelado' && $miInscripcion);
+            || ($evento->estado === 'cancelado' && $estaInscripto);
 
         if (!$usuario->can('crear eventos') && !$visible) {
             abort(404);
@@ -158,7 +159,7 @@ public function index(Request $request)
 
         $evento->load(['categoria', 'lugar', 'organizador:id,name', 'disertantes'])
             ->loadCount(['inscripciones as inscriptos_count' => function ($query) {
-                $query->where('estado', 'confirmada');
+                $query->activas();
             }]);
 
         $puedeGestionar = $evento->puedeGestionar($usuario);
@@ -176,7 +177,8 @@ public function index(Request $request)
             'puedeGestionar' => $puedeGestionar,
             'inscriptos' => $inscriptos,
             'puedeInscribirse' => $usuario->can('inscribirse eventos'),
-            'estaInscripto' => $miInscripcion,
+            'estaInscripto' => $estaInscripto,
+            'miInscripcion' => $miInscripcion,
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
             'yaPaso' => $evento->yaPaso(),
             'inscripcionCerrada' => $evento->inscripcionCerrada(),
@@ -196,7 +198,7 @@ public function index(Request $request)
 
         $evento->load('disertantes:id')
             ->loadCount(['inscripciones as inscriptos_count' => function ($query) {
-                $query->where('estado', 'confirmada');
+                $query->activas();
             }]);
 
         return Inertia::render('Eventos/Edit', [
