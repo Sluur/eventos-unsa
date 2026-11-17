@@ -166,7 +166,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         </Select>
 
                         <Select value={estado || TODOS} onValueChange={(v) => setEstado(v === TODOS ? '' : v)}>
-                            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40" aria-label="Estado">
+                            <SelectTrigger className="min-w-36 flex-1 sm:w-40 sm:flex-none" aria-label="Estado">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -179,7 +179,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         </Select>
 
                         <Select value={String(porPagina)} onValueChange={(v) => setPorPagina(Number(v))}>
-                            <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-36" aria-label="Por página">
+                            <SelectTrigger className="min-w-36 flex-1 sm:w-36 sm:flex-none" aria-label="Por página">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

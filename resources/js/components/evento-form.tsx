@@ -127,7 +127,7 @@ export default function EventoForm({
             >
                 {imagenVisible ? (
                     <div className="relative overflow-hidden rounded-lg border">
-                        <img src={imagenVisible} alt="Imagen del evento" className="aspect-[21/9] w-full object-cover" />
+                        <img src={imagenVisible} alt="Imagen del evento" className="h-40 w-full object-cover" />
                         <Button
                             type="button"
                             size="sm"

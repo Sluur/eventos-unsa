@@ -5,9 +5,9 @@ export type EstadoEvento = 'borrador' | 'publicado' | 'cancelado' | 'finalizado'
 
 const estilos: Record<EstadoEvento, string> = {
     borrador: 'bg-muted text-muted-foreground',
-    publicado: 'bg-primary/12 text-primary',
-    cancelado: 'bg-destructive/12 text-destructive',
-    finalizado: 'bg-[#e4ece8] text-[#48625a] dark:bg-[#1d2a26] dark:text-[#9db8ae]',
+    publicado: 'bg-primary/10 text-primary',
+    cancelado: 'bg-destructive/10 text-destructive',
+    finalizado: 'bg-chart-5/10 text-chart-5',
 };
 
 const textos: Record<EstadoEvento, string> = {

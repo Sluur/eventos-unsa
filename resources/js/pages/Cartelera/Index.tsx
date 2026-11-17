@@ -41,7 +41,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
 
             <section className="flex flex-col gap-4 border-b px-4 pt-8 pb-6 md:pt-10">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight sm:text-[1.75rem]">Eventos de la facultad</h1>
+                    <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Eventos de la facultad</h1>
                     <p className="mt-1 text-muted-foreground">Próximas charlas, talleres y cursos.</p>
                 </div>
 

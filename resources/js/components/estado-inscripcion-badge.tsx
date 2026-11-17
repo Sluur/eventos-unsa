@@ -4,9 +4,9 @@ import { cn } from '@/lib/utils';
 export type EstadoInscripcion = 'pendiente' | 'confirmada' | 'rechazada' | 'cancelada';
 
 const estilos: Record<EstadoInscripcion, string> = {
-    pendiente: 'bg-acento/12 text-acento',
-    confirmada: 'bg-primary/12 text-primary',
-    rechazada: 'bg-destructive/12 text-destructive',
+    pendiente: 'bg-acento/10 text-acento',
+    confirmada: 'bg-primary/10 text-primary',
+    rechazada: 'bg-destructive/10 text-destructive',
     cancelada: 'bg-muted text-muted-foreground',
 };
 

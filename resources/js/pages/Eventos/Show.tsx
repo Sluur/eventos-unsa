@@ -430,7 +430,7 @@ export default function Show({
                                             </TableCell>
                                             <TableCell className="pr-6">
                                                 {inscripcion.asistio ? (
-                                                    <Badge className="border-transparent bg-primary/12 text-primary">
+                                                    <Badge className="border-transparent bg-primary/10 text-primary">
                                                         Asistió
                                                     </Badge>
                                                 ) : (
