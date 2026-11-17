@@ -1,11 +1,9 @@
 import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import FormField from '@/components/form-field';
+import CategoriaForm, { type CategoriaFormData } from '@/components/categoria-form';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -14,14 +12,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
+    const form = useForm<CategoriaFormData>({
         nombre: '',
         descripcion: '',
+        requiere_aprobacion: false,
+        requiere_documentacion: false,
+        documentacion_descripcion: '',
+        color: '',
     });
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        post('/categorias');
+        form.post('/categorias');
     };
 
     setLayoutProps({ breadcrumbs });
@@ -35,35 +37,20 @@ export default function Create() {
 
                 <Card>
                     <CardContent>
-                        <form onSubmit={submit} className="flex flex-col gap-5">
-                            <FormField label="Nombre" htmlFor="nombre" error={errors.nombre}>
-                                <Input
-                                    id="nombre"
-                                    value={data.nombre}
-                                    onChange={(e) => setData('nombre', e.target.value)}
-                                    aria-invalid={!!errors.nombre}
-                                />
-                            </FormField>
-
-                            <FormField label="Descripción" htmlFor="descripcion" error={errors.descripcion}>
-                                <Textarea
-                                    id="descripcion"
-                                    rows={4}
-                                    value={data.descripcion}
-                                    onChange={(e) => setData('descripcion', e.target.value)}
-                                    aria-invalid={!!errors.descripcion}
-                                />
-                            </FormField>
-
-                            <div className="flex gap-2">
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Guardando...' : 'Guardar'}
-                                </Button>
-                                <Button variant="outline" asChild>
-                                    <Link href="/categorias">Cancelar</Link>
-                                </Button>
-                            </div>
-                        </form>
+                        <CategoriaForm
+                            form={form}
+                            onSubmit={submit}
+                            acciones={
+                                <>
+                                    <Button type="submit" disabled={form.processing}>
+                                        {form.processing ? 'Guardando...' : 'Guardar'}
+                                    </Button>
+                                    <Button variant="outline" asChild>
+                                        <Link href="/categorias">Cancelar</Link>
+                                    </Button>
+                                </>
+                            }
+                        />
                     </CardContent>
                 </Card>
             </div>

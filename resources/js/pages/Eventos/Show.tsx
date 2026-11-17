@@ -3,6 +3,7 @@ import { ArrowLeft, Ban, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
+import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EventoImagen from '@/components/evento-imagen';
@@ -33,7 +34,7 @@ interface Evento {
     motivo_cancelacion: string | null;
     imagen_url: string | null;
     inscriptos_count: number;
-    categoria: { id: number; nombre: string };
+    categoria: { id: number; nombre: string; color: string | null };
     lugar: { id: number; nombre: string; direccion: string | null };
     organizador: { id: number; name: string };
     disertantes: Disertante[];
@@ -104,6 +105,7 @@ export default function Show({
                 <EventoImagen
                     url={evento.imagen_url}
                     categoriaId={evento.categoria.id}
+                    color={evento.categoria.color}
                     alt={evento.titulo}
                     className="h-40 w-full rounded-xl sm:h-64"
                 />
@@ -113,7 +115,7 @@ export default function Show({
                     <FechaBloque fecha={evento.fecha_inicio} grande />
                     <div className="flex min-w-0 flex-col gap-2">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm text-muted-foreground">{evento.categoria.nombre}</span>
+                            <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
                             <EstadoBadge estado={evento.estado} />
                         </div>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{evento.titulo}</h1>

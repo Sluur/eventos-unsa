@@ -1,6 +1,7 @@
 import type { InertiaFormProps } from '@inertiajs/react';
 import { ImageIcon, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import CategoriaReglas, { type ReglasCategoria } from '@/components/categoria-reglas';
 import DisertantesSelect, { type DisertanteOpcion } from '@/components/disertantes-select';
 import FormField from '@/components/form-field';
 import InputError from '@/components/input-error';
@@ -15,11 +16,18 @@ export interface LugarOpcion {
     capacidad: number;
 }
 
+export interface CategoriaOpcion extends ReglasCategoria {
+    id: number;
+    nombre: string;
+    color: string | null;
+}
+
 export type EventoFormData = {
     titulo: string;
     descripcion: string;
     fecha_inicio: string;
     fecha_fin: string;
+    categoria_id: string;
     lugar_id: string;
     cupo: string;
     disertantes: number[];
@@ -30,6 +38,7 @@ export type EventoFormData = {
 
 interface Props {
     form: InertiaFormProps<EventoFormData>;
+    categorias: CategoriaOpcion[];
     lugares: LugarOpcion[];
     disertantes: DisertanteOpcion[];
     onSubmit: (e: FormEvent) => void;
@@ -41,6 +50,7 @@ interface Props {
 // Formulario compartido entre alta y edición de eventos
 export default function EventoForm({
     form,
+    categorias,
     lugares,
     disertantes,
     onSubmit,
@@ -70,6 +80,7 @@ export default function EventoForm({
         setInputKey((k) => k + 1);
     };
     const lugarElegido = lugares.find((l) => String(l.id) === data.lugar_id);
+    const categoriaElegida = categorias.find((c) => String(c.id) === data.categoria_id);
 
     const ayuda = [lugarElegido && `Máximo ${lugarElegido.capacidad} personas en este lugar.`, ayudaCupo]
         .filter(Boolean)
@@ -84,6 +95,26 @@ export default function EventoForm({
                     onChange={(e) => setData('titulo', e.target.value)}
                     aria-invalid={!!errors.titulo}
                 />
+            </FormField>
+
+            <FormField label="Categoría" htmlFor="categoria_id" error={errors.categoria_id}>
+                <Select value={data.categoria_id} onValueChange={(v) => setData('categoria_id', v)}>
+                    <SelectTrigger id="categoria_id" className="w-full" aria-invalid={!!errors.categoria_id}>
+                        <SelectValue placeholder="Elegí una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {categorias.map((c) => (
+                            <SelectItem key={c.id} value={String(c.id)}>
+                                <span
+                                    className="size-2.5 rounded-full border"
+                                    style={{ backgroundColor: c.color ?? 'transparent' }}
+                                />
+                                {c.nombre}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {categoriaElegida && <CategoriaReglas categoria={categoriaElegida} />}
             </FormField>
 
             <FormField

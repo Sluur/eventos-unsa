@@ -37,6 +37,7 @@ class GestionEventosTest extends TestCase
             'descripcion' => $evento->descripcion,
             'fecha_inicio' => $evento->fecha_inicio->format('Y-m-d\TH:i'),
             'fecha_fin' => $evento->fecha_fin->format('Y-m-d\TH:i'),
+            'categoria_id' => $evento->categoria_id,
             'lugar_id' => $evento->lugar_id,
             'cupo' => $evento->cupo,
             'estado' => $evento->estado,

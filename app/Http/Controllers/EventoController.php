@@ -93,8 +93,10 @@ public function index(Request $request)
         return Inertia::render('Eventos/Create', [
             'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
             'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+            'categorias' => $this->categoriasParaFormulario(),
             'copia' => $original ? [
                 'titulo' => $original->titulo.' (copia)',
+                'categoria_id' => (string) $original->categoria_id,
                 'descripcion' => $original->descripcion,
                 'lugar_id' => (string) $original->lugar_id,
                 'cupo' => (string) $original->cupo,
@@ -109,9 +111,6 @@ public function index(Request $request)
     {
         $datos = $request->validated();
 
-        // Por ahora solo se cargan charlas
-        $charla = Categoria::where('nombre', 'Charla')->firstOrFail();
-
         $evento = Evento::create([
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
@@ -120,7 +119,7 @@ public function index(Request $request)
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
             'estado' => $datos['estado'],
-            'categoria_id' => $charla->id,
+            'categoria_id' => $datos['categoria_id'],
             'organizador_id' => $request->user()->id,
             'imagen' => $request->hasFile('imagen') ? $request->file('imagen')->store('eventos', 'public') : null,
         ]);
@@ -128,8 +127,8 @@ public function index(Request $request)
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
 
         $mensaje = $evento->estado === 'publicado'
-            ? 'Charla publicada correctamente.'
-            : 'Charla guardada como borrador.';
+            ? 'Evento publicado correctamente.'
+            : 'Evento guardado como borrador.';
 
         return redirect()
             ->route('eventos.show', $evento)
@@ -200,6 +199,7 @@ public function index(Request $request)
             'evento' => $evento,
             'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
             'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+            'categorias' => $this->categoriasParaFormulario(),
         ]);
     }
 
@@ -221,6 +221,7 @@ public function index(Request $request)
             'descripcion' => $datos['descripcion'],
             'fecha_inicio' => $datos['fecha_inicio'],
             'fecha_fin' => $datos['fecha_fin'],
+            'categoria_id' => $datos['categoria_id'],
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
             'estado' => $datos['estado'],
@@ -282,5 +283,12 @@ public function index(Request $request)
         return redirect()
             ->route('eventos.index')
             ->with('success', 'Evento eliminado correctamente.');
+    }
+
+    private function categoriasParaFormulario()
+    {
+        return Categoria::orderBy('nombre')->get([
+            'id', 'nombre', 'color', 'requiere_aprobacion', 'requiere_documentacion', 'documentacion_descripcion',
+        ]);
     }
 }

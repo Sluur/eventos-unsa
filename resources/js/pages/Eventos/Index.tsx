@@ -2,6 +2,7 @@ import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, MapPin, Plus, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import CupoBar from '@/components/cupo-bar';
+import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EventoImagen from '@/components/evento-imagen';
@@ -24,7 +25,7 @@ interface Evento {
     estado: EstadoEvento;
     imagen_url: string | null;
     inscriptos_count: number;
-    categoria: { id: number; nombre: string };
+    categoria: { id: number; nombre: string; color: string | null };
     lugar: { id: number; nombre: string };
 }
 
@@ -129,7 +130,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         <Button asChild>
                             <Link href="/eventos/create">
                                 <Plus />
-                                Nueva charla
+                                Nuevo evento
                             </Link>
                         </Button>
                     )}
@@ -261,7 +262,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                                             <Link href={`/eventos/${evento.id}`} className="font-medium hover:text-primary">
                                                 {evento.titulo}
                                             </Link>
-                                            <div className="text-xs text-muted-foreground">{evento.categoria.nombre}</div>
+                                            <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} />
                                         </TableCell>
                                         <TableCell>{formatearFecha(evento.fecha_inicio)}</TableCell>
                                         <TableCell className="hidden text-muted-foreground lg:table-cell">
@@ -328,6 +329,7 @@ function TarjetaEvento({ evento }: { evento: Evento }) {
                 <EventoImagen
                     url={evento.imagen_url}
                     categoriaId={evento.categoria.id}
+                    color={evento.categoria.color}
                     alt={evento.titulo}
                     className="h-36 w-full"
                 />
@@ -335,7 +337,7 @@ function TarjetaEvento({ evento }: { evento: Evento }) {
                     <FechaBloque fecha={evento.fecha_inicio} />
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <div className="flex items-center justify-between gap-2">
-                            <span className="truncate text-xs text-muted-foreground">{evento.categoria.nombre}</span>
+                            <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} />
                             <EstadoBadge estado={evento.estado} />
                         </div>
                         <h3 className="line-clamp-2 leading-snug font-semibold group-hover:text-primary">

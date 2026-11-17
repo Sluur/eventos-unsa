@@ -1,7 +1,7 @@
 import { CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Sin columna de color en categorías, cada una toma un color fijo según su id
+// Si la categoría no tiene color, toma uno fijo según su id
 const colores = [
     'from-emerald-600 to-teal-500',
     'from-sky-600 to-cyan-500',
@@ -13,11 +13,12 @@ const colores = [
 interface Props {
     url: string | null;
     categoriaId: number;
+    color?: string | null;
     alt: string;
     className?: string;
 }
 
-export default function EventoImagen({ url, categoriaId, alt, className }: Props) {
+export default function EventoImagen({ url, categoriaId, color, alt, className }: Props) {
     if (url) {
         return <img src={url} alt={alt} className={cn('object-cover', className)} />;
     }
@@ -26,9 +27,10 @@ export default function EventoImagen({ url, categoriaId, alt, className }: Props
         <div
             className={cn(
                 'flex items-center justify-center bg-gradient-to-br text-white/40',
-                colores[categoriaId % colores.length],
+                !color && colores[categoriaId % colores.length],
                 className,
             )}
+            style={color ? { backgroundImage: `linear-gradient(135deg, ${color}, ${color}99)` } : undefined}
         >
             <CalendarDays className="size-10" />
         </div>

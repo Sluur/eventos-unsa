@@ -1,0 +1,93 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Categoria;
+use App\Models\Evento;
+use App\Models\Lugar;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class ReglasInscripcionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed();
+    }
+
+    private function usuario(string $email): User
+    {
+        return User::where('email', $email)->firstOrFail();
+    }
+
+    private function datosEvento(array $cambios = []): array
+    {
+        return array_merge([
+            'titulo' => 'Evento de prueba',
+            'descripcion' => 'Descripción',
+            'fecha_inicio' => now()->addDays(5)->format('Y-m-d\TH:i'),
+            'fecha_fin' => now()->addDays(5)->addHours(2)->format('Y-m-d\TH:i'),
+            'categoria_id' => Categoria::where('nombre', 'Charla')->value('id'),
+            'lugar_id' => Lugar::where('nombre', 'Aula Magna')->value('id'),
+            'cupo' => 20,
+            'estado' => 'publicado',
+        ], $cambios);
+    }
+
+    public function test_categoria_con_documentacion_pide_descripcion()
+    {
+        $this->actingAs($this->usuario('rodrigo@eventos.test'))
+            ->post('/categorias', [
+                'nombre' => 'Congreso',
+                'requiere_aprobacion' => true,
+                'requiere_documentacion' => true,
+                'documentacion_descripcion' => '',
+            ])
+            ->assertSessionHasErrors('documentacion_descripcion');
+    }
+
+    public function test_documentacion_sin_aprobacion_no_es_valido()
+    {
+        $this->actingAs($this->usuario('rodrigo@eventos.test'))
+            ->post('/categorias', [
+                'nombre' => 'Congreso',
+                'requiere_aprobacion' => false,
+                'requiere_documentacion' => true,
+                'documentacion_descripcion' => 'Constancia de inscripción',
+            ])
+            ->assertSessionHasErrors('requiere_aprobacion');
+    }
+
+    public function test_crea_categoria_con_reglas_y_color()
+    {
+        $this->actingAs($this->usuario('rodrigo@eventos.test'))
+            ->post('/categorias', [
+                'nombre' => 'Congreso',
+                'requiere_aprobacion' => true,
+                'requiere_documentacion' => true,
+                'documentacion_descripcion' => 'Constancia de inscripción',
+                'color' => '#ff8800',
+            ])
+            ->assertRedirect('/categorias');
+
+        $categoria = Categoria::where('nombre', 'Congreso')->first();
+        $this->assertTrue($categoria->requiere_documentacion);
+        $this->assertSame('#ff8800', $categoria->color);
+    }
+
+    public function test_el_evento_guarda_la_categoria_elegida()
+    {
+        $curso = Categoria::where('nombre', 'Curso')->value('id');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->post('/eventos', $this->datosEvento(['categoria_id' => $curso]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($curso, Evento::where('titulo', 'Evento de prueba')->value('categoria_id'));
+    }
+}

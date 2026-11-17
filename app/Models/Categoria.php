@@ -9,11 +9,25 @@ class Categoria extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'descripcion'];
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'requiere_aprobacion',
+        'requiere_documentacion',
+        'documentacion_descripcion',
+        'color',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'requiere_aprobacion' => 'boolean',
+            'requiere_documentacion' => 'boolean',
+        ];
+    }
+
     public function eventos()
-{
-    return $this->hasMany(Evento::class);
+    {
+        return $this->hasMany(Evento::class);
+    }
 }
-}
-
-

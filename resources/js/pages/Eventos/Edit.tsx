@@ -2,7 +2,7 @@ import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import type { DisertanteOpcion } from '@/components/disertantes-select';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
-import EventoForm, { type EventoFormData, type LugarOpcion } from '@/components/evento-form';
+import EventoForm, { type CategoriaOpcion, type EventoFormData, type LugarOpcion } from '@/components/evento-form';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ interface Evento {
     descripcion: string;
     fecha_inicio: string;
     fecha_fin: string;
+    categoria_id: number;
     lugar_id: number;
     cupo: number;
     estado: EstadoEvento;
@@ -24,6 +25,7 @@ interface Evento {
 
 interface Props {
     evento: Evento;
+    categorias: CategoriaOpcion[];
     lugares: LugarOpcion[];
     disertantes: DisertanteOpcion[];
 }
@@ -31,7 +33,7 @@ interface Props {
 // "2026-11-24T18:00:00.000000Z" -> "2026-11-24T18:00" para el input datetime-local
 const paraInput = (fecha: string) => fecha.slice(0, 16);
 
-export default function Edit({ evento, lugares, disertantes }: Props) {
+export default function Edit({ evento, categorias, lugares, disertantes }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
         { title: evento.titulo, href: `/eventos/${evento.id}` },
@@ -43,6 +45,7 @@ export default function Edit({ evento, lugares, disertantes }: Props) {
         descripcion: evento.descripcion,
         fecha_inicio: paraInput(evento.fecha_inicio),
         fecha_fin: paraInput(evento.fecha_fin),
+        categoria_id: String(evento.categoria_id),
         lugar_id: String(evento.lugar_id),
         cupo: String(evento.cupo),
         disertantes: evento.disertantes.map((d) => d.id),
@@ -75,6 +78,7 @@ export default function Edit({ evento, lugares, disertantes }: Props) {
                     <CardContent>
                         <EventoForm
                             form={form}
+                            categorias={categorias}
                             lugares={lugares}
                             disertantes={disertantes}
                             onSubmit={guardar(esBorrador ? 'borrador' : 'publicado')}
