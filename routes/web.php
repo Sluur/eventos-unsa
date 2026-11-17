@@ -17,7 +17,8 @@ Route::post('cartelera/{evento}/inscripcion', [CarteleraController::class, 'insc
 Route::get('cartelera/{evento}/ingresar', [CarteleraController::class, 'ingresar'])->middleware('auth')->name('cartelera.ingresar');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    // Después de ingresar o registrarse se vuelve a la cartelera
+    Route::redirect('dashboard', '/')->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {

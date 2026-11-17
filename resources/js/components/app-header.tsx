@@ -21,7 +21,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { useMenu } from '@/hooks/use-menu';
 import { cn } from '@/lib/utils';
-import type { BreadcrumbItem } from '@/types';
+import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -32,6 +32,9 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const getInitials = useInitials();
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const items = useMenu();
+
+    // "Inicio" es la cartelera, fuera del panel: nunca queda marcado
+    const estaActivo = (href: NavItem['href']) => href !== '/' && isCurrentOrParentUrl(href);
 
     return (
         <>
@@ -58,7 +61,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                             href={item.href}
                                             className={cn(
                                                 'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent',
-                                                isCurrentOrParentUrl(item.href) &&
+                                                estaActivo(item.href) &&
                                                     'bg-primary/10 text-primary',
                                             )}
                                         >
@@ -71,13 +74,13 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         </Sheet>
                     </div>
 
-                    <Link href="/dashboard" prefetch className="flex items-center">
+                    <Link href="/" className="flex items-center">
                         <AppLogo />
                     </Link>
 
                     <nav className="ml-6 hidden h-16 items-stretch gap-1 md:flex">
                         {items.map((item) => {
-                            const activo = isCurrentOrParentUrl(item.href);
+                            const activo = estaActivo(item.href);
 
                             return (
                                 <Link

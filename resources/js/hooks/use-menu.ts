@@ -1,9 +1,9 @@
 import { usePage } from '@inertiajs/react';
-import { CalendarDays, LayoutGrid, MapPin, Mic, Tags } from 'lucide-react';
+import { CalendarDays, House, MapPin, Mic, Tags } from 'lucide-react';
 import type { NavItem } from '@/types';
 
 const items: { item: NavItem; permiso?: string }[] = [
-    { item: { title: 'Inicio', href: '/dashboard', icon: LayoutGrid } },
+    { item: { title: 'Inicio', href: '/', icon: House } },
     { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
     { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
     { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
