@@ -6,6 +6,7 @@ use App\Mail\InscripcionAceptada;
 use App\Mail\InscripcionConfirmada;
 use App\Mail\InscripcionRechazada;
 use App\Mail\InscripcionRecibida;
+use App\Mail\RecordatorioEvento;
 use App\Models\Categoria;
 use App\Models\Evento;
 use App\Models\Inscripcion;
@@ -109,6 +110,23 @@ class MailsTest extends TestCase
         Mail::assertQueued(InscripcionRechazada::class, fn ($mail) => $mail->hasTo('franco@eventos.test'));
 
         (new InscripcionRechazada($franco->fresh()))->assertSeeInHtml('No cumple los requisitos');
+    }
+
+    public function test_b4_recordatorio_una_sola_vez_a_los_confirmados()
+    {
+        $docker = $this->evento('Primeros pasos con Docker');
+
+        $this->artisan('eventos:enviar-recordatorios')
+            ->expectsOutput('Recordatorios enviados: 2')
+            ->assertSuccessful();
+
+        Mail::assertQueued(RecordatorioEvento::class, 2);
+        Mail::assertQueued(RecordatorioEvento::class, fn ($mail) => $mail->hasTo('oriana@eventos.test')
+            && $mail->inscripcion->evento_id === $docker->id);
+        $this->assertSame(0, $docker->inscripciones()->whereNull('recordatorio_enviado_at')->count());
+
+        // La segunda corrida no repite
+        $this->artisan('eventos:enviar-recordatorios')->expectsOutput('Recordatorios enviados: 0');
     }
 
     public function test_el_mail_lleva_los_datos_del_evento()

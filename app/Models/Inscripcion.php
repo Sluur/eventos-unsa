@@ -30,6 +30,7 @@ class Inscripcion extends Model
         'motivo_rechazo',
         'revisado_por',
         'revisado_at',
+        'recordatorio_enviado_at',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class Inscripcion extends Model
         return [
             'asistio' => 'boolean',
             'revisado_at' => 'datetime',
+            'recordatorio_enviado_at' => 'datetime',
         ];
     }
 

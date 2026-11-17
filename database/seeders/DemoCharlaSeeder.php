@@ -137,6 +137,23 @@ class DemoCharlaSeeder extends Seeder
         $seguridad->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
         $this->inscribir($seguridad, ['oriana@eventos.test', 'alejandro@eventos.test']);
 
+        // Empieza en menos de 24 horas, para probar los recordatorios
+        $inicio = now()->addHours(20)->setMinute(0)->setSecond(0);
+
+        $docker = Evento::create([
+            'titulo' => 'Primeros pasos con Docker',
+            'descripcion' => 'Contenedores e imágenes explicados con ejemplos simples.',
+            'fecha_inicio' => $inicio,
+            'fecha_fin' => (clone $inicio)->addHours(2),
+            'cupo' => 25,
+            'estado' => 'publicado',
+            'categoria_id' => $charla,
+            'lugar_id' => Lugar::where('nombre', 'Aula 101')->value('id'),
+            'organizador_id' => $organizador->id,
+        ]);
+        $docker->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
+        $this->inscribir($docker, ['oriana@eventos.test', 'alejandro@eventos.test']);
+
         // Curso con aprobación y documentación: una pendiente, una confirmada y una rechazada
         $inicio = now()->addDays(21)->setTime(17, 0);
 
