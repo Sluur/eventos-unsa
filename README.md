@@ -18,11 +18,11 @@ Sistema para gestionar los eventos de la facultad (charlas, talleres, congresos)
 - React + TypeScript con Inertia
 - Tailwind CSS
 - Spatie Laravel Permission para roles y permisos
-- SQLite (se puede cambiar a MySQL desde el `.env`)
+- MySQL / MariaDB
 
 ## Instalación
 
-Requisitos: PHP 8.4, Composer, Node.js LTS y Git.
+Requisitos: PHP 8.4, Composer, Node.js LTS, Git y MySQL o MariaDB (por ejemplo con XAMPP).
 
 ```bash
 git clone https://github.com/Sluur/eventos-unsa.git
@@ -35,15 +35,24 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Crear la base de datos SQLite (archivo vacío):
+Crear la base de datos `eventos_unsa` (por ejemplo desde phpMyAdmin, con cotejamiento `utf8mb4_unicode_ci`), o desde la consola:
 
 ```bash
-# Linux / Mac / Git Bash
-touch database/database.sqlite
-
-# PowerShell
-New-Item database/database.sqlite
+mysql -u root -e "CREATE DATABASE eventos_unsa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 ```
+
+En el `.env` quedan los datos de conexión (los de XAMPP por defecto: usuario `root`, sin contraseña):
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=eventos_unsa
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+MySQL tiene que estar corriendo antes de levantar el proyecto.
 
 Crear las tablas y cargar los datos de prueba:
 
