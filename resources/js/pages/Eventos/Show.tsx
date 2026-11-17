@@ -1,5 +1,5 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, User, Users } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
 import EmptyState from '@/components/empty-state';
@@ -65,6 +65,9 @@ export default function Show({
         puedeGestionar &&
         permisos.includes('tomar asistencia') &&
         ['publicado', 'finalizado'].includes(evento.estado);
+    const sePuedeEditar = !['finalizado', 'cancelado'].includes(evento.estado);
+    const puedeEditar = puedeGestionar && permisos.includes('editar eventos') && sePuedeEditar;
+    const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
@@ -103,6 +106,31 @@ export default function Show({
                         <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{evento.titulo}</h1>
                     </div>
                 </div>
+
+                {(puedeEditar || puedeEliminar) && (
+                    <div className="flex flex-wrap gap-2">
+                        {puedeEditar && (
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={`/eventos/${evento.id}/edit`}>
+                                    <Pencil />
+                                    Editar
+                                </Link>
+                            </Button>
+                        )}
+                        {puedeEliminar && (
+                            <ConfirmDelete
+                                url={`/eventos/${evento.id}`}
+                                titulo="¿Eliminar el evento?"
+                                descripcion="Solo se pueden eliminar eventos sin inscripciones. Si ya tiene inscriptos, cancelalo."
+                            >
+                                <Button variant="ghost" size="sm" className="text-destructive">
+                                    <Trash2 />
+                                    Eliminar
+                                </Button>
+                            </ConfirmDelete>
+                        )}
+                    </div>
+                )}
 
                 {/* Barra de cupo y acciones */}
                 <Card className="py-4">

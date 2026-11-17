@@ -78,6 +78,12 @@ class Evento extends Model
         return null;
     }
 
+    // Finalizados y cancelados ya no se tocan
+    public function sePuedeEditar(): bool
+    {
+        return !in_array($this->estado, ['finalizado', 'cancelado'], true);
+    }
+
     // Solo el organizador del evento o un admin pueden gestionarlo
     public function puedeGestionar(User $usuario): bool
     {

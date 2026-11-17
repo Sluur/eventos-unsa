@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventoRequest;
+use App\Http\Requests\UpdateEventoRequest;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Disertante;
@@ -153,27 +154,74 @@ public function index(Request $request)
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    #[Middleware('permission:editar eventos')]
+    public function edit(Request $request, Evento $evento)
     {
-        //
+        abort_unless($evento->puedeGestionar($request->user()), 403);
+
+        if (!$evento->sePuedeEditar()) {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'No se puede editar un evento finalizado o cancelado.');
+        }
+
+        $evento->load('disertantes:id')
+            ->loadCount(['inscripciones as inscriptos_count' => function ($query) {
+                $query->where('estado', 'confirmada');
+            }]);
+
+        return Inertia::render('Eventos/Edit', [
+            'evento' => $evento,
+            'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
+            'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    #[Middleware('permission:editar eventos')]
+    public function update(UpdateEventoRequest $request, Evento $evento)
     {
-        //
+        abort_unless($evento->puedeGestionar($request->user()), 403);
+
+        if (!$evento->sePuedeEditar()) {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'No se puede editar un evento finalizado o cancelado.');
+        }
+
+        $datos = $request->validated();
+
+        $evento->update([
+            'titulo' => $datos['titulo'],
+            'descripcion' => $datos['descripcion'],
+            'fecha_inicio' => $datos['fecha_inicio'],
+            'fecha_fin' => $datos['fecha_fin'],
+            'lugar_id' => $datos['lugar_id'],
+            'cupo' => $datos['cupo'],
+            'estado' => $datos['estado'],
+        ]);
+
+        $evento->disertantes()->sync($datos['disertantes'] ?? []);
+
+        return redirect()
+            ->route('eventos.show', $evento)
+            ->with('success', 'Evento actualizado correctamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    #[Middleware('permission:eliminar eventos')]
+    public function destroy(Request $request, Evento $evento)
     {
-        //
+        abort_unless($evento->puedeGestionar($request->user()), 403);
+
+        if ($evento->inscripciones()->exists()) {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'No se puede eliminar porque tiene inscripciones. Si no se va a hacer, cancelalo.');
+        }
+
+        $evento->delete();
+
+        return redirect()
+            ->route('eventos.index')
+            ->with('success', 'Evento eliminado correctamente.');
     }
 }
