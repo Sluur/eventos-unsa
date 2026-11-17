@@ -9,6 +9,7 @@ use App\Models\Inscripcion;
 use App\Models\Lugar;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class DemoCharlaSeeder extends Seeder
 {
@@ -120,6 +121,75 @@ class DemoCharlaSeeder extends Seeder
         ]);
         $seguridad->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
         $this->inscribir($seguridad, ['oriana@eventos.test', 'alejandro@eventos.test']);
+
+        // Curso con aprobación y documentación: una pendiente, una confirmada y una rechazada
+        $inicio = now()->addDays(21)->setTime(17, 0);
+
+        $python = Evento::create([
+            'titulo' => 'Curso de Python inicial',
+            'descripcion' => 'Cuatro encuentros para aprender lo básico de Python con ejercicios prácticos.',
+            'fecha_inicio' => $inicio,
+            'fecha_fin' => (clone $inicio)->addHours(3),
+            'cupo' => 15,
+            'estado' => 'publicado',
+            'categoria_id' => Categoria::where('nombre', 'Curso')->value('id'),
+            'lugar_id' => Lugar::where('nombre', 'Laboratorio de Informática 1')->value('id'),
+            'organizador_id' => $organizador->id,
+        ]);
+        $python->disertantes()->attach(Disertante::where('email', 'diego@eventos.test')->pluck('id'));
+
+        $revision = [
+            'oriana@eventos.test' => ['estado' => 'pendiente'],
+            'alejandro@eventos.test' => ['estado' => 'confirmada', 'revisado_por' => $organizador->id, 'revisado_at' => now()->subDay()],
+            'franco@eventos.test' => [
+                'estado' => 'rechazada',
+                'motivo_rechazo' => 'El certificado es del año pasado. Subí uno actualizado.',
+                'revisado_por' => $organizador->id,
+                'revisado_at' => now()->subDay(),
+            ],
+        ];
+
+        foreach ($revision as $email => $datos) {
+            $usuario = User::where('email', $email)->firstOrFail();
+            $archivo = "inscripciones/evento-{$python->id}/certificado-{$usuario->id}.pdf";
+            Storage::disk('local')->put($archivo, $this->pdfDeEjemplo($usuario->name));
+
+            Inscripcion::create([
+                ...$datos,
+                'user_id' => $usuario->id,
+                'evento_id' => $python->id,
+                'archivo' => $archivo,
+            ]);
+        }
+    }
+
+    // PDF mínimo de una página para tener un archivo de ejemplo
+    private function pdfDeEjemplo(string $nombre): string
+    {
+        $texto = "BT /F1 18 Tf 72 720 Td (Certificado de alumno regular - {$nombre}) Tj ET";
+
+        $objetos = [
+            '<< /Type /Catalog /Pages 2 0 R >>',
+            '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+            '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+            '<< /Length '.strlen($texto)." >>\nstream\n{$texto}\nendstream",
+            '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+        ];
+
+        $pdf = "%PDF-1.4\n";
+        $posiciones = [];
+        foreach ($objetos as $i => $objeto) {
+            $posiciones[] = strlen($pdf);
+            $pdf .= ($i + 1)." 0 obj\n{$objeto}\nendobj\n";
+        }
+
+        $xref = strlen($pdf);
+        $pdf .= "xref\n0 ".(count($objetos) + 1)."\n0000000000 65535 f \n";
+        foreach ($posiciones as $posicion) {
+            $pdf .= sprintf("%010d 00000 n \n", $posicion);
+        }
+
+        return $pdf."trailer\n<< /Size ".(count($objetos) + 1)." /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
     }
 
     private function inscribir(Evento $evento, array $emails, bool $asistio = false): void

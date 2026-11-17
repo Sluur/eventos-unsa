@@ -1,5 +1,5 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, FileText, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileText, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
 import ConfirmDelete from '@/components/confirm-delete';
@@ -64,6 +64,7 @@ interface Props {
     evento: Evento;
     puedeGestionar: boolean;
     inscriptos: Inscripto[];
+    pendientes: number;
     puedeInscribirse: boolean;
     estaInscripto: boolean;
     miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null; archivo: string | null } | null;
@@ -76,6 +77,7 @@ export default function Show({
     evento,
     puedeGestionar,
     inscriptos,
+    pendientes,
     puedeInscribirse,
     estaInscripto,
     miInscripcion,
@@ -92,6 +94,7 @@ export default function Show({
     const puedeEditar = puedeGestionar && permisos.includes('editar eventos') && sePuedeEditar;
     const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos');
     const puedeDuplicar = permisos.includes('crear eventos');
+    const puedeRevisar = puedeGestionar && permisos.includes('revisar inscripciones');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
@@ -290,6 +293,16 @@ export default function Show({
                                         <p className="text-sm text-muted-foreground">{motivoSinInscripcion}</p>
                                     )}
                                 </div>
+                            )}
+
+                            {puedeRevisar && (
+                                <Button variant={pendientes > 0 ? 'default' : 'outline'} asChild>
+                                    <Link href={`/eventos/${evento.id}/inscripciones`}>
+                                        <ClipboardList />
+                                        Revisar inscripciones
+                                        {pendientes > 0 && ` (${pendientes} pendiente${pendientes === 1 ? '' : 's'})`}
+                                    </Link>
+                                </Button>
                             )}
 
                             {puedeTomarAsistencia && (

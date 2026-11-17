@@ -176,6 +176,7 @@ public function index(Request $request)
             'evento' => $evento,
             'puedeGestionar' => $puedeGestionar,
             'inscriptos' => $inscriptos,
+            'pendientes' => $puedeGestionar ? $evento->inscripciones()->where('estado', 'pendiente')->count() : 0,
             'puedeInscribirse' => $usuario->can('inscribirse eventos'),
             'estaInscripto' => $estaInscripto,
             'miInscripcion' => $miInscripcion,

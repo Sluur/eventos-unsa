@@ -8,6 +8,7 @@ use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
+use App\Http\Controllers\RevisionInscripcionController;
 
 Route::inertia('/', 'welcome')->name('home');
 
@@ -20,6 +21,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('eventos/{evento}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
     Route::post('eventos/{evento}/inscripcion', [InscripcionController::class, 'store'])->name('eventos.inscripcion.store');
     Route::delete('eventos/{evento}/inscripcion', [InscripcionController::class, 'destroy'])->name('eventos.inscripcion.destroy');
+    Route::get('eventos/{evento}/inscripciones', [RevisionInscripcionController::class, 'index'])->name('eventos.inscripciones');
+    Route::patch('inscripciones/{inscripcion}/aceptar', [RevisionInscripcionController::class, 'aceptar'])->name('inscripciones.aceptar');
+    Route::patch('inscripciones/{inscripcion}/rechazar', [RevisionInscripcionController::class, 'rechazar'])->name('inscripciones.rechazar');
     Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');
     Route::get('eventos/{evento}/asistencia', [AsistenciaController::class, 'edit'])->name('eventos.asistencia.edit');
     Route::put('eventos/{evento}/asistencia', [AsistenciaController::class, 'update'])->name('eventos.asistencia.update');

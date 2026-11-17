@@ -109,6 +109,53 @@ class InscripcionAprobacionTest extends TestCase
         $this->actingAs($this->usuario('franco@eventos.test'))->get("/inscripciones/{$inscripcion->id}/archivo")->assertForbidden();
     }
 
+    public function test_el_organizador_acepta_y_rechaza()
+    {
+        $python = Evento::where('titulo', 'Curso de Python inicial')->firstOrFail();
+        $organizador = $this->usuario('organizador@eventos.test');
+        $pendiente = Inscripcion::where('evento_id', $python->id)->where('estado', 'pendiente')->sole();
+
+        $this->actingAs($organizador)->get("/eventos/{$python->id}/inscripciones")->assertOk();
+
+        $this->actingAs($organizador)->patch("/inscripciones/{$pendiente->id}/rechazar", ['motivo' => ''])
+            ->assertSessionHasErrors('motivo');
+
+        $this->actingAs($organizador)->patch("/inscripciones/{$pendiente->id}/aceptar")->assertSessionHas('success');
+
+        $pendiente->refresh();
+        $this->assertSame('confirmada', $pendiente->estado);
+        $this->assertSame($organizador->id, $pendiente->revisado_por);
+
+        // ya revisada no se puede rechazar
+        $this->actingAs($organizador)->patch("/inscripciones/{$pendiente->id}/rechazar", ['motivo' => 'Otro motivo'])
+            ->assertSessionHas('error');
+    }
+
+    public function test_aceptar_vuelve_a_mirar_el_cupo()
+    {
+        $taller = $this->eventoDe('Taller', cupo: 1);
+        $oriana = $this->usuario('oriana@eventos.test');
+        $franco = $this->usuario('franco@eventos.test');
+
+        Inscripcion::create(['user_id' => $oriana->id, 'evento_id' => $taller->id, 'estado' => 'confirmada']);
+        $pendiente = Inscripcion::create(['user_id' => $franco->id, 'evento_id' => $taller->id, 'estado' => 'pendiente']);
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->patch("/inscripciones/{$pendiente->id}/aceptar")
+            ->assertSessionHas('error');
+
+        $this->assertSame('pendiente', $pendiente->fresh()->estado);
+    }
+
+    public function test_un_alumno_no_puede_revisar()
+    {
+        $python = Evento::where('titulo', 'Curso de Python inicial')->firstOrFail();
+
+        $this->actingAs($this->usuario('oriana@eventos.test'))
+            ->get("/eventos/{$python->id}/inscripciones")
+            ->assertForbidden();
+    }
+
     public function test_rechazada_puede_volver_a_inscribirse()
     {
         $taller = $this->eventoDe('Taller');

@@ -25,6 +25,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'eliminar eventos',
             'inscribirse eventos',
             'tomar asistencia',
+            'revisar inscripciones',
             'descargar reportes',
             'ver dashboard',
         ];
@@ -46,6 +47,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'editar eventos',
             'eliminar eventos',
             'tomar asistencia',
+            'revisar inscripciones',
             'descargar reportes',
         ]);
 
