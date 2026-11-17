@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RechazarInscripcionRequest;
+use App\Mail\InscripcionAceptada;
+use App\Mail\InscripcionRechazada;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
@@ -61,7 +63,7 @@ class RevisionInscripcionController extends Controller
             return back()->with('error', $error);
         }
 
-        // Pendiente: acá se manda el mail de inscripción aceptada
+        $inscripcion->avisar(new InscripcionAceptada($inscripcion));
 
         return back()->with('success', 'Inscripción aceptada.');
     }
@@ -82,7 +84,7 @@ class RevisionInscripcionController extends Controller
             'revisado_at' => now(),
         ]);
 
-        // Pendiente: acá se manda el mail de inscripción rechazada
+        $inscripcion->avisar(new InscripcionRechazada($inscripcion));
 
         return back()->with('success', 'Inscripción rechazada.');
     }

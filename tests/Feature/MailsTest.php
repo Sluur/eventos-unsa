@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Mail\InscripcionAceptada;
 use App\Mail\InscripcionConfirmada;
+use App\Mail\InscripcionRechazada;
 use App\Mail\InscripcionRecibida;
 use App\Models\Categoria;
 use App\Models\Evento;
+use App\Models\Inscripcion;
 use App\Models\Lugar;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,6 +93,22 @@ class MailsTest extends TestCase
         ]);
 
         Mail::assertQueued(InscripcionRecibida::class, fn ($mail) => $mail->hasTo('ana@example.com'));
+    }
+
+    public function test_b3_aceptada_y_rechazada_con_motivo()
+    {
+        $taller = $this->eventoDe('Taller');
+        $organizador = $this->usuario('organizador@eventos.test');
+        $oriana = Inscripcion::create(['user_id' => $this->usuario('oriana@eventos.test')->id, 'evento_id' => $taller->id, 'estado' => 'pendiente']);
+        $franco = Inscripcion::create(['user_id' => $this->usuario('franco@eventos.test')->id, 'evento_id' => $taller->id, 'estado' => 'pendiente']);
+
+        $this->actingAs($organizador)->patch("/inscripciones/{$oriana->id}/aceptar");
+        $this->actingAs($organizador)->patch("/inscripciones/{$franco->id}/rechazar", ['motivo' => 'No cumple los requisitos']);
+
+        Mail::assertQueued(InscripcionAceptada::class, fn ($mail) => $mail->hasTo('oriana@eventos.test'));
+        Mail::assertQueued(InscripcionRechazada::class, fn ($mail) => $mail->hasTo('franco@eventos.test'));
+
+        (new InscripcionRechazada($franco->fresh()))->assertSeeInHtml('No cumple los requisitos');
     }
 
     public function test_el_mail_lleva_los_datos_del_evento()
