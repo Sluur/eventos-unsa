@@ -98,6 +98,24 @@ class DemoCharlaSeeder extends Seeder
         ]);
         $linux->disertantes()->attach(Disertante::whereIn('email', ['cristian@eventos.test', 'diego@eventos.test'])->pluck('id'));
         $this->inscribir($linux, ['alejandro@eventos.test', 'franco@eventos.test'], asistio: true);
+
+        // Cancelado con inscriptos
+        $inicio = now()->addDays(10)->setTime(18, 0);
+
+        $seguridad = Evento::create([
+            'titulo' => 'Seguridad informática básica',
+            'descripcion' => 'Contraseñas, phishing y cómo cuidar tus cuentas.',
+            'fecha_inicio' => $inicio,
+            'fecha_fin' => (clone $inicio)->addHours(2),
+            'cupo' => 30,
+            'estado' => 'cancelado',
+            'motivo_cancelacion' => 'El disertante no puede viajar esa semana. La vamos a reprogramar el próximo cuatrimestre.',
+            'categoria_id' => $charla,
+            'lugar_id' => Lugar::where('nombre', 'Aula Magna')->value('id'),
+            'organizador_id' => $organizador->id,
+        ]);
+        $seguridad->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
+        $this->inscribir($seguridad, ['oriana@eventos.test', 'alejandro@eventos.test']);
     }
 
     private function inscribir(Evento $evento, array $emails, bool $asistio = false): void

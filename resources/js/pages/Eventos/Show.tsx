@@ -1,10 +1,12 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import FechaBloque from '@/components/fecha-bloque';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +29,7 @@ interface Evento {
     fecha_fin: string;
     cupo: number;
     estado: EstadoEvento;
+    motivo_cancelacion: string | null;
     inscriptos_count: number;
     categoria: { id: number; nombre: string };
     lugar: { id: number; nombre: string; direccion: string | null };
@@ -117,6 +120,9 @@ export default function Show({
                                 </Link>
                             </Button>
                         )}
+                        {puedeEditar && (
+                            <CancelarEventoDialog eventoId={evento.id} inscriptos={evento.inscriptos_count} />
+                        )}
                         {puedeEliminar && (
                             <ConfirmDelete
                                 url={`/eventos/${evento.id}`}
@@ -130,6 +136,16 @@ export default function Show({
                             </ConfirmDelete>
                         )}
                     </div>
+                )}
+
+                {evento.estado === 'cancelado' && (
+                    <Alert variant="destructive">
+                        <Ban />
+                        <AlertTitle>Este evento fue cancelado</AlertTitle>
+                        {evento.motivo_cancelacion && (
+                            <AlertDescription>{evento.motivo_cancelacion}</AlertDescription>
+                        )}
+                    </Alert>
                 )}
 
                 {/* Barra de cupo y acciones */}
@@ -156,7 +172,7 @@ export default function Show({
                                         <CircleCheck className="size-4" />
                                         Estás inscripto
                                     </span>
-                                    {!yaPaso && (
+                                    {!yaPaso && evento.estado !== 'cancelado' && (
                                         <ConfirmDelete
                                             url={`/eventos/${evento.id}/inscripcion`}
                                             titulo="¿Cancelar tu inscripción?"

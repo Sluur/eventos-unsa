@@ -71,6 +71,12 @@ class InscripcionController extends Controller
                 ->with('error', 'No estás inscripto en este evento.');
         }
 
+        if ($evento->estado === 'cancelado') {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'El evento fue cancelado, no hace falta cancelar la inscripción.');
+        }
+
         if ($evento->yaPaso()) {
             return redirect()
                 ->route('eventos.show', $evento)

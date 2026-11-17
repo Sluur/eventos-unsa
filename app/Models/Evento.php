@@ -16,6 +16,7 @@ class Evento extends Model
         'fecha_fin',
         'cupo',
         'estado',
+        'motivo_cancelacion',
         'categoria_id',
         'lugar_id',
         'organizador_id',
@@ -63,6 +64,10 @@ class Evento extends Model
     // Devuelve por qué no se puede inscribir nadie más, o null si se puede
     public function motivoSinInscripcion(int $confirmadas): ?string
     {
+        if ($this->estado === 'cancelado') {
+            return 'El evento fue cancelado.';
+        }
+
         if ($this->estado === 'finalizado' || $this->yaPaso()) {
             return 'El evento ya pasó.';
         }

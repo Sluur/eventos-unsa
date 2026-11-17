@@ -90,6 +90,38 @@ class GestionEventosTest extends TestCase
             ->assertSessionHas('error');
     }
 
+    public function test_cancelar_guarda_el_motivo_y_cierra_la_inscripcion()
+    {
+        $evento = $this->evento('Cómo funciona Internet');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->patch("/eventos/{$evento->id}/cancelar", ['motivo' => 'Se suspende por paro docente.'])
+            ->assertSessionHas('success');
+
+        $evento->refresh();
+        $this->assertSame('cancelado', $evento->estado);
+        $this->assertSame('Se suspende por paro docente.', $evento->motivo_cancelacion);
+
+        // la inscripta lo sigue viendo pero no puede cancelar
+        $oriana = $this->usuario('oriana@eventos.test');
+        $this->actingAs($oriana)->get("/eventos/{$evento->id}")->assertOk();
+        $this->actingAs($oriana)->delete("/eventos/{$evento->id}/inscripcion")->assertSessionHas('error');
+
+        // y otro alumno no se puede inscribir
+        $this->actingAs($this->usuario('franco@eventos.test'))
+            ->post("/eventos/{$evento->id}/inscripcion")
+            ->assertSessionHas('error', 'El evento fue cancelado.');
+    }
+
+    public function test_cancelar_pide_motivo()
+    {
+        $evento = $this->evento('Cómo funciona Internet');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->patch("/eventos/{$evento->id}/cancelar", ['motivo' => ''])
+            ->assertSessionHasErrors('motivo');
+    }
+
     public function test_solo_se_elimina_sin_inscripciones()
     {
         $organizador = $this->usuario('organizador@eventos.test');

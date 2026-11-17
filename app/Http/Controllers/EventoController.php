@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CancelarEventoRequest;
 use App\Http\Requests\StoreEventoRequest;
 use App\Http\Requests\UpdateEventoRequest;
 use Illuminate\Http\Request;
@@ -42,9 +43,17 @@ public function index(Request $request)
         ->withCount(['inscripciones as inscriptos_count' => function ($query) {
             $query->where('estado', 'confirmada');
         }])
-        // Quien no puede crear eventos (alumno) no ve borradores ni cancelados
-        ->when(!$request->user()->can('crear eventos'), function ($query) {
-            $query->whereIn('estado', ['publicado', 'finalizado']);
+        // Quien no puede crear eventos (alumno) no ve borradores, y de los cancelados solo en los que estaba inscripto
+        ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
+            $query->where(function ($query) use ($request) {
+                $query->whereIn('estado', ['publicado', 'finalizado'])
+                    ->orWhere(function ($query) use ($request) {
+                        $query->where('estado', 'cancelado')
+                            ->whereHas('inscripciones', function ($query) use ($request) {
+                                $query->where('user_id', $request->user()->id)->where('estado', 'confirmada');
+                            });
+                    });
+            });
         })
         ->when($buscar !== '', function ($query) use ($buscar) {
             $query->where('titulo', 'like', "%{$buscar}%");
@@ -118,8 +127,16 @@ public function index(Request $request)
     {
         $usuario = $request->user();
 
-        // El alumno no puede ver borradores ni cancelados
-        if (!$usuario->can('crear eventos') && !in_array($evento->estado, ['publicado', 'finalizado'], true)) {
+        $miInscripcion = $evento->inscripciones()
+            ->where('user_id', $usuario->id)
+            ->where('estado', 'confirmada')
+            ->exists();
+
+        // El alumno no ve borradores, y un cancelado solo si estaba inscripto
+        $visible = in_array($evento->estado, ['publicado', 'finalizado'], true)
+            || ($evento->estado === 'cancelado' && $miInscripcion);
+
+        if (!$usuario->can('crear eventos') && !$visible) {
             abort(404);
         }
 
@@ -137,11 +154,6 @@ public function index(Request $request)
                 ->orderBy('created_at')
                 ->get()
             : [];
-
-        $miInscripcion = $evento->inscripciones()
-            ->where('user_id', $usuario->id)
-            ->where('estado', 'confirmada')
-            ->exists();
 
         return Inertia::render('Eventos/Show', [
             'evento' => $evento,
@@ -205,6 +217,29 @@ public function index(Request $request)
         return redirect()
             ->route('eventos.show', $evento)
             ->with('success', 'Evento actualizado correctamente.');
+    }
+
+    #[Middleware('permission:editar eventos')]
+    public function cancelar(CancelarEventoRequest $request, Evento $evento)
+    {
+        abort_unless($evento->puedeGestionar($request->user()), 403);
+
+        if (!$evento->sePuedeEditar()) {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'El evento ya está finalizado o cancelado.');
+        }
+
+        $evento->update([
+            'estado' => 'cancelado',
+            'motivo_cancelacion' => $request->validated()['motivo'],
+        ]);
+
+        // Pendiente: acá se manda el mail de aviso a los inscriptos
+
+        return redirect()
+            ->route('eventos.show', $evento)
+            ->with('success', 'El evento fue cancelado.');
     }
 
     #[Middleware('permission:eliminar eventos')]
