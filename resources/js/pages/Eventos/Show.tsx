@@ -1,5 +1,5 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
@@ -29,6 +29,7 @@ interface Evento {
     descripcion: string;
     fecha_inicio: string;
     fecha_fin: string;
+    inscripcion_hasta: string | null;
     cupo: number;
     solo_registrados: boolean;
     estado: EstadoEvento;
@@ -56,6 +57,7 @@ interface Props {
     estaInscripto: boolean;
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
+    inscripcionCerrada: boolean;
 }
 
 export default function Show({
@@ -66,6 +68,7 @@ export default function Show({
     estaInscripto,
     motivoSinInscripcion,
     yaPaso,
+    inscripcionCerrada,
 }: Props) {
     const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
     const puedeTomarAsistencia =
@@ -184,6 +187,14 @@ export default function Show({
                                 </span>
                             </div>
                             <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
+                            {evento.estado === 'publicado' && !yaPaso && evento.inscripcion_hasta && (
+                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Clock className="size-3.5" />
+                                    {inscripcionCerrada
+                                        ? 'Inscripción cerrada'
+                                        : `Inscripción abierta hasta el ${formatearFechaLarga(evento.inscripcion_hasta)}`}
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 sm:justify-end">

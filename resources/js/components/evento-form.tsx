@@ -29,6 +29,7 @@ export type EventoFormData = {
     descripcion: string;
     fecha_inicio: string;
     fecha_fin: string;
+    inscripcion_hasta: string;
     categoria_id: string;
     lugar_id: string;
     cupo: string;
@@ -187,6 +188,23 @@ export default function EventoForm({
                     />
                 </FormField>
             </div>
+
+            <FormField
+                label="Inscripción hasta (opcional)"
+                htmlFor="inscripcion_hasta"
+                error={errors.inscripcion_hasta}
+                ayuda="Si la dejás vacía, se pueden inscribir hasta que empiece el evento."
+            >
+                <Input
+                    id="inscripcion_hasta"
+                    type="datetime-local"
+                    value={data.inscripcion_hasta}
+                    max={data.fecha_inicio || undefined}
+                    onChange={(e) => setData('inscripcion_hasta', e.target.value)}
+                    aria-invalid={!!errors.inscripcion_hasta}
+                    className="sm:w-1/2"
+                />
+            </FormField>
 
             <div className="grid gap-5 sm:grid-cols-2">
                 <FormField label="Lugar" htmlFor="lugar_id" error={errors.lugar_id}>

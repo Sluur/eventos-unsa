@@ -91,6 +91,35 @@ class ReglasInscripcionTest extends TestCase
         $this->assertFalse(Evento::where('titulo', 'Abierto')->first()->solo_registrados);
     }
 
+    public function test_la_fecha_limite_tiene_que_ser_antes_del_inicio()
+    {
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->post('/eventos', $this->datosEvento([
+                'inscripcion_hasta' => now()->addDays(6)->format('Y-m-d\TH:i'),
+            ]))
+            ->assertSessionHasErrors('inscripcion_hasta');
+    }
+
+    public function test_despues_de_la_fecha_limite_no_se_puede_inscribir()
+    {
+        $evento = Evento::where('titulo', 'Cómo funciona Internet')->firstOrFail();
+
+        $this->actingAs($this->usuario('franco@eventos.test'))
+            ->post("/eventos/{$evento->id}/inscripcion")
+            ->assertSessionHas('error');
+
+        $this->assertFalse($evento->inscripciones()->where('user_id', $this->usuario('franco@eventos.test')->id)->exists());
+    }
+
+    public function test_antes_de_la_fecha_limite_se_puede_inscribir()
+    {
+        $evento = Evento::where('titulo', 'Git y GitHub para trabajos en grupo')->firstOrFail();
+
+        $this->actingAs($this->usuario('oriana@eventos.test'))
+            ->post("/eventos/{$evento->id}/inscripcion")
+            ->assertSessionHas('success');
+    }
+
     public function test_el_evento_guarda_la_categoria_elegida()
     {
         $curso = Categoria::where('nombre', 'Curso')->value('id');

@@ -117,6 +117,7 @@ public function index(Request $request)
             'descripcion' => $datos['descripcion'],
             'fecha_inicio' => $datos['fecha_inicio'],
             'fecha_fin' => $datos['fecha_fin'],
+            'inscripcion_hasta' => $datos['inscripcion_hasta'] ?? null,
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
             'solo_registrados' => $datos['solo_registrados'] ?? true,
@@ -178,6 +179,7 @@ public function index(Request $request)
             'estaInscripto' => $miInscripcion,
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
             'yaPaso' => $evento->yaPaso(),
+            'inscripcionCerrada' => $evento->inscripcionCerrada(),
         ]);
     }
 
@@ -223,6 +225,7 @@ public function index(Request $request)
             'descripcion' => $datos['descripcion'],
             'fecha_inicio' => $datos['fecha_inicio'],
             'fecha_fin' => $datos['fecha_fin'],
+            'inscripcion_hasta' => $datos['inscripcion_hasta'] ?? null,
             'categoria_id' => $datos['categoria_id'],
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],

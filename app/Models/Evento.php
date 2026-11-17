@@ -19,6 +19,7 @@ class Evento extends Model
         'descripcion',
         'fecha_inicio',
         'fecha_fin',
+        'inscripcion_hasta',
         'cupo',
         'solo_registrados',
         'estado',
@@ -33,6 +34,7 @@ class Evento extends Model
         return [
             'fecha_inicio' => 'datetime',
             'fecha_fin' => 'datetime',
+            'inscripcion_hasta' => 'datetime',
             'solo_registrados' => 'boolean',
         ];
     }
@@ -96,11 +98,21 @@ class Evento extends Model
             return 'La inscripción no está abierta.';
         }
 
+        if ($this->inscripcionCerrada()) {
+            return 'La inscripción cerró el '.$this->inscripcion_hasta->format('d/m \a \l\a\s H:i').'.';
+        }
+
         if ($confirmadas >= $this->cupo) {
             return 'No quedan lugares disponibles.';
         }
 
         return null;
+    }
+
+    // Pasó la fecha límite de inscripción
+    public function inscripcionCerrada(): bool
+    {
+        return $this->inscripcion_hasta !== null && $this->inscripcion_hasta->isPast();
     }
 
     // Finalizados y cancelados ya no se tocan

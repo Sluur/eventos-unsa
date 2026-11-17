@@ -14,6 +14,7 @@ interface Evento {
     descripcion: string;
     fecha_inicio: string;
     fecha_fin: string;
+    inscripcion_hasta: string | null;
     categoria_id: number;
     lugar_id: number;
     cupo: number;
@@ -46,6 +47,7 @@ export default function Edit({ evento, categorias, lugares, disertantes }: Props
         descripcion: evento.descripcion,
         fecha_inicio: paraInput(evento.fecha_inicio),
         fecha_fin: paraInput(evento.fecha_fin),
+        inscripcion_hasta: evento.inscripcion_hasta ? paraInput(evento.inscripcion_hasta) : '',
         categoria_id: String(evento.categoria_id),
         lugar_id: String(evento.lugar_id),
         cupo: String(evento.cupo),

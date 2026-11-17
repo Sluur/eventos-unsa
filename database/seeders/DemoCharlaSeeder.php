@@ -26,6 +26,7 @@ class DemoCharlaSeeder extends Seeder
             'descripcion' => 'Ramas, commits y pull requests para trabajar ordenados en equipo.',
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
+            'inscripcion_hasta' => (clone $inicio)->subDay(),
             'cupo' => 2,
             'solo_registrados' => false,
             'estado' => 'publicado',
@@ -53,6 +54,7 @@ class DemoCharlaSeeder extends Seeder
         $sql->disertantes()->attach(Disertante::where('email', 'carlos@eventos.test')->pluck('id'));
         $this->inscribir($sql, ['oriana@eventos.test', 'alejandro@eventos.test', 'franco@eventos.test']);
 
+        // La inscripción ya cerró aunque falten dos semanas
         $inicio = now()->addDays(14)->setTime(17, 0);
 
         $redes = Evento::create([
@@ -60,6 +62,7 @@ class DemoCharlaSeeder extends Seeder
             'descripcion' => 'Un recorrido simple por redes, direcciones IP y DNS. No hace falta saber nada previo.',
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
+            'inscripcion_hasta' => now()->subDay()->setTime(23, 59),
             'cupo' => 30,
             'estado' => 'publicado',
             'categoria_id' => $charla,
