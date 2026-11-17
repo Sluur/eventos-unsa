@@ -1,10 +1,9 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 interface Lugar {
@@ -80,8 +79,10 @@ export default function Create({ lugares, disertantes }: Props) {
         post('/eventos');
     };
 
+    setLayoutProps({ breadcrumbs });
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Nueva charla" />
 
             <div className="p-4 md:p-6">
@@ -259,6 +260,6 @@ export default function Create({ lugares, disertantes }: Props) {
                     </form>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

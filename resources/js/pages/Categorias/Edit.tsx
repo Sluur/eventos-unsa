@@ -1,9 +1,8 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 interface Categoria {
@@ -32,8 +31,10 @@ export default function Edit({ categoria }: Props) {
         put(`/categorias/${categoria.id}`);
     };
 
+    setLayoutProps({ breadcrumbs });
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Editar categoría" />
 
             <div className="p-4 md:p-6">
@@ -78,6 +79,6 @@ export default function Edit({ categoria }: Props) {
                     </form>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

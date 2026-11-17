@@ -1,7 +1,7 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { ArrowLeft, CalendarDays, ClipboardCheck, MapPin, Mic, User } from 'lucide-react';
+import ConfirmDelete from '@/components/confirm-delete';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -41,10 +41,6 @@ interface Props {
     estaInscripto: boolean;
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
-    flash?: {
-        success?: string;
-        error?: string;
-    };
 }
 
 const estilosEstado: Record<Evento['estado'], string> = {
@@ -79,7 +75,6 @@ export default function Show({
     estaInscripto,
     motivoSinInscripcion,
     yaPaso,
-    flash,
 }: Props) {
     const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
     const puedeTomarAsistencia =
@@ -99,14 +94,10 @@ export default function Show({
         router.post(`/eventos/${evento.id}/inscripcion`, {}, { preserveScroll: true });
     };
 
-    const cancelarInscripcion = () => {
-        if (confirm('¿Seguro que querés cancelar tu inscripción?')) {
-            router.delete(`/eventos/${evento.id}/inscripcion`, { preserveScroll: true });
-        }
-    };
+    setLayoutProps({ breadcrumbs });
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title={evento.titulo} />
 
             <div className="flex flex-col gap-4 p-4 md:p-6">
@@ -119,17 +110,6 @@ export default function Show({
                         Volver al listado
                     </Link>
                 </div>
-
-                {flash?.success && (
-                    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
-                        {flash.success}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
-                        {flash.error}
-                    </div>
-                )}
 
                 <div className="grid gap-4 lg:grid-cols-3">
                     <div className="flex flex-col gap-4 rounded-xl border p-6 lg:col-span-2">
@@ -226,9 +206,15 @@ export default function Show({
                                     Estás inscripto en esta charla.
                                 </div>
                                 {!yaPaso && (
-                                    <Button variant="outline" onClick={cancelarInscripcion}>
-                                        Cancelar inscripción
-                                    </Button>
+                                    <ConfirmDelete
+                                        url={`/eventos/${evento.id}/inscripcion`}
+                                        titulo="¿Cancelar tu inscripción?"
+                                        descripcion="Vas a liberar tu lugar y otra persona lo puede ocupar."
+                                        textoBoton="Cancelar inscripción"
+                                        textoCancelar="Volver"
+                                    >
+                                        <Button variant="outline">Cancelar inscripción</Button>
+                                    </ConfirmDelete>
                                 )}
                             </div>
                         )}
@@ -295,6 +281,6 @@ export default function Show({
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </>
     );
 }

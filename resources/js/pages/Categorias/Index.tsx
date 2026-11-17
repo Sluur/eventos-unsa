@@ -1,7 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, setLayoutProps } from '@inertiajs/react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
+import ConfirmDelete from '@/components/confirm-delete';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 interface Categoria {
@@ -12,25 +12,17 @@ interface Categoria {
 
 interface Props {
     categorias: Categoria[];
-    flash?: {
-        success?: string;
-        error?: string;
-    };
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Categorías', href: '/categorias' },
 ];
 
-export default function Index({ categorias, flash }: Props) {
-    const eliminar = (id: number) => {
-        if (confirm('¿Seguro que querés eliminar esta categoría?')) {
-            router.delete(`/categorias/${id}`);
-        }
-    };
+export default function Index({ categorias }: Props) {
+    setLayoutProps({ breadcrumbs });
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title="Categorías" />
 
             <div className="flex flex-col gap-4 p-4 md:p-6">
@@ -49,17 +41,6 @@ export default function Index({ categorias, flash }: Props) {
                         </Link>
                     </Button>
                 </div>
-
-                {flash?.success && (
-                    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
-                        {flash.success}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
-                        {flash.error}
-                    </div>
-                )}
 
                 <div className="overflow-x-auto rounded-xl border">
                     <table className="w-full text-sm">
@@ -95,14 +76,12 @@ export default function Index({ categorias, flash }: Props) {
                                                     <span className="hidden sm:inline">Editar</span>
                                                 </Link>
                                             </Button>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => eliminar(categoria.id)}
-                                            >
-                                                <Trash2 className="size-4" />
-                                                <span className="hidden sm:inline">Eliminar</span>
-                                            </Button>
+                                            <ConfirmDelete url={`/categorias/${categoria.id}`} titulo="¿Eliminar la categoría?">
+                                                <Button variant="destructive" size="sm">
+                                                    <Trash2 className="size-4" />
+                                                    <span className="hidden sm:inline">Eliminar</span>
+                                                </Button>
+                                            </ConfirmDelete>
                                         </div>
                                     </td>
                                 </tr>
@@ -111,6 +90,6 @@ export default function Index({ categorias, flash }: Props) {
                     </table>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }

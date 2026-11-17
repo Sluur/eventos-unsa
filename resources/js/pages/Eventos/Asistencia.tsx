@@ -1,8 +1,7 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, setLayoutProps, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -57,8 +56,10 @@ export default function Asistencia({ evento, inscriptos }: Props) {
         put(`/eventos/${evento.id}/asistencia`);
     };
 
+    setLayoutProps({ breadcrumbs });
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <>
             <Head title={`Asistencia - ${evento.titulo}`} />
 
             <div className="flex flex-col gap-4 p-4 md:p-6">
@@ -125,6 +126,6 @@ export default function Asistencia({ evento, inscriptos }: Props) {
                     </div>
                 </form>
             </div>
-        </AppLayout>
+        </>
     );
 }
