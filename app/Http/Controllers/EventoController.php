@@ -100,6 +100,7 @@ public function index(Request $request)
                 'descripcion' => $original->descripcion,
                 'lugar_id' => (string) $original->lugar_id,
                 'cupo' => (string) $original->cupo,
+                'solo_registrados' => $original->solo_registrados,
                 'disertantes' => $original->disertantes->pluck('id'),
                 'original' => $original->titulo,
             ] : null,
@@ -118,6 +119,7 @@ public function index(Request $request)
             'fecha_fin' => $datos['fecha_fin'],
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
+            'solo_registrados' => $datos['solo_registrados'] ?? true,
             'estado' => $datos['estado'],
             'categoria_id' => $datos['categoria_id'],
             'organizador_id' => $request->user()->id,
@@ -224,6 +226,7 @@ public function index(Request $request)
             'categoria_id' => $datos['categoria_id'],
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
+            'solo_registrados' => $datos['solo_registrados'] ?? true,
             'estado' => $datos['estado'],
         ]);
 

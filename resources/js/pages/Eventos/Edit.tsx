@@ -17,6 +17,7 @@ interface Evento {
     categoria_id: number;
     lugar_id: number;
     cupo: number;
+    solo_registrados: boolean;
     estado: EstadoEvento;
     imagen_url: string | null;
     inscriptos_count: number;
@@ -48,6 +49,7 @@ export default function Edit({ evento, categorias, lugares, disertantes }: Props
         categoria_id: String(evento.categoria_id),
         lugar_id: String(evento.lugar_id),
         cupo: String(evento.cupo),
+        solo_registrados: evento.solo_registrados,
         disertantes: evento.disertantes.map((d) => d.id),
         estado: evento.estado,
         imagen: null,

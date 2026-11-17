@@ -18,7 +18,7 @@ class DemoCharlaSeeder extends Seeder
         $charla = Categoria::where('nombre', 'Charla')->value('id');
         $taller = Categoria::where('nombre', 'Taller')->value('id');
 
-        // Queda un solo lugar libre
+        // Queda un solo lugar libre y está abierta al público
         $inicio = now()->addDays(7)->setTime(18, 0);
 
         $git = Evento::create([
@@ -27,6 +27,7 @@ class DemoCharlaSeeder extends Seeder
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'cupo' => 2,
+            'solo_registrados' => false,
             'estado' => 'publicado',
             'categoria_id' => $charla,
             'lugar_id' => Lugar::where('nombre', 'Aula 101')->value('id'),

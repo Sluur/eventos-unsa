@@ -13,6 +13,7 @@ interface Copia {
     descripcion: string;
     lugar_id: string;
     cupo: string;
+    solo_registrados: boolean;
     disertantes: number[];
     original: string;
 }
@@ -38,6 +39,7 @@ export default function Create({ categorias, lugares, disertantes, copia }: Prop
         categoria_id: copia?.categoria_id ?? '',
         lugar_id: copia?.lugar_id ?? '',
         cupo: copia?.cupo ?? '',
+        solo_registrados: copia?.solo_registrados ?? true,
         disertantes: copia?.disertantes ?? [],
         estado: 'borrador',
         imagen: null,

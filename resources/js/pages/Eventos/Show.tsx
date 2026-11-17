@@ -1,5 +1,5 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
@@ -30,6 +30,7 @@ interface Evento {
     fecha_inicio: string;
     fecha_fin: string;
     cupo: number;
+    solo_registrados: boolean;
     estado: EstadoEvento;
     motivo_cancelacion: string | null;
     imagen_url: string | null;
@@ -237,7 +238,7 @@ export default function Show({
                         <CardContent className="flex flex-col gap-6">
                             <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
 
-                            <div className="grid gap-4 text-sm sm:grid-cols-3">
+                            <div className="grid gap-4 text-sm sm:grid-cols-2">
                                 <Dato icono={CalendarDays} titulo="Cuándo">
                                     <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
                                     <span className="text-muted-foreground">
@@ -252,6 +253,13 @@ export default function Show({
                                 </Dato>
                                 <Dato icono={User} titulo="Organiza">
                                     <span>{evento.organizador.name}</span>
+                                </Dato>
+                                <Dato icono={evento.solo_registrados ? Lock : Globe} titulo="Quién se inscribe">
+                                    <span>
+                                        {evento.solo_registrados
+                                            ? 'Solo usuarios registrados'
+                                            : 'Abierto al público, también invitados'}
+                                    </span>
                                 </Dato>
                             </div>
                         </CardContent>

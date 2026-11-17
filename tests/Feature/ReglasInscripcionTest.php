@@ -80,6 +80,17 @@ class ReglasInscripcionTest extends TestCase
         $this->assertSame('#ff8800', $categoria->color);
     }
 
+    public function test_solo_registrados_por_defecto_y_abierto_al_publico()
+    {
+        $organizador = $this->usuario('organizador@eventos.test');
+
+        $this->actingAs($organizador)->post('/eventos', $this->datosEvento(['titulo' => 'Cerrado']));
+        $this->actingAs($organizador)->post('/eventos', $this->datosEvento(['titulo' => 'Abierto', 'solo_registrados' => false]));
+
+        $this->assertTrue(Evento::where('titulo', 'Cerrado')->first()->solo_registrados);
+        $this->assertFalse(Evento::where('titulo', 'Abierto')->first()->solo_registrados);
+    }
+
     public function test_el_evento_guarda_la_categoria_elegida()
     {
         $curso = Categoria::where('nombre', 'Curso')->value('id');

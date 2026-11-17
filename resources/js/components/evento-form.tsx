@@ -5,6 +5,8 @@ import CategoriaReglas, { type ReglasCategoria } from '@/components/categoria-re
 import DisertantesSelect, { type DisertanteOpcion } from '@/components/disertantes-select';
 import FormField from '@/components/form-field';
 import InputError from '@/components/input-error';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,6 +32,7 @@ export type EventoFormData = {
     categoria_id: string;
     lugar_id: string;
     cupo: string;
+    solo_registrados: boolean;
     disertantes: number[];
     estado: string;
     imagen: File | null;
@@ -212,6 +215,21 @@ export default function EventoForm({
                         aria-invalid={!!errors.cupo}
                     />
                 </FormField>
+            </div>
+
+            <div className="flex items-start gap-3">
+                <Checkbox
+                    id="solo_registrados"
+                    checked={data.solo_registrados}
+                    onCheckedChange={(v) => setData('solo_registrados', v === true)}
+                />
+                <div className="grid gap-1">
+                    <Label htmlFor="solo_registrados">Solo usuarios registrados pueden inscribirse</Label>
+                    <p className="text-xs text-muted-foreground">
+                        Si lo destildás, el evento queda abierto al público y se pueden anotar invitados.
+                    </p>
+                    <InputError message={errors.solo_registrados} />
+                </div>
             </div>
 
             <FormField label="Disertantes" htmlFor="disertantes" error={errors.disertantes}>

@@ -20,6 +20,7 @@ class Evento extends Model
         'fecha_inicio',
         'fecha_fin',
         'cupo',
+        'solo_registrados',
         'estado',
         'motivo_cancelacion',
         'categoria_id',
@@ -32,6 +33,7 @@ class Evento extends Model
         return [
             'fecha_inicio' => 'datetime',
             'fecha_fin' => 'datetime',
+            'solo_registrados' => 'boolean',
         ];
     }
 
