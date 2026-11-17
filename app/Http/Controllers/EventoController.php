@@ -83,11 +83,24 @@ public function index(Request $request)
 }
 
     #[Middleware('permission:crear eventos')]
-    public function create()
+    public function create(Request $request)
     {
+        // Duplicar: se precargan los datos de otro evento, sin fechas
+        $original = $request->filled('duplicar')
+            ? Evento::with('disertantes:id')->find($request->integer('duplicar'))
+            : null;
+
         return Inertia::render('Eventos/Create', [
             'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
             'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+            'copia' => $original ? [
+                'titulo' => $original->titulo.' (copia)',
+                'descripcion' => $original->descripcion,
+                'lugar_id' => (string) $original->lugar_id,
+                'cupo' => (string) $original->cupo,
+                'disertantes' => $original->disertantes->pluck('id'),
+                'original' => $original->titulo,
+            ] : null,
         ]);
     }
 

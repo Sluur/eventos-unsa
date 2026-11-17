@@ -7,9 +7,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { BreadcrumbItem } from '@/types';
 
+interface Copia {
+    titulo: string;
+    descripcion: string;
+    lugar_id: string;
+    cupo: string;
+    disertantes: number[];
+    original: string;
+}
+
 interface Props {
     lugares: LugarOpcion[];
     disertantes: DisertanteOpcion[];
+    copia: Copia | null;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -17,15 +27,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Nueva charla', href: '/eventos/create' },
 ];
 
-export default function Create({ lugares, disertantes }: Props) {
+export default function Create({ lugares, disertantes, copia }: Props) {
     const form = useForm<EventoFormData>({
-        titulo: '',
-        descripcion: '',
+        titulo: copia?.titulo ?? '',
+        descripcion: copia?.descripcion ?? '',
         fecha_inicio: '',
         fecha_fin: '',
-        lugar_id: '',
-        cupo: '',
-        disertantes: [],
+        lugar_id: copia?.lugar_id ?? '',
+        cupo: copia?.cupo ?? '',
+        disertantes: copia?.disertantes ?? [],
         estado: 'borrador',
     });
 
@@ -44,7 +54,11 @@ export default function Create({ lugares, disertantes }: Props) {
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 md:py-10">
                 <PageHeader
                     titulo="Nueva charla"
-                    descripcion="Podés guardarla como borrador y publicarla más adelante."
+                    descripcion={
+                        copia
+                            ? `Copia de "${copia.original}". Elegí las fechas nuevas.`
+                            : 'Podés guardarla como borrador y publicarla más adelante.'
+                    }
                 />
 
                 <Card>

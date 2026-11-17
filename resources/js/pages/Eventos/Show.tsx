@@ -1,5 +1,5 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CalendarDays, CircleCheck, ClipboardCheck, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CalendarDays, CircleCheck, ClipboardCheck, Copy, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
@@ -71,6 +71,7 @@ export default function Show({
     const sePuedeEditar = !['finalizado', 'cancelado'].includes(evento.estado);
     const puedeEditar = puedeGestionar && permisos.includes('editar eventos') && sePuedeEditar;
     const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos');
+    const puedeDuplicar = permisos.includes('crear eventos');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
@@ -110,13 +111,21 @@ export default function Show({
                     </div>
                 </div>
 
-                {(puedeEditar || puedeEliminar) && (
+                {(puedeEditar || puedeEliminar || puedeDuplicar) && (
                     <div className="flex flex-wrap gap-2">
                         {puedeEditar && (
                             <Button variant="outline" size="sm" asChild>
                                 <Link href={`/eventos/${evento.id}/edit`}>
                                     <Pencil />
                                     Editar
+                                </Link>
+                            </Button>
+                        )}
+                        {puedeDuplicar && (
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={`/eventos/create?duplicar=${evento.id}`}>
+                                    <Copy />
+                                    Duplicar
                                 </Link>
                             </Button>
                         )}

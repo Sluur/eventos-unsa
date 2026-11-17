@@ -122,6 +122,20 @@ class GestionEventosTest extends TestCase
             ->assertSessionHasErrors('motivo');
     }
 
+    public function test_duplicar_precarga_los_datos_sin_fechas()
+    {
+        $evento = $this->evento('Introducción a las APIs REST');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->get("/eventos/create?duplicar={$evento->id}")
+            ->assertInertia(fn ($page) => $page
+                ->component('Eventos/Create')
+                ->where('copia.titulo', 'Introducción a las APIs REST (copia)')
+                ->where('copia.cupo', '30')
+                ->has('copia.disertantes', 2)
+                ->missing('copia.fecha_inicio'));
+    }
+
     public function test_solo_se_elimina_sin_inscripciones()
     {
         $organizador = $this->usuario('organizador@eventos.test');
