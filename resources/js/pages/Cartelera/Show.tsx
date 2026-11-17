@@ -6,6 +6,7 @@ import CupoBar from '@/components/cupo-bar';
 import EventoDato from '@/components/evento-dato';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
+import InscripcionInvitadoForm from '@/components/inscripcion-invitado-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatearFechaLarga, formatearHora } from '@/lib/fechas';
@@ -162,6 +163,23 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                                 <Button asChild>
                                     <Link href={`/eventos/${evento.id}`}>Inscribirme desde el panel</Link>
                                 </Button>
+                            ) : !evento.solo_registrados ? (
+                                <div className="flex flex-col gap-4">
+                                    <InscripcionInvitadoForm
+                                        eventoId={evento.id}
+                                        documentacion={
+                                            evento.categoria.requiere_documentacion
+                                                ? evento.categoria.documentacion_descripcion
+                                                : null
+                                        }
+                                    />
+                                    <p className="text-center text-sm text-muted-foreground">
+                                        ¿Tenés cuenta?{' '}
+                                        <Link href={`/cartelera/${evento.id}/ingresar`} className="font-medium text-primary hover:underline">
+                                            Ingresá
+                                        </Link>
+                                    </p>
+                                </div>
                             ) : (
                                 <div className="flex flex-col gap-2">
                                     <Button asChild>

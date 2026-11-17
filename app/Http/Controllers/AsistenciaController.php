@@ -20,7 +20,7 @@ class AsistenciaController extends Controller
             ->with('user:id,name,email')
             ->where('estado', 'confirmada')
             ->get()
-            ->sortBy('user.name')
+            ->sortBy(fn ($inscripcion) => $inscripcion->user?->name ?? "{$inscripcion->nombre_invitado} {$inscripcion->apellido_invitado}")
             ->values();
 
         return Inertia::render('Eventos/Asistencia', [

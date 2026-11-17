@@ -28,7 +28,7 @@ class DemoCharlaSeeder extends Seeder
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'inscripcion_hasta' => (clone $inicio)->subDay(),
-            'cupo' => 2,
+            'cupo' => 4,
             'solo_registrados' => false,
             'estado' => 'publicado',
             'categoria_id' => $charla,
@@ -37,6 +37,21 @@ class DemoCharlaSeeder extends Seeder
         ]);
         $git->disertantes()->attach(Disertante::where('email', 'diego@eventos.test')->pluck('id'));
         $this->inscribir($git, ['franco@eventos.test']);
+
+        // Dos invitados que se anotaron desde la cartelera, sin cuenta
+        foreach ([
+            ['Lucía', 'Gómez', 'lucia.gomez@example.com', '40123456'],
+            ['Martín', 'Ríos', 'martin.rios@example.com', '41234567'],
+        ] as [$nombre, $apellido, $email, $dni]) {
+            Inscripcion::create([
+                'evento_id' => $git->id,
+                'nombre_invitado' => $nombre,
+                'apellido_invitado' => $apellido,
+                'email_invitado' => $email,
+                'dni_invitado' => $dni,
+                'estado' => 'confirmada',
+            ]);
+        }
 
         // Ya pasó y falta tomar asistencia
         $inicio = now()->subDays(2)->setTime(18, 0);

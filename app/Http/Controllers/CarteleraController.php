@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreInscripcionInvitadoRequest;
 use App\Models\Categoria;
 use App\Models\Evento;
+use App\Models\Inscripcion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 // Parte pública: no hace falta iniciar sesión
@@ -61,6 +65,70 @@ class CarteleraController extends Controller
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
             'inscripcionCerrada' => $evento->inscripcionCerrada(),
         ]);
+    }
+
+    // Inscripción sin cuenta; el request ya verifica que el evento esté abierto al público
+    public function inscribir(StoreInscripcionInvitadoRequest $request, Evento $evento)
+    {
+        $datos = $request->validated();
+
+        $resultado = DB::transaction(function () use ($evento, $datos) {
+            $evento = Evento::whereKey($evento->id)->lockForUpdate()->first();
+
+            // Si la misma persona ya se había anotado (y canceló o la rechazaron) reusamos esa fila
+            $previa = Inscripcion::where('evento_id', $evento->id)
+                ->whereNull('user_id')
+                ->where(function ($query) use ($datos) {
+                    $query->where('email_invitado', $datos['email'])->orWhere('dni_invitado', $datos['dni']);
+                })
+                ->first();
+
+            if ($previa?->estaActiva()) {
+                return ['error' => 'Ya hay una inscripción con ese email o DNI en este evento.'];
+            }
+
+            $motivo = $evento->motivoSinInscripcion($evento->lugaresOcupados());
+            if ($motivo) {
+                return ['error' => $motivo];
+            }
+
+            $campos = [
+                'nombre_invitado' => $datos['nombre'],
+                'apellido_invitado' => $datos['apellido'],
+                'email_invitado' => $datos['email'],
+                'dni_invitado' => $datos['dni'],
+                'estado' => $evento->estadoInicialInscripcion(),
+                'asistio' => false,
+                'motivo_rechazo' => null,
+                'revisado_por' => null,
+                'revisado_at' => null,
+            ];
+
+            if (!empty($datos['archivo'])) {
+                if ($previa?->archivo) {
+                    Storage::disk('local')->delete($previa->archivo);
+                }
+                $campos['archivo'] = $datos['archivo']->store("inscripciones/evento-{$evento->id}", 'local');
+            }
+
+            $inscripcion = $previa
+                ? tap($previa)->update($campos)
+                : Inscripcion::create([...$campos, 'evento_id' => $evento->id]);
+
+            return ['estado' => $inscripcion->estado];
+        });
+
+        if (isset($resultado['error'])) {
+            return back()->with('error', $resultado['error']);
+        }
+
+        // Pendiente: acá se manda el mail al invitado
+
+        $mensaje = $resultado['estado'] === 'pendiente'
+            ? 'Recibimos tu inscripción. Queda pendiente hasta que el organizador la revise.'
+            : 'Listo, quedaste inscripto. ¡Te esperamos!';
+
+        return back()->with('success', $mensaje);
     }
 
     // Pasa por el login (si hace falta) y vuelve al evento dentro del panel

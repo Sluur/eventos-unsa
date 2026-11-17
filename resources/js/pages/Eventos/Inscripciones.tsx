@@ -2,6 +2,7 @@ import { Head, router, setLayoutProps } from '@inertiajs/react';
 import { Check, FileText, Inbox } from 'lucide-react';
 import EmptyState from '@/components/empty-state';
 import type { EstadoInscripcion } from '@/components/estado-inscripcion-badge';
+import InscriptoNombre, { nombreInscripto } from '@/components/inscripto-nombre';
 import PageHeader from '@/components/page-header';
 import RechazarInscripcionDialog from '@/components/rechazar-inscripcion-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,10 @@ interface Inscripcion {
     motivo_rechazo: string | null;
     created_at: string;
     revisado_at: string | null;
-    user: { id: number; name: string; email: string };
+    user: { id: number; name: string; email: string } | null;
+    nombre_invitado: string | null;
+    apellido_invitado: string | null;
+    email_invitado: string | null;
     revisor: { id: number; name: string } | null;
 }
 
@@ -99,8 +103,7 @@ export default function Inscripciones({ evento, inscripciones, requiereDocumenta
                                             {de(p.estado).map((i) => (
                                                 <TableRow key={i.id}>
                                                     <TableCell className="pl-6">
-                                                        <div className="font-medium">{i.user.name}</div>
-                                                        <div className="text-xs text-muted-foreground">{i.user.email}</div>
+                                                        <InscriptoNombre inscripto={i} conEmail />
                                                     </TableCell>
                                                     <TableCell className="hidden text-muted-foreground md:table-cell">
                                                         {formatearFecha(i.created_at)}
@@ -136,7 +139,7 @@ export default function Inscripciones({ evento, inscripciones, requiereDocumenta
                                                                     <Check />
                                                                     Aceptar
                                                                 </Button>
-                                                                <RechazarInscripcionDialog inscripcionId={i.id} nombre={i.user.name} />
+                                                                <RechazarInscripcionDialog inscripcionId={i.id} nombre={nombreInscripto(i)} />
                                                             </div>
                                                         </TableCell>
                                                     )}

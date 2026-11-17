@@ -3,6 +3,7 @@ import { Users } from 'lucide-react';
 import type { FormEvent } from 'react';
 import EmptyState from '@/components/empty-state';
 import InputError from '@/components/input-error';
+import InscriptoNombre, { emailInscripto } from '@/components/inscripto-nombre';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -21,7 +22,10 @@ interface Evento {
 interface Inscripto {
     id: number;
     asistio: boolean;
-    user: { id: number; name: string; email: string };
+    user: { id: number; name: string; email: string } | null;
+    nombre_invitado: string | null;
+    apellido_invitado: string | null;
+    email_invitado: string | null;
 }
 
 interface Props {
@@ -113,15 +117,12 @@ export default function Asistencia({ evento, inscriptos }: Props) {
                                                 />
                                             </TableCell>
                                             <TableCell>
-                                                <label
-                                                    htmlFor={`asistio-${inscripcion.id}`}
-                                                    className="cursor-pointer font-medium"
-                                                >
-                                                    {inscripcion.user.name}
+                                                <label htmlFor={`asistio-${inscripcion.id}`} className="cursor-pointer">
+                                                    <InscriptoNombre inscripto={inscripcion} />
                                                 </label>
                                             </TableCell>
                                             <TableCell className="hidden text-muted-foreground md:table-cell">
-                                                {inscripcion.user.email}
+                                                {emailInscripto(inscripcion)}
                                             </TableCell>
                                         </TableRow>
                                     ))}

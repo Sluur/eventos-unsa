@@ -12,6 +12,7 @@ import EventoDato from '@/components/evento-dato';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import InputError from '@/components/input-error';
+import InscriptoNombre, { emailInscripto } from '@/components/inscripto-nombre';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -58,7 +59,10 @@ interface Inscripto {
     id: number;
     asistio: boolean;
     created_at: string;
-    user: { id: number; name: string; email: string };
+    user: { id: number; name: string; email: string } | null;
+    nombre_invitado: string | null;
+    apellido_invitado: string | null;
+    email_invitado: string | null;
 }
 
 interface Props {
@@ -404,9 +408,11 @@ export default function Show({
                                     {inscriptos.map((inscripcion, i) => (
                                         <TableRow key={inscripcion.id}>
                                             <TableCell className="pl-6 text-muted-foreground">{i + 1}</TableCell>
-                                            <TableCell className="font-medium">{inscripcion.user.name}</TableCell>
+                                            <TableCell>
+                                                <InscriptoNombre inscripto={inscripcion} />
+                                            </TableCell>
                                             <TableCell className="hidden text-muted-foreground md:table-cell">
-                                                {inscripcion.user.email}
+                                                {emailInscripto(inscripcion)}
                                             </TableCell>
                                             <TableCell className="pr-6">
                                                 {inscripcion.asistio ? (
