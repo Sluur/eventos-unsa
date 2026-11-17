@@ -73,6 +73,11 @@ class Evento extends Model
             ->withTimestamps();
     }
 
+    public function mensajes()
+    {
+        return $this->hasMany(MensajeEvento::class);
+    }
+
     public function inscripciones()
     {
         return $this->hasMany(Inscripcion::class);

@@ -8,11 +8,13 @@ use App\Mail\InscripcionAceptada;
 use App\Mail\InscripcionConfirmada;
 use App\Mail\InscripcionRechazada;
 use App\Mail\InscripcionRecibida;
+use App\Mail\MensajeInscriptos;
 use App\Mail\RecordatorioEvento;
 use App\Models\Categoria;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use App\Models\Lugar;
+use App\Models\MensajeEvento;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -183,6 +185,46 @@ class MailsTest extends TestCase
             ->put("/eventos/{$git->id}", $this->datosEdicion($git, ['titulo' => 'Git en equipo']));
 
         Mail::assertNotQueued(EventoModificado::class);
+    }
+
+    public function test_mensaje_a_inscriptos_segun_destinatarios_y_queda_en_el_historial()
+    {
+        $python = $this->evento('Curso de Python inicial');
+        $organizador = $this->usuario('organizador@eventos.test');
+
+        $this->actingAs($organizador)->post("/eventos/{$python->id}/mensajes", [
+            'asunto' => 'Traer notebook',
+            'cuerpo' => "Hola!
+Traigan notebook con Python instalado.",
+            'destinatarios' => 'pendientes',
+        ])->assertSessionHas('success', 'Mensaje enviado a 1 inscripto.');
+
+        Mail::assertQueued(MensajeInscriptos::class, 1);
+        Mail::assertQueued(MensajeInscriptos::class, fn ($mail) => $mail->hasTo('oriana@eventos.test')
+            && $mail->asunto === 'Traer notebook');
+
+        $this->actingAs($organizador)->post("/eventos/{$python->id}/mensajes", [
+            'asunto' => 'Aula',
+            'cuerpo' => 'Cambiamos de aula.',
+            'destinatarios' => 'todos',
+        ]);
+
+        // pendiente + confirmada; la rechazada no recibe
+        Mail::assertQueued(MensajeInscriptos::class, 3);
+        $this->assertSame([1, 2], MensajeEvento::where('evento_id', $python->id)->orderBy('id')->pluck('cantidad')->all());
+    }
+
+    public function test_mensaje_valida_y_solo_lo_manda_quien_gestiona()
+    {
+        $python = $this->evento('Curso de Python inicial');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->post("/eventos/{$python->id}/mensajes", ['asunto' => '', 'cuerpo' => '', 'destinatarios' => 'otros'])
+            ->assertSessionHasErrors(['asunto', 'cuerpo', 'destinatarios']);
+
+        $this->actingAs($this->usuario('oriana@eventos.test'))
+            ->post("/eventos/{$python->id}/mensajes", ['asunto' => 'Hola', 'cuerpo' => 'Hola', 'destinatarios' => 'todos'])
+            ->assertForbidden();
     }
 
     public function test_el_mail_lleva_los_datos_del_evento()

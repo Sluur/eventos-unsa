@@ -179,6 +179,9 @@ public function index(Request $request)
             'puedeGestionar' => $puedeGestionar,
             'inscriptos' => $inscriptos,
             'pendientes' => $puedeGestionar ? $evento->inscripciones()->where('estado', 'pendiente')->count() : 0,
+            'mensajes' => $puedeGestionar
+                ? $evento->mensajes()->with('autor:id,name')->latest()->get()
+                : [],
             'puedeInscribirse' => $usuario->can('inscribirse eventos'),
             'estaInscripto' => $estaInscripto,
             'miInscripcion' => $miInscripcion,

@@ -4,6 +4,7 @@ import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
 import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
+import MensajeInscriptosDialog from '@/components/mensaje-inscriptos-dialog';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
@@ -19,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -70,6 +71,15 @@ interface Props {
     puedeGestionar: boolean;
     inscriptos: Inscripto[];
     pendientes: number;
+    mensajes: {
+        id: number;
+        asunto: string;
+        cuerpo: string;
+        destinatarios: 'confirmados' | 'pendientes' | 'todos';
+        cantidad: number;
+        created_at: string;
+        autor: { id: number; name: string };
+    }[];
     puedeInscribirse: boolean;
     estaInscripto: boolean;
     miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null; archivo: string | null } | null;
@@ -83,6 +93,7 @@ export default function Show({
     puedeGestionar,
     inscriptos,
     pendientes,
+    mensajes,
     puedeInscribirse,
     estaInscripto,
     miInscripcion,
@@ -100,6 +111,7 @@ export default function Show({
     const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos');
     const puedeDuplicar = permisos.includes('crear eventos');
     const puedeRevisar = puedeGestionar && permisos.includes('revisar inscripciones');
+    const puedeMensajear = puedeGestionar && permisos.includes('editar eventos') && evento.estado !== 'borrador';
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
@@ -154,7 +166,7 @@ export default function Show({
                     </div>
                 </div>
 
-                {(puedeEditar || puedeEliminar || puedeDuplicar) && (
+                {(puedeEditar || puedeEliminar || puedeDuplicar || puedeMensajear) && (
                     <div className="flex flex-wrap gap-2">
                         {puedeEditar && (
                             <Button variant="outline" size="sm" asChild>
@@ -171,6 +183,13 @@ export default function Show({
                                     Duplicar
                                 </Link>
                             </Button>
+                        )}
+                        {puedeMensajear && (
+                            <MensajeInscriptosDialog
+                                eventoId={evento.id}
+                                confirmados={inscriptos.length}
+                                pendientes={pendientes}
+                            />
                         )}
                         {puedeEditar && (
                             <CancelarEventoDialog eventoId={evento.id} inscriptos={evento.inscriptos_count} />
@@ -428,6 +447,36 @@ export default function Show({
                                 </TableBody>
                             </Table>
                         )}
+                    </Card>
+                )}
+
+                {puedeGestionar && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Mensajes enviados</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {mensajes.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">Todavía no se mandaron mensajes a los inscriptos.</p>
+                            ) : (
+                                <ul className="flex flex-col divide-y">
+                                    {mensajes.map((m) => (
+                                        <li key={m.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                                            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                                <span className="font-medium">{m.asunto}</span>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {formatearFecha(m.created_at)} · {m.autor.name}
+                                                </span>
+                                            </div>
+                                            <p className="line-clamp-3 text-sm whitespace-pre-line text-muted-foreground">{m.cuerpo}</p>
+                                            <span className="text-xs text-muted-foreground">
+                                                A {m.destinatarios} · {m.cantidad} {m.cantidad === 1 ? 'persona' : 'personas'}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </CardContent>
                     </Card>
                 )}
             </div>
