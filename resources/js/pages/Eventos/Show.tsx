@@ -8,6 +8,7 @@ import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EstadoInscripcionBadge, { type EstadoInscripcion } from '@/components/estado-inscripcion-badge';
+import EventoDato from '@/components/evento-dato';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import InputError from '@/components/input-error';
@@ -326,28 +327,28 @@ export default function Show({
                             <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
 
                             <div className="grid gap-4 text-sm sm:grid-cols-2">
-                                <Dato icono={CalendarDays} titulo="Cuándo">
+                                <EventoDato icono={CalendarDays} titulo="Cuándo">
                                     <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
                                     <span className="text-muted-foreground">
                                         Hasta las {formatearHora(evento.fecha_fin)}
                                     </span>
-                                </Dato>
-                                <Dato icono={MapPin} titulo="Dónde">
+                                </EventoDato>
+                                <EventoDato icono={MapPin} titulo="Dónde">
                                     <span>{evento.lugar.nombre}</span>
                                     {evento.lugar.direccion && (
                                         <span className="text-muted-foreground">{evento.lugar.direccion}</span>
                                     )}
-                                </Dato>
-                                <Dato icono={User} titulo="Organiza">
+                                </EventoDato>
+                                <EventoDato icono={User} titulo="Organiza">
                                     <span>{evento.organizador.name}</span>
-                                </Dato>
-                                <Dato icono={evento.solo_registrados ? Lock : Globe} titulo="Quién se inscribe">
+                                </EventoDato>
+                                <EventoDato icono={evento.solo_registrados ? Lock : Globe} titulo="Quién se inscribe">
                                     <span>
                                         {evento.solo_registrados
                                             ? 'Solo usuarios registrados'
                                             : 'Abierto al público, también invitados'}
                                     </span>
-                                </Dato>
+                                </EventoDato>
                             </div>
                         </CardContent>
                     </Card>
@@ -425,25 +426,5 @@ export default function Show({
                 )}
             </div>
         </>
-    );
-}
-
-function Dato({
-    icono: Icono,
-    titulo,
-    children,
-}: {
-    icono: typeof CalendarDays;
-    titulo: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="flex items-start gap-2.5">
-            <Icono className="mt-0.5 size-4 shrink-0 text-primary" />
-            <div className="flex flex-col">
-                <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{titulo}</span>
-                {children}
-            </div>
-        </div>
     );
 }

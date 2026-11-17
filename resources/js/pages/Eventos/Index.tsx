@@ -1,20 +1,19 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, MapPin, Plus, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
-import EventoImagen from '@/components/evento-imagen';
-import FechaBloque from '@/components/fecha-bloque';
+import EventoTarjeta from '@/components/evento-tarjeta';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { formatearFecha, formatearHora } from '@/lib/fechas';
+import { formatearFecha } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -228,7 +227,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                 ) : vista === 'tarjetas' ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {eventos.data.map((evento) => (
-                            <TarjetaEvento key={evento.id} evento={evento} />
+                            <EventoTarjeta key={evento.id} evento={evento} href={`/eventos/${evento.id}`} />
                         ))}
                     </div>
                 ) : (
@@ -317,48 +316,5 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                 </div>
             </div>
         </>
-    );
-}
-
-function TarjetaEvento({ evento }: { evento: Evento }) {
-    const libres = Math.max(0, evento.cupo - evento.inscriptos_count);
-
-    return (
-        <Link href={`/eventos/${evento.id}`} className="group">
-            <Card className="h-full gap-4 overflow-hidden pt-0 pb-5 transition-colors group-hover:border-primary/40">
-                <EventoImagen
-                    url={evento.imagen_url}
-                    categoriaId={evento.categoria.id}
-                    color={evento.categoria.color}
-                    alt={evento.titulo}
-                    className="h-36 w-full"
-                />
-                <CardContent className="flex gap-4 px-5">
-                    <FechaBloque fecha={evento.fecha_inicio} />
-                    <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <div className="flex items-center justify-between gap-2">
-                            <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} />
-                            <EstadoBadge estado={evento.estado} />
-                        </div>
-                        <h3 className="line-clamp-2 leading-snug font-semibold group-hover:text-primary">
-                            {evento.titulo}
-                        </h3>
-                        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <MapPin className="size-3.5 shrink-0" />
-                            <span className="truncate">
-                                {evento.lugar.nombre} · {formatearHora(evento.fecha_inicio)} h
-                            </span>
-                        </p>
-                    </div>
-                </CardContent>
-                <CardContent className="mt-auto flex flex-col gap-1.5 px-5">
-                    <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} className="h-1.5" />
-                    <p className="text-xs text-muted-foreground">
-                        {libres === 0 ? 'Sin lugares' : `${libres} ${libres === 1 ? 'lugar libre' : 'lugares libres'}`} ·{' '}
-                        {evento.inscriptos_count} de {evento.cupo}
-                    </p>
-                </CardContent>
-            </Card>
-        </Link>
     );
 }

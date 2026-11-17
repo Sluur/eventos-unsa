@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\CarteleraController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EventoController;
@@ -10,7 +11,9 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
 use App\Http\Controllers\RevisionInscripcionController;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', [CarteleraController::class, 'index'])->name('home');
+Route::get('cartelera/{evento}', [CarteleraController::class, 'show'])->name('cartelera.show');
+Route::get('cartelera/{evento}/ingresar', [CarteleraController::class, 'ingresar'])->middleware('auth')->name('cartelera.ingresar');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
