@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\InscripcionConfirmada;
+use App\Mail\InscripcionRecibida;
 use App\Models\Categoria;
 use App\Models\Evento;
 use App\Models\Lugar;
@@ -70,13 +71,25 @@ class MailsTest extends TestCase
         Mail::assertQueued(InscripcionConfirmada::class, fn ($mail) => $mail->hasTo('ana@example.com'));
     }
 
-    public function test_b1_no_se_manda_si_queda_pendiente()
+    public function test_b2_recibida_si_queda_pendiente()
     {
         $taller = $this->eventoDe('Taller');
 
         $this->actingAs($this->usuario('oriana@eventos.test'))->post("/eventos/{$taller->id}/inscripcion");
 
         Mail::assertNotQueued(InscripcionConfirmada::class);
+        Mail::assertQueued(InscripcionRecibida::class, fn ($mail) => $mail->hasTo('oriana@eventos.test'));
+    }
+
+    public function test_b2_recibida_al_invitado_de_un_taller_abierto()
+    {
+        $taller = $this->eventoDe('Taller', soloRegistrados: false);
+
+        $this->post("/cartelera/{$taller->id}/inscripcion", [
+            'nombre' => 'Ana', 'apellido' => 'Pérez', 'email' => 'ana@example.com', 'dni' => '42111222',
+        ]);
+
+        Mail::assertQueued(InscripcionRecibida::class, fn ($mail) => $mail->hasTo('ana@example.com'));
     }
 
     public function test_el_mail_lleva_los_datos_del_evento()

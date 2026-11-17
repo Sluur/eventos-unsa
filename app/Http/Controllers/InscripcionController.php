@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInscripcionRequest;
 use App\Mail\InscripcionConfirmada;
+use App\Mail\InscripcionRecibida;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
@@ -72,9 +73,9 @@ class InscripcionController extends Controller
 
         $inscripcion = $resultado['inscripcion'];
 
-        if ($inscripcion->estado === 'confirmada') {
-            $inscripcion->avisar(new InscripcionConfirmada($inscripcion));
-        }
+        $inscripcion->avisar($inscripcion->estado === 'pendiente'
+            ? new InscripcionRecibida($inscripcion)
+            : new InscripcionConfirmada($inscripcion));
 
         $mensaje = $inscripcion->estado === 'pendiente'
             ? 'Recibimos tu inscripción. Queda pendiente hasta que el organizador la revise.'
