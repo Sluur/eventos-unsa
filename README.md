@@ -76,6 +76,29 @@ El sistema queda en http://localhost:8000.
 
 > Si Composer pide PHP 8.4.1 o superior, usar `composer install --ignore-platform-req=php`.
 
+## Mails
+
+Los mails se mandan en cola, así que `php artisan dev` tiene que estar corriendo (levanta el worker de la cola).
+
+En desarrollo no salen de verdad: con `MAIL_MAILER=log` quedan escritos en `storage/logs/laravel.log`. Para seguirlos:
+
+```powershell
+Get-Content storage/logs/laravel.log -Tail 50 -Wait
+```
+
+Para mandarlos de verdad, cambiar en el `.env` los datos del SMTP. Por ejemplo con [Mailtrap](https://mailtrap.io) (bandeja de prueba):
+
+```
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=usuario_de_mailtrap
+MAIL_PASSWORD=clave_de_mailtrap
+MAIL_FROM_ADDRESS="eventos@unsa.edu.ar"
+```
+
+Después de tocar el `.env`, correr `php artisan config:clear` y reiniciar `php artisan dev`.
+
 ## Usuarios de prueba
 
 Todos con contraseña `password`.

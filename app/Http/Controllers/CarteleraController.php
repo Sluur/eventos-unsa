@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInscripcionInvitadoRequest;
+use App\Mail\InscripcionConfirmada;
 use App\Models\Categoria;
 use App\Models\Evento;
 use App\Models\Inscripcion;
@@ -115,16 +116,20 @@ class CarteleraController extends Controller
                 ? tap($previa)->update($campos)
                 : Inscripcion::create([...$campos, 'evento_id' => $evento->id]);
 
-            return ['estado' => $inscripcion->estado];
+            return ['inscripcion' => $inscripcion];
         });
 
         if (isset($resultado['error'])) {
             return back()->with('error', $resultado['error']);
         }
 
-        // Pendiente: acá se manda el mail al invitado
+        $inscripcion = $resultado['inscripcion'];
 
-        $mensaje = $resultado['estado'] === 'pendiente'
+        if ($inscripcion->estado === 'confirmada') {
+            $inscripcion->avisar(new InscripcionConfirmada($inscripcion));
+        }
+
+        $mensaje = $inscripcion->estado === 'pendiente'
             ? 'Recibimos tu inscripción. Queda pendiente hasta que el organizador la revise.'
             : 'Listo, quedaste inscripto. ¡Te esperamos!';
 

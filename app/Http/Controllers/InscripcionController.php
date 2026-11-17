@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreInscripcionRequest;
+use App\Mail\InscripcionConfirmada;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
@@ -62,16 +63,20 @@ class InscripcionController extends Controller
                 ]);
             }
 
-            return ['estado' => $inscripcion->estado];
+            return ['inscripcion' => $inscripcion];
         });
 
         if (isset($resultado['error'])) {
             return redirect()->route('eventos.show', $evento)->with('error', $resultado['error']);
         }
 
-        // Pendiente: acá se manda el mail de confirmación o de "inscripción recibida"
+        $inscripcion = $resultado['inscripcion'];
 
-        $mensaje = $resultado['estado'] === 'pendiente'
+        if ($inscripcion->estado === 'confirmada') {
+            $inscripcion->avisar(new InscripcionConfirmada($inscripcion));
+        }
+
+        $mensaje = $inscripcion->estado === 'pendiente'
             ? 'Recibimos tu inscripción. Queda pendiente hasta que el organizador la revise.'
             : 'Te inscribiste correctamente.';
 
