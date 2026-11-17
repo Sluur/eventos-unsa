@@ -39,28 +39,28 @@ export default function Index({ eventos, categorias, filtros }: Props) {
         <>
             <Head title="Cartelera" />
 
-            <section className="flex flex-col items-center gap-3 px-4 pt-10 pb-8 text-center md:pt-16">
-                <h1 className="text-3xl font-bold tracking-tight md:text-5xl">Eventos de la facultad</h1>
-                <p className="max-w-xl text-muted-foreground md:text-lg">
-                    Charlas, talleres y cursos abiertos a la comunidad. Elegí uno e inscribite.
-                </p>
+            <section className="flex flex-col gap-4 border-b px-4 pt-8 pb-6 md:pt-10">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight sm:text-[1.75rem]">Eventos de la facultad</h1>
+                    <p className="mt-1 text-muted-foreground">Próximas charlas, talleres y cursos.</p>
+                </div>
 
-                <form onSubmit={aplicar} className="mt-4 flex w-full max-w-xl gap-2">
+                <form onSubmit={aplicar} className="flex w-full max-w-xl gap-2">
                     <div className="relative flex-1">
                         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             value={buscar}
                             onChange={(e) => setBuscar(e.target.value)}
                             placeholder="Buscar eventos..."
-                            className="h-11 pl-9"
+                            className="pl-9"
                         />
                     </div>
-                    <Button type="submit" className="h-11">
+                    <Button type="submit">
                         Buscar
                     </Button>
                 </form>
 
-                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
                     <FiltroCategoria activo={filtros.categoria === ''} onClick={() => visitar({ categoria: '' })}>
                         Todas
                     </FiltroCategoria>
@@ -80,7 +80,11 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                 </div>
             </section>
 
-            <div className="flex flex-col gap-6 px-4 pb-12">
+            <div className="flex flex-col gap-6 px-4 pt-6 pb-12">
+                <p className="text-sm text-muted-foreground tabular-nums">
+                    {eventos.total} {eventos.total === 1 ? 'evento' : 'eventos'}
+                </p>
+
                 {eventos.data.length === 0 ? (
                     <Card>
                         <EmptyState
@@ -136,8 +140,8 @@ function FiltroCategoria({ activo, onClick, children }: { activo: boolean; onCli
             type="button"
             onClick={onClick}
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors',
-                activo ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-accent',
+                'inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                activo ? 'border-primary bg-primary text-primary-foreground' : 'bg-card hover:bg-accent',
             )}
         >
             {children}

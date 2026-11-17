@@ -62,7 +62,7 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                     <FechaBloque fecha={evento.fecha_inicio} grande />
                     <div className="flex min-w-0 flex-col gap-2">
                         <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
-                        <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">{evento.titulo}</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{evento.titulo}</h1>
                     </div>
                 </div>
 
