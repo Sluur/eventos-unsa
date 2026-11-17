@@ -122,6 +122,7 @@ public function index(Request $request)
             'estado' => $datos['estado'],
             'categoria_id' => $charla->id,
             'organizador_id' => $request->user()->id,
+            'imagen' => $request->hasFile('imagen') ? $request->file('imagen')->store('eventos', 'public') : null,
         ]);
 
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
@@ -225,6 +226,15 @@ public function index(Request $request)
             'estado' => $datos['estado'],
         ]);
 
+        // Al reemplazar o quitar la imagen se borra el archivo anterior
+        if ($request->hasFile('imagen')) {
+            $evento->borrarImagen();
+            $evento->update(['imagen' => $request->file('imagen')->store('eventos', 'public')]);
+        } elseif ($request->boolean('quitar_imagen')) {
+            $evento->borrarImagen();
+            $evento->update(['imagen' => null]);
+        }
+
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
 
         return redirect()
@@ -266,6 +276,7 @@ public function index(Request $request)
                 ->with('error', 'No se puede eliminar porque tiene inscripciones. Si no se va a hacer, cancelalo.');
         }
 
+        $evento->borrarImagen();
         $evento->delete();
 
         return redirect()

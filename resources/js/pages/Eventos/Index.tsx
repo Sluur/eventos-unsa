@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import CupoBar from '@/components/cupo-bar';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
+import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ interface Evento {
     fecha_inicio: string;
     cupo: number;
     estado: EstadoEvento;
+    imagen_url: string | null;
     inscriptos_count: number;
     categoria: { id: number; nombre: string };
     lugar: { id: number; nombre: string };
@@ -322,7 +324,13 @@ function TarjetaEvento({ evento }: { evento: Evento }) {
 
     return (
         <Link href={`/eventos/${evento.id}`} className="group">
-            <Card className="h-full gap-4 py-5 transition-colors group-hover:border-primary/40">
+            <Card className="h-full gap-4 overflow-hidden pt-0 pb-5 transition-colors group-hover:border-primary/40">
+                <EventoImagen
+                    url={evento.imagen_url}
+                    categoriaId={evento.categoria.id}
+                    alt={evento.titulo}
+                    className="h-36 w-full"
+                />
                 <CardContent className="flex gap-4 px-5">
                     <FechaBloque fecha={evento.fecha_inicio} />
                     <div className="flex min-w-0 flex-1 flex-col gap-1">

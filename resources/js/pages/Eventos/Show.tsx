@@ -5,6 +5,7 @@ import ConfirmDelete from '@/components/confirm-delete';
 import CupoBar from '@/components/cupo-bar';
 import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
+import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +31,7 @@ interface Evento {
     cupo: number;
     estado: EstadoEvento;
     motivo_cancelacion: string | null;
+    imagen_url: string | null;
     inscriptos_count: number;
     categoria: { id: number; nombre: string };
     lugar: { id: number; nombre: string; direccion: string | null };
@@ -98,6 +100,13 @@ export default function Show({
                     <ArrowLeft className="size-4" />
                     Volver al listado
                 </Link>
+
+                <EventoImagen
+                    url={evento.imagen_url}
+                    categoriaId={evento.categoria.id}
+                    alt={evento.titulo}
+                    className="h-40 w-full rounded-xl sm:h-64"
+                />
 
                 {/* Encabezado */}
                 <div className="flex items-start gap-4 sm:gap-6">

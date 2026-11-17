@@ -60,6 +60,12 @@ Crear las tablas y cargar los datos de prueba:
 php artisan migrate:fresh --seed
 ```
 
+Crear el enlace para que se vean las imágenes de los eventos:
+
+```bash
+php artisan storage:link
+```
+
 Levantar el servidor, Vite y las colas en una sola terminal:
 
 ```bash

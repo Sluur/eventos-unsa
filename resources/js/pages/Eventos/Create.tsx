@@ -37,12 +37,14 @@ export default function Create({ lugares, disertantes, copia }: Props) {
         cupo: copia?.cupo ?? '',
         disertantes: copia?.disertantes ?? [],
         estado: 'borrador',
+        imagen: null,
+        quitar_imagen: false,
     });
 
     const guardar = (estado: 'borrador' | 'publicado') => (e: FormEvent) => {
         e.preventDefault();
         form.transform((datos) => ({ ...datos, estado }));
-        form.post('/eventos');
+        form.post('/eventos', { forceFormData: true });
     };
 
     setLayoutProps({ breadcrumbs });

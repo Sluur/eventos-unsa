@@ -1,8 +1,10 @@
 import type { InertiaFormProps } from '@inertiajs/react';
-import type { FormEvent, ReactNode } from 'react';
+import { ImageIcon, X } from 'lucide-react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import DisertantesSelect, { type DisertanteOpcion } from '@/components/disertantes-select';
 import FormField from '@/components/form-field';
 import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +24,8 @@ export type EventoFormData = {
     cupo: string;
     disertantes: number[];
     estado: string;
+    imagen: File | null;
+    quitar_imagen: boolean;
 };
 
 interface Props {
@@ -30,12 +34,41 @@ interface Props {
     disertantes: DisertanteOpcion[];
     onSubmit: (e: FormEvent) => void;
     ayudaCupo?: string;
+    imagenActual?: string | null;
     acciones: ReactNode;
 }
 
 // Formulario compartido entre alta y edición de eventos
-export default function EventoForm({ form, lugares, disertantes, onSubmit, ayudaCupo, acciones }: Props) {
+export default function EventoForm({
+    form,
+    lugares,
+    disertantes,
+    onSubmit,
+    ayudaCupo,
+    imagenActual = null,
+    acciones,
+}: Props) {
     const { data, setData, errors } = form;
+    const [preview, setPreview] = useState<string | null>(null);
+    const [inputKey, setInputKey] = useState(0);
+
+    // Vista previa de la imagen elegida
+    useEffect(() => {
+        if (!data.imagen) {
+            setPreview(null);
+            return;
+        }
+        const url = URL.createObjectURL(data.imagen);
+        setPreview(url);
+        return () => URL.revokeObjectURL(url);
+    }, [data.imagen]);
+
+    const imagenVisible = preview ?? (data.quitar_imagen ? null : imagenActual);
+
+    const quitarImagen = () => {
+        setData({ ...data, imagen: null, quitar_imagen: true });
+        setInputKey((k) => k + 1);
+    };
     const lugarElegido = lugares.find((l) => String(l.id) === data.lugar_id);
 
     const ayuda = [lugarElegido && `Máximo ${lugarElegido.capacidad} personas en este lugar.`, ayudaCupo]
@@ -50,6 +83,42 @@ export default function EventoForm({ form, lugares, disertantes, onSubmit, ayuda
                     value={data.titulo}
                     onChange={(e) => setData('titulo', e.target.value)}
                     aria-invalid={!!errors.titulo}
+                />
+            </FormField>
+
+            <FormField
+                label="Imagen (opcional)"
+                htmlFor="imagen"
+                error={errors.imagen}
+                ayuda="JPG, PNG o WEBP de hasta 2 MB."
+            >
+                {imagenVisible ? (
+                    <div className="relative overflow-hidden rounded-lg border">
+                        <img src={imagenVisible} alt="Imagen del evento" className="aspect-[21/9] w-full object-cover" />
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={quitarImagen}
+                            className="absolute top-2 right-2"
+                        >
+                            <X />
+                            Quitar
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-3 rounded-lg border border-dashed p-3 text-sm text-muted-foreground">
+                        <ImageIcon className="size-5 shrink-0" />
+                        Sin imagen
+                    </div>
+                )}
+                <Input
+                    key={inputKey}
+                    id="imagen"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => setData('imagen', e.target.files?.[0] ?? null)}
+                    aria-invalid={!!errors.imagen}
                 />
             </FormField>
 

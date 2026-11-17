@@ -2,14 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Evento extends Model
 {
     use HasFactory;
 
+    protected $appends = ['imagen_url'];
+
     protected $fillable = [
+        'imagen',
         'titulo',
         'descripcion',
         'fecha_inicio',
@@ -28,6 +33,19 @@ class Evento extends Model
             'fecha_inicio' => 'datetime',
             'fecha_fin' => 'datetime',
         ];
+    }
+
+    protected function imagenUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->imagen ? Storage::disk('public')->url($this->imagen) : null);
+    }
+
+    // Borra el archivo de la imagen del disco, si tiene
+    public function borrarImagen(): void
+    {
+        if ($this->imagen) {
+            Storage::disk('public')->delete($this->imagen);
+        }
     }
 
     public function categoria()

@@ -25,6 +25,7 @@ class StoreEventoRequest extends FormRequest
             'estado' => ['required', 'in:borrador,publicado'],
             'disertantes' => ['array'],
             'disertantes.*' => ['integer', 'exists:disertantes,id'],
+            'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 
@@ -61,6 +62,7 @@ class StoreEventoRequest extends FormRequest
             'estado' => 'estado',
             'disertantes' => 'disertantes',
             'disertantes.*' => 'disertante',
+            'imagen' => 'imagen',
         ];
     }
 
@@ -77,6 +79,10 @@ class StoreEventoRequest extends FormRequest
             'exists' => 'El :attribute seleccionado no existe.',
             'in' => 'El :attribute no es válido.',
             'array' => 'El campo :attribute no es válido.',
+            'imagen.image' => 'El archivo tiene que ser una imagen.',
+            'imagen.mimes' => 'La imagen tiene que ser JPG, PNG o WEBP.',
+            'imagen.max' => 'La imagen no puede pesar más de 2 MB.',
+            'imagen.uploaded' => 'No se pudo subir la imagen. Probá con una de menos de 2 MB.',
         ];
     }
 }

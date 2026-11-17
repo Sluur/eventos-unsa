@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Evento;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class GestionEventosTest extends TestCase
@@ -134,6 +136,48 @@ class GestionEventosTest extends TestCase
                 ->where('copia.cupo', '30')
                 ->has('copia.disertantes', 2)
                 ->missing('copia.fecha_inicio'));
+    }
+
+    public function test_subir_reemplazar_y_quitar_imagen()
+    {
+        Storage::fake('public');
+        $organizador = $this->usuario('organizador@eventos.test');
+        $evento = $this->evento('Cómo funciona Internet');
+
+        $this->actingAs($organizador)->put("/eventos/{$evento->id}", $this->datos($evento, [
+            'imagen' => UploadedFile::fake()->create('portada.jpg', 300, 'image/jpeg'),
+        ]))->assertSessionHasNoErrors();
+
+        $primera = $evento->fresh()->imagen;
+        Storage::disk('public')->assertExists($primera);
+
+        $this->actingAs($organizador)->put("/eventos/{$evento->id}", $this->datos($evento, [
+            'imagen' => UploadedFile::fake()->create('otra.png', 300, 'image/png'),
+        ]));
+
+        $segunda = $evento->fresh()->imagen;
+        Storage::disk('public')->assertMissing($primera);
+        Storage::disk('public')->assertExists($segunda);
+
+        $this->actingAs($organizador)->put("/eventos/{$evento->id}", $this->datos($evento, ['quitar_imagen' => true]));
+
+        Storage::disk('public')->assertMissing($segunda);
+        $this->assertNull($evento->fresh()->imagen);
+    }
+
+    public function test_la_imagen_se_valida()
+    {
+        Storage::fake('public');
+        $evento = $this->evento('Cómo funciona Internet');
+        $organizador = $this->usuario('organizador@eventos.test');
+
+        $this->actingAs($organizador)->put("/eventos/{$evento->id}", $this->datos($evento, [
+            'imagen' => UploadedFile::fake()->create('apunte.pdf', 100, 'application/pdf'),
+        ]))->assertSessionHasErrors('imagen');
+
+        $this->actingAs($organizador)->put("/eventos/{$evento->id}", $this->datos($evento, [
+            'imagen' => UploadedFile::fake()->create('grande.jpg', 3000, 'image/jpeg'),
+        ]))->assertSessionHasErrors(['imagen' => 'La imagen no puede pesar más de 2 MB.']);
     }
 
     public function test_solo_se_elimina_sin_inscripciones()

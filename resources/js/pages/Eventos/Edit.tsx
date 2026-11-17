@@ -17,6 +17,7 @@ interface Evento {
     lugar_id: number;
     cupo: number;
     estado: EstadoEvento;
+    imagen_url: string | null;
     inscriptos_count: number;
     disertantes: { id: number }[];
 }
@@ -46,12 +47,15 @@ export default function Edit({ evento, lugares, disertantes }: Props) {
         cupo: String(evento.cupo),
         disertantes: evento.disertantes.map((d) => d.id),
         estado: evento.estado,
+        imagen: null,
+        quitar_imagen: false,
     });
 
     const guardar = (estado: 'borrador' | 'publicado') => (e: FormEvent) => {
         e.preventDefault();
-        form.transform((datos) => ({ ...datos, estado }));
-        form.put(`/eventos/${evento.id}`);
+        // Con archivo hay que mandar POST con _method put
+        form.transform((datos) => ({ ...datos, estado, _method: 'put' }));
+        form.post(`/eventos/${evento.id}`, { forceFormData: true });
     };
 
     const esBorrador = evento.estado === 'borrador';
@@ -74,6 +78,7 @@ export default function Edit({ evento, lugares, disertantes }: Props) {
                             lugares={lugares}
                             disertantes={disertantes}
                             onSubmit={guardar(esBorrador ? 'borrador' : 'publicado')}
+                            imagenActual={evento.imagen_url}
                             ayudaCupo={
                                 evento.inscriptos_count > 0
                                     ? `Ya hay ${evento.inscriptos_count} inscriptos, no puede ser menor.`

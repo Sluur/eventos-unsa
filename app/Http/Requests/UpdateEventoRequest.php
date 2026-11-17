@@ -9,6 +9,7 @@ class UpdateEventoRequest extends StoreEventoRequest
     public function rules(): array
     {
         $reglas = parent::rules();
+        $reglas['quitar_imagen'] = ['boolean'];
         $evento = $this->route('evento');
 
         // Si no se tocó la fecha de inicio, se puede guardar aunque ya haya pasado
