@@ -14,14 +14,14 @@ class CategoriaSeeder extends Seeder
             [
                 'nombre' => 'Charla',
                 'descripcion' => 'Exposición breve sobre un tema.',
-                'color' => '#059669',
+                'color' => '#4f7f8f',
             ],
             // El organizador aprueba cada inscripción
             [
                 'nombre' => 'Taller',
                 'descripcion' => 'Actividad práctica con participación.',
                 'requiere_aprobacion' => true,
-                'color' => '#0284c7',
+                'color' => '#8c6d46',
             ],
             // Además hay que presentar documentación
             [
@@ -30,7 +30,7 @@ class CategoriaSeeder extends Seeder
                 'requiere_aprobacion' => true,
                 'requiere_documentacion' => true,
                 'documentacion_descripcion' => 'Certificado de alumno regular',
-                'color' => '#7c3aed',
+                'color' => '#5e7a64',
             ],
         ];
 

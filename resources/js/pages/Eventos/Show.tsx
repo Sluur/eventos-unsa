@@ -1,5 +1,5 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, Clock, Globe, Lock, CalendarDays, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileText, MapPin, Mic, Pencil, Trash2, User, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Clock, Copy, FileText, Pencil, Trash2, Users } from 'lucide-react';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
 import ConfirmDelete from '@/components/confirm-delete';
@@ -148,10 +148,10 @@ export default function Show({
 
                 <EventoImagen
                     url={evento.imagen_url}
-                    categoriaId={evento.categoria.id}
+                    categoria={evento.categoria.nombre}
                     color={evento.categoria.color}
                     alt={evento.titulo}
-                    className="h-40 w-full rounded-xl sm:h-64"
+                    className="h-32 w-full rounded-lg border sm:h-56"
                 />
 
                 {/* Encabezado */}
@@ -350,22 +350,22 @@ export default function Show({
                             <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
 
                             <div className="grid gap-4 text-sm sm:grid-cols-2">
-                                <EventoDato icono={CalendarDays} titulo="Cuándo">
+                                <EventoDato titulo="Cuándo">
                                     <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
                                     <span className="text-muted-foreground">
                                         Hasta las {formatearHora(evento.fecha_fin)}
                                     </span>
                                 </EventoDato>
-                                <EventoDato icono={MapPin} titulo="Dónde">
+                                <EventoDato titulo="Dónde">
                                     <span>{evento.lugar.nombre}</span>
                                     {evento.lugar.direccion && (
                                         <span className="text-muted-foreground">{evento.lugar.direccion}</span>
                                     )}
                                 </EventoDato>
-                                <EventoDato icono={User} titulo="Organiza">
+                                <EventoDato titulo="Organiza">
                                     <span>{evento.organizador.name}</span>
                                 </EventoDato>
-                                <EventoDato icono={evento.solo_registrados ? Lock : Globe} titulo="Quién se inscribe">
+                                <EventoDato titulo="Quién se inscribe">
                                     <span>
                                         {evento.solo_registrados
                                             ? 'Solo usuarios registrados'
@@ -386,10 +386,7 @@ export default function Show({
                             ) : (
                                 <ul className="flex flex-col gap-4">
                                     {evento.disertantes.map((d) => (
-                                        <li key={d.id} className="flex items-start gap-3 text-sm">
-                                            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                                <Mic className="size-4" />
-                                            </div>
+                                        <li key={d.id} className="text-sm">
                                             <div>
                                                 <div className="font-medium">
                                                     {d.nombre} {d.apellido}

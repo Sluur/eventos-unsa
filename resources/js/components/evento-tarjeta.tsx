@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import CupoBar from '@/components/cupo-bar';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
@@ -30,16 +29,16 @@ export default function EventoTarjeta({ evento, href, mostrarEstado = true }: Pr
     const libres = Math.max(0, evento.cupo - evento.inscriptos_count);
 
     return (
-        <Link href={href} className="group">
-            <Card className="h-full gap-4 overflow-hidden pt-0 pb-5 transition-colors group-hover:border-primary/40">
+        <Link href={href} className="group rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+            <Card className="h-full gap-0 overflow-hidden py-0 transition-colors group-hover:border-primary/50">
                 <EventoImagen
                     url={evento.imagen_url}
-                    categoriaId={evento.categoria.id}
+                    categoria={evento.categoria.nombre}
                     color={evento.categoria.color}
                     alt={evento.titulo}
-                    className="h-36 w-full"
+                    className="h-28 w-full border-b"
                 />
-                <CardContent className="flex gap-4 px-5">
+                <CardContent className="flex flex-1 gap-4 px-4 py-4">
                     <FechaBloque fecha={evento.fecha_inicio} />
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                         <div className="flex items-center justify-between gap-2">
@@ -49,21 +48,20 @@ export default function EventoTarjeta({ evento, href, mostrarEstado = true }: Pr
                         <h3 className="line-clamp-2 leading-snug font-semibold group-hover:text-primary">
                             {evento.titulo}
                         </h3>
-                        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <MapPin className="size-3.5 shrink-0" />
-                            <span className="truncate">
-                                {evento.lugar.nombre} · {formatearHora(evento.fecha_inicio)} h
-                            </span>
+                        <p className="truncate text-sm text-muted-foreground">
+                            {evento.lugar.nombre}, {formatearHora(evento.fecha_inicio)} h
                         </p>
                     </div>
                 </CardContent>
-                <CardContent className="mt-auto flex flex-col gap-1.5 px-5">
-                    <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} className="h-1.5" />
-                    <p className="text-xs text-muted-foreground">
-                        {libres === 0 ? 'Sin lugares' : `${libres} ${libres === 1 ? 'lugar libre' : 'lugares libres'}`} ·{' '}
-                        {evento.inscriptos_count} de {evento.cupo}
+                <div className="flex flex-col gap-1.5 border-t px-4 py-3">
+                    <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} className="h-1" />
+                    <p className="flex justify-between text-xs text-muted-foreground tabular-nums">
+                        <span>{libres === 0 ? 'Sin lugares' : `${libres} ${libres === 1 ? 'lugar libre' : 'lugares libres'}`}</span>
+                        <span>
+                            {evento.inscriptos_count} de {evento.cupo}
+                        </span>
                     </p>
-                </CardContent>
+                </div>
             </Card>
         </Link>
     );

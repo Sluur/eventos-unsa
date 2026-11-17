@@ -60,7 +60,7 @@ export default function CategoriaForm({ form, onSubmit, acciones }: Props) {
                     <input
                         id="color"
                         type="color"
-                        value={data.color || '#059669'}
+                        value={data.color || '#4f7f8f'}
                         onChange={(e) => setData('color', e.target.value)}
                         className="h-9 w-14 cursor-pointer rounded-md border bg-transparent p-1"
                     />
