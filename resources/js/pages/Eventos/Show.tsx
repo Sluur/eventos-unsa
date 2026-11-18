@@ -1,5 +1,6 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Clock, Copy, FileText, Pencil, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileText, Pencil, Trash2, Users } from 'lucide-react';
+import ArchivoInput from '@/components/archivo-input';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
 import ConfirmDelete from '@/components/confirm-delete';
@@ -10,7 +11,6 @@ import EmptyState from '@/components/empty-state';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EstadoInscripcionBadge, { type EstadoInscripcion } from '@/components/estado-inscripcion-badge';
 import EventoDato from '@/components/evento-dato';
-import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import InputError from '@/components/input-error';
 import InscriptoNombre, { emailInscripto } from '@/components/inscripto-nombre';
@@ -18,9 +18,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { capitalizar, formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -146,13 +145,13 @@ export default function Show({
                     Volver al listado
                 </Link>
 
-                <EventoImagen
-                    url={evento.imagen_url}
-                    categoria={evento.categoria.nombre}
-                    color={evento.categoria.color}
-                    alt={evento.titulo}
-                    className="h-32 w-full rounded-lg border sm:h-56"
-                />
+                {evento.imagen_url && (
+                    <img
+                        src={evento.imagen_url}
+                        alt={evento.titulo}
+                        className="h-40 w-full rounded-lg border object-cover sm:h-64"
+                    />
+                )}
 
                 <div className="flex items-start gap-4 sm:gap-6">
                     <FechaBloque fecha={evento.fecha_inicio} grande />
@@ -161,7 +160,7 @@ export default function Show({
                             <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
                             <EstadoBadge estado={evento.estado} />
                         </div>
-                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{evento.titulo}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{evento.titulo}</h1>
                     </div>
                 </div>
 
@@ -234,8 +233,7 @@ export default function Show({
                             <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
                             {puedeInscribirse && <CategoriaReglas categoria={evento.categoria} />}
                             {evento.estado === 'publicado' && !yaPaso && evento.inscripcion_hasta && (
-                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Clock className="size-3.5" />
+                                <p className="text-sm text-muted-foreground">
                                     {inscripcionCerrada
                                         ? 'Inscripción cerrada'
                                         : `Inscripción abierta hasta el ${formatearFechaLarga(evento.inscripcion_hasta)}`}
@@ -294,12 +292,11 @@ export default function Show({
                                             <label htmlFor="archivo" className="text-sm font-medium">
                                                 Subí: {evento.categoria.documentacion_descripcion}
                                             </label>
-                                            <Input
+                                            <ArchivoInput
                                                 id="archivo"
-                                                type="file"
                                                 accept=".pdf,.jpg,.jpeg,.png"
-                                                onChange={(e) => inscripcion.setData('archivo', e.target.files?.[0] ?? null)}
-                                                aria-invalid={!!inscripcion.errors.archivo}
+                                                onChange={(archivo) => inscripcion.setData('archivo', archivo)}
+                                                invalido={!!inscripcion.errors.archivo}
                                             />
                                             <span className="text-xs text-muted-foreground">PDF, JPG o PNG de hasta 5 MB.</span>
                                             <InputError message={inscripcion.errors.archivo} />
@@ -339,66 +336,48 @@ export default function Show({
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle>Sobre el evento</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-6">
-                            <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
+                <div className="grid gap-8 border-t pt-6 lg:grid-cols-3">
+                    <section className="flex flex-col gap-5 lg:col-span-2">
+                        <h2 className="text-lg font-semibold">Sobre el evento</h2>
+                        <p className="max-w-prose whitespace-pre-line">{evento.descripcion}</p>
 
-                            <div className="grid gap-4 text-sm sm:grid-cols-2">
-                                <EventoDato titulo="Cuándo">
-                                    <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
-                                    <span className="text-muted-foreground">
-                                        Hasta las {formatearHora(evento.fecha_fin)}
-                                    </span>
-                                </EventoDato>
-                                <EventoDato titulo="Dónde">
-                                    <span>{evento.lugar.nombre}</span>
-                                    {evento.lugar.direccion && (
-                                        <span className="text-muted-foreground">{evento.lugar.direccion}</span>
-                                    )}
-                                </EventoDato>
-                                <EventoDato titulo="Organiza">
-                                    <span>{evento.organizador.name}</span>
-                                </EventoDato>
-                                <EventoDato titulo="Quién se inscribe">
-                                    <span>
-                                        {evento.solo_registrados
-                                            ? 'Solo usuarios registrados'
-                                            : 'Abierto al público, también invitados'}
-                                    </span>
-                                </EventoDato>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        <div className="grid gap-4 text-sm sm:grid-cols-2">
+                            <EventoDato titulo="Cuándo">
+                                <span>{capitalizar(formatearFechaLarga(evento.fecha_inicio))}</span>
+                                <span className="text-muted-foreground">Hasta las {formatearHora(evento.fecha_fin)}</span>
+                            </EventoDato>
+                            <EventoDato titulo="Dónde">
+                                <span>{evento.lugar.nombre}</span>
+                                {evento.lugar.direccion && <span className="text-muted-foreground">{evento.lugar.direccion}</span>}
+                            </EventoDato>
+                            <EventoDato titulo="Organiza">
+                                <span>{evento.organizador.name}</span>
+                            </EventoDato>
+                            <EventoDato titulo="Quién se inscribe">
+                                <span>
+                                    {evento.solo_registrados ? 'Solo usuarios registrados' : 'Abierto al público, también invitados'}
+                                </span>
+                            </EventoDato>
+                        </div>
+                    </section>
 
-                    <Card className="h-fit">
-                        <CardHeader>
-                            <CardTitle>Disertantes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {evento.disertantes.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
-                            ) : (
-                                <ul className="flex flex-col gap-4">
-                                    {evento.disertantes.map((d) => (
-                                        <li key={d.id} className="text-sm">
-                                            <div>
-                                                <div className="font-medium">
-                                                    {d.nombre} {d.apellido}
-                                                </div>
-                                                {d.biografia && (
-                                                    <div className="text-muted-foreground">{d.biografia}</div>
-                                                )}
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </CardContent>
-                    </Card>
+                    <section className="flex flex-col gap-4">
+                        <h2 className="text-lg font-semibold">Disertantes</h2>
+                        {evento.disertantes.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
+                        ) : (
+                            <ul className="flex flex-col divide-y text-sm">
+                                {evento.disertantes.map((d) => (
+                                    <li key={d.id} className="py-3 first:pt-0">
+                                        <div className="font-medium">
+                                            {d.nombre} {d.apellido}
+                                        </div>
+                                        {d.biografia && <div className="text-muted-foreground">{d.biografia}</div>}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </section>
                 </div>
 
                 {puedeGestionar && (
@@ -446,33 +425,29 @@ export default function Show({
                 )}
 
                 {puedeGestionar && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Mensajes enviados</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {mensajes.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">Todavía no se mandaron mensajes a los inscriptos.</p>
-                            ) : (
-                                <ul className="flex flex-col divide-y">
-                                    {mensajes.map((m) => (
-                                        <li key={m.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-                                            <div className="flex flex-wrap items-baseline justify-between gap-2">
-                                                <span className="font-medium">{m.asunto}</span>
-                                                <span className="text-xs text-muted-foreground">
-                                                    {formatearFecha(m.created_at)} · {m.autor.name}
-                                                </span>
-                                            </div>
-                                            <p className="line-clamp-3 text-sm whitespace-pre-line text-muted-foreground">{m.cuerpo}</p>
-                                            <span className="text-xs text-muted-foreground">
-                                                A {m.destinatarios} · {m.cantidad} {m.cantidad === 1 ? 'persona' : 'personas'}
+                    <section className="flex flex-col gap-4 border-t pt-6">
+                        <h2 className="text-lg font-semibold">Mensajes enviados</h2>
+                        {mensajes.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Todavía no se mandaron mensajes a los inscriptos.</p>
+                        ) : (
+                            <ul className="flex flex-col divide-y">
+                                {mensajes.map((m) => (
+                                    <li key={m.id} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                            <span className="font-medium">{m.asunto}</span>
+                                            <span className="text-sm text-muted-foreground">
+                                                {formatearFecha(m.created_at)} · {m.autor.name}
                                             </span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </CardContent>
-                    </Card>
+                                        </div>
+                                        <p className="line-clamp-3 text-sm whitespace-pre-line text-muted-foreground">{m.cuerpo}</p>
+                                        <span className="text-sm text-muted-foreground">
+                                            A {m.destinatarios} · {m.cantidad} {m.cantidad === 1 ? 'persona' : 'personas'}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </section>
                 )}
             </div>
         </>

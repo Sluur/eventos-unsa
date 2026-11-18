@@ -1,15 +1,14 @@
 import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import CategoriaReglas, { type ReglasCategoria } from '@/components/categoria-reglas';
 import CupoBar from '@/components/cupo-bar';
 import EventoDato from '@/components/evento-dato';
-import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
 import InscripcionInvitadoForm from '@/components/inscripcion-invitado-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { capitalizar, formatearFechaLarga, formatearHora } from '@/lib/fechas';
 
 export interface EventoPublico {
     id: number;
@@ -49,78 +48,62 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                     Volver al inicio
                 </Link>
 
-                <EventoImagen
-                    url={evento.imagen_url}
-                    categoria={evento.categoria.nombre}
-                    color={evento.categoria.color}
-                    alt={evento.titulo}
-                    className="h-32 w-full rounded-lg border sm:h-56"
-                />
+                {evento.imagen_url && (
+                    <img
+                        src={evento.imagen_url}
+                        alt={evento.titulo}
+                        className="h-40 w-full rounded-lg border object-cover sm:h-64"
+                    />
+                )}
 
                 <div className="flex items-start gap-4 sm:gap-6">
                     <FechaBloque fecha={evento.fecha_inicio} grande />
                     <div className="flex min-w-0 flex-col gap-2">
                         <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
-                        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{evento.titulo}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{evento.titulo}</h1>
                     </div>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="flex flex-col gap-6 lg:col-span-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Sobre el evento</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-6">
-                                <p className="whitespace-pre-line text-muted-foreground">{evento.descripcion}</p>
+                <div className="grid gap-8 border-t pt-6 lg:grid-cols-3">
+                    <div className="flex flex-col gap-8 lg:col-span-2">
+                        <section className="flex flex-col gap-5">
+                            <h2 className="text-lg font-semibold">Sobre el evento</h2>
+                            <p className="max-w-prose whitespace-pre-line">{evento.descripcion}</p>
 
-                                <div className="grid gap-4 text-sm sm:grid-cols-2">
-                                    <EventoDato titulo="Cuándo">
-                                        <span className="capitalize">{formatearFechaLarga(evento.fecha_inicio)}</span>
-                                        <span className="text-muted-foreground">
-                                            Hasta las {formatearHora(evento.fecha_fin)}
-                                        </span>
-                                    </EventoDato>
-                                    <EventoDato titulo="Dónde">
-                                        <span>{evento.lugar.nombre}</span>
-                                        {evento.lugar.direccion && (
-                                            <span className="text-muted-foreground">{evento.lugar.direccion}</span>
-                                        )}
-                                    </EventoDato>
-                                    <EventoDato titulo="Quién se inscribe">
-                                        <span>
-                                            {evento.solo_registrados
-                                                ? 'Solo usuarios registrados'
-                                                : 'Abierto al público, también invitados'}
-                                        </span>
-                                    </EventoDato>
-                                </div>
-                            </CardContent>
-                        </Card>
+                            <div className="grid gap-4 text-sm sm:grid-cols-2">
+                                <EventoDato titulo="Cuándo">
+                                    <span>{capitalizar(formatearFechaLarga(evento.fecha_inicio))}</span>
+                                    <span className="text-muted-foreground">Hasta las {formatearHora(evento.fecha_fin)}</span>
+                                </EventoDato>
+                                <EventoDato titulo="Dónde">
+                                    <span>{evento.lugar.nombre}</span>
+                                    {evento.lugar.direccion && <span className="text-muted-foreground">{evento.lugar.direccion}</span>}
+                                </EventoDato>
+                                <EventoDato titulo="Quién se inscribe">
+                                    <span>
+                                        {evento.solo_registrados ? 'Solo usuarios registrados' : 'Abierto al público, también invitados'}
+                                    </span>
+                                </EventoDato>
+                            </div>
+                        </section>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Disertantes</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {evento.disertantes.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
-                                ) : (
-                                    <ul className="flex flex-col gap-4">
-                                        {evento.disertantes.map((d) => (
-                                            <li key={d.id} className="text-sm">
-                                            <div>
-                                                    <div className="font-medium">
-                                                        {d.nombre} {d.apellido}
-                                                    </div>
-                                                    {d.biografia && <div className="text-muted-foreground">{d.biografia}</div>}
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </CardContent>
-                        </Card>
+                        <section className="flex flex-col gap-4 border-t pt-6">
+                            <h2 className="text-lg font-semibold">Disertantes</h2>
+                            {evento.disertantes.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">Sin disertantes cargados.</p>
+                            ) : (
+                                <ul className="flex flex-col divide-y text-sm">
+                                    {evento.disertantes.map((d) => (
+                                        <li key={d.id} className="py-3 first:pt-0">
+                                            <div className="font-medium">
+                                                {d.nombre} {d.apellido}
+                                            </div>
+                                            {d.biografia && <div className="text-muted-foreground">{d.biografia}</div>}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </section>
                     </div>
 
                     <Card className="h-fit lg:sticky lg:top-24">
@@ -141,8 +124,7 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                                 </div>
                                 <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
                                 {evento.inscripcion_hasta && (
-                                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <Clock className="size-3.5" />
+                                    <p className="text-sm text-muted-foreground">
                                         {inscripcionCerrada
                                             ? 'Inscripción cerrada'
                                             : `Inscripción abierta hasta el ${formatearFechaLarga(evento.inscripcion_hasta)}`}
