@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDisertanteRequest;
 use App\Http\Requests\UpdateDisertanteRequest;
 use App\Models\Disertante;
-use App\Models\Encuesta;
 use Inertia\Inertia;
 
 use Illuminate\Routing\Attributes\Controllers\Middleware;
@@ -15,14 +14,7 @@ class DisertanteController extends Controller
     #[Middleware('permission:gestionar disertantes')]
     public function index()
     {
-        $promedio = Encuesta::query()
-            ->join('inscripciones', 'inscripciones.id', '=', 'encuestas.inscripcion_id')
-            ->join('disertante_evento', 'disertante_evento.evento_id', '=', 'inscripciones.evento_id')
-            ->whereColumn('disertante_evento.disertante_id', 'disertantes.id')
-            ->selectRaw('round(avg(encuestas.puntaje), 1)');
-
         $disertantes = Disertante::withCount(['eventos', 'seguidores'])
-            ->addSelect(['puntaje_promedio' => $promedio])
             ->orderBy('apellido')
             ->orderBy('nombre')
             ->get();
