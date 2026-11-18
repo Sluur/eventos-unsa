@@ -38,7 +38,7 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('eventos.index', absolute: false));
         $this->assertTrue(User::where('email', 'test@example.com')->first()->hasRole('alumno'));
     }
 }

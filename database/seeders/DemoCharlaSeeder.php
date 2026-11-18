@@ -142,6 +142,16 @@ class DemoCharlaSeeder extends Seeder
         $this->inscribir($arduino, ['alejandro@eventos.test', 'franco@eventos.test'], asistio: true);
         $this->inscribir($arduino, ['oriana@eventos.test']);
 
+        Inscripcion::create([
+            'evento_id' => $arduino->id,
+            'nombre_invitado' => 'Sofía',
+            'apellido_invitado' => 'Paz',
+            'email_invitado' => 'sofia.paz@example.com',
+            'dni_invitado' => '42345678',
+            'estado' => 'confirmada',
+            'asistio' => false,
+        ]);
+
         $inicio = now()->addDays(10)->setTime(18, 0);
 
         $seguridad = Evento::create([
@@ -159,7 +169,8 @@ class DemoCharlaSeeder extends Seeder
         $seguridad->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
         $this->inscribir($seguridad, ['oriana@eventos.test', 'alejandro@eventos.test']);
 
-        $inicio = now()->addHours(20)->setMinute(0)->setSecond(0);
+        // tiene que caer en las proximas 24 horas para mostrar el recordatorio
+        $inicio = now()->hour < 10 ? now()->setTime(18, 0) : now()->addDay()->setTime(10, 0);
 
         $docker = Evento::create([
             'titulo' => 'Primeros pasos con Docker',
