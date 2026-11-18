@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'logo' => config('app.logo') ? asset(config('app.logo')) : null,
             'auth' => [
                 'user' => $request->user(),
             ],
@@ -47,7 +48,6 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'permisos' => fn () => $request->user()?->getAllPermissions()->pluck('name') ?? [],
-            
         ];
     }
 }

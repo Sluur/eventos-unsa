@@ -2,7 +2,11 @@
 {{-- Header --}}
 <x-slot:header>
 <x-mail::header :url="config('app.url')">
-{{ config('app.name') }}
+@if (config('app.logo'))
+<img src="{{ asset(config('app.logo')) }}" alt="Exactas · UNSa" style="height: 48px;">
+@else
+Exactas · UNSa
+@endif
 </x-mail::header>
 </x-slot:header>
 

@@ -1,20 +1,30 @@
 import { usePage } from '@inertiajs/react';
+import { cn } from '@/lib/utils';
 
-import AppLogoIcon from '@/components/app-logo-icon';
+interface Props {
+    claro?: boolean;
+    conNombre?: boolean;
+    className?: string;
+}
 
-export default function AppLogo() {
-    const { name } = usePage().props;
+export default function AppLogo({ claro = false, conNombre = true, className }: Props) {
+    const { name, logo } = usePage().props;
 
     return (
-        <>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
-            </div>
-            <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="mb-0.5 truncate leading-tight font-semibold">
-                    {name}
+        <span className={cn('flex items-center gap-2', className)}>
+            {logo ? (
+                <img src={logo} alt="Exactas · UNSa" className="h-9 w-auto" />
+            ) : (
+                <span
+                    className={cn(
+                        'rounded-md px-2 py-1 text-xs font-bold whitespace-nowrap',
+                        claro ? 'bg-primary-foreground text-primary' : 'bg-primary text-primary-foreground',
+                    )}
+                >
+                    Exactas · UNSa
                 </span>
-            </div>
-        </>
+            )}
+            {conNombre && <span className="truncate font-semibold">{name}</span>}
+        </span>
     );
 }

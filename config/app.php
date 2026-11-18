@@ -13,7 +13,10 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Eventos Exactas'),
+
+    'logo' => collect(['images/logo-exactas.svg', 'images/logo-exactas.png'])
+        ->first(fn ($archivo) => file_exists(public_path($archivo))),
 
     /*
     |--------------------------------------------------------------------------
