@@ -32,6 +32,7 @@ class CarteleraController extends Controller
 
         return Inertia::render('Cartelera/Index', [
             'eventos' => $eventos,
+            'imagen' => file_exists(public_path('images/facultad.jpg')) ? asset('images/facultad.jpg') : null,
         ]);
     }
 

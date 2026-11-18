@@ -4,10 +4,11 @@ import { cn } from '@/lib/utils';
 interface Props {
     claro?: boolean;
     conNombre?: boolean;
+    nombreEnCelular?: boolean;
     className?: string;
 }
 
-export default function AppLogo({ claro = false, conNombre = true, className }: Props) {
+export default function AppLogo({ claro = false, conNombre = true, nombreEnCelular = true, className }: Props) {
     const { name, logo } = usePage().props;
 
     return (
@@ -24,7 +25,9 @@ export default function AppLogo({ claro = false, conNombre = true, className }: 
                     Exactas · UNSa
                 </span>
             )}
-            {conNombre && <span className="truncate font-semibold">{name}</span>}
+            {conNombre && (
+                <span className={cn('truncate font-semibold', !nombreEnCelular && 'hidden sm:inline')}>{name}</span>
+            )}
         </span>
     );
 }
