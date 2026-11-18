@@ -1,5 +1,5 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CalendarX, FileSpreadsheet, LayoutGrid, List, Plus, Search } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
 import CalendarioMes, { type EventoCalendario } from '@/components/calendario-mes';
 import CupoBar from '@/components/cupo-bar';
@@ -140,6 +140,11 @@ export default function Index({ eventos, calendario, categorias, contadores, fil
 
     const hayFiltros = !!filtros.buscar || !!filtros.categoria;
 
+    const parametrosExportar = Object.entries({ buscar: filtros.buscar, categoria: filtros.categoria, vista, orden, direccion }).filter(
+        ([, valor]) => !!valor,
+    );
+    const urlExportar = `/eventos/exportar?${new URLSearchParams(parametrosExportar).toString()}`;
+
     setLayoutProps({ breadcrumbs });
 
     return (
@@ -201,6 +206,15 @@ export default function Index({ eventos, calendario, categorias, contadores, fil
                     {hayFiltros && (
                         <Button type="button" variant="ghost" onClick={limpiarFiltros}>
                             Limpiar
+                        </Button>
+                    )}
+
+                    {permisos.includes('ver reportes') && (
+                        <Button variant="outline" className="h-10" asChild>
+                            <a href={urlExportar}>
+                                <FileSpreadsheet />
+                                Exportar a Excel
+                            </a>
                         </Button>
                     )}
 

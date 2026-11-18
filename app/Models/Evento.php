@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Mail\EventoPublicado;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -132,6 +133,57 @@ class Evento extends Model
     public function sePuedeEditar(): bool
     {
         return !in_array($this->estado, ['finalizado', 'cancelado'], true);
+    }
+
+    public function scopeFiltrar(Builder $query, array $filtros): void
+    {
+        $query->when($filtros['buscar'] !== '', fn ($q) => $q->where('titulo', 'like', "%{$filtros['buscar']}%"))
+            ->when($filtros['categoria'] !== '', fn ($q) => $q->where('categoria_id', $filtros['categoria']));
+    }
+
+    public function scopeEnVista(Builder $query, string $vista, User $usuario): void
+    {
+        $proximos = fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '>=', now());
+        // los publicados que ya terminaron cuentan como finalizados aunque el comando no haya corrido
+        $finalizados = fn ($q) => $q->where('estado', 'finalizado')
+            ->orWhere(fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '<', now()));
+
+        match ($vista) {
+            'proximos' => $query->where($proximos),
+            'finalizados' => $query->where($finalizados),
+            'todos' => $query->where(fn ($q) => $q->where($proximos)->orWhere($finalizados)),
+            'borradores', 'cancelados' => $query
+                ->where('estado', $vista === 'borradores' ? 'borrador' : 'cancelado')
+                ->when(!$usuario->hasRole('admin'), fn ($q) => $q->where('organizador_id', $usuario->id)),
+        };
+    }
+
+    public function scopeConProximo(Builder $query): void
+    {
+        // proximo = publicado y todavia no termino, sirve para separar los grupos en "todos"
+        $query->select('eventos.*')
+            ->selectRaw("case when estado = 'publicado' and fecha_fin >= ? then 1 else 0 end as proximo", [now()]);
+    }
+
+    public function scopeOrdenListado(Builder $query, array $filtros): void
+    {
+        $query->when($filtros['vista'] === 'todos', function ($q) {
+            $q->orderByRaw("case when estado = 'publicado' and fecha_fin >= ? then 1 else 0 end desc", [now()]);
+        });
+
+        if ($filtros['orden'] !== '') {
+            $query->orderBy($filtros['orden'], $filtros['direccion']);
+
+            return;
+        }
+
+        match ($filtros['vista']) {
+            'finalizados', 'cancelados' => $query->orderByDesc('fecha_inicio'),
+            'todos' => $query
+                ->orderByRaw("case when estado = 'publicado' and fecha_fin >= ? then fecha_inicio end asc", [now()])
+                ->orderByDesc('fecha_inicio'),
+            default => $query->orderBy('fecha_inicio'),
+        };
     }
 
     public function avisarSeguidores(): void

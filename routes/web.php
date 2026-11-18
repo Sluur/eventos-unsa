@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('mis-inscripciones', [MisInscripcionesController::class, 'index'])->name('mis-inscripciones');
+    Route::get('eventos/exportar', [EventoController::class, 'exportar'])->name('eventos.exportar');
     Route::resource('eventos', EventoController::class);
     Route::patch('eventos/{evento}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
     Route::post('eventos/{evento}/inscripcion', [InscripcionController::class, 'store'])->name('eventos.inscripcion.store');
