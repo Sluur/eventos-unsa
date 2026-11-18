@@ -164,46 +164,67 @@ export default function Show({
                     </div>
                 </div>
 
-                {(puedeEditar || puedeEliminar || puedeDuplicar || puedeMensajear) && (
-                    <div className="flex flex-wrap gap-2">
-                        {puedeEditar && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={`/eventos/${evento.id}/edit`}>
-                                    <Pencil />
-                                    Editar
-                                </Link>
-                            </Button>
-                        )}
-                        {puedeDuplicar && (
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={`/eventos/create?duplicar=${evento.id}`}>
-                                    <Copy />
-                                    Duplicar
-                                </Link>
-                            </Button>
-                        )}
-                        {puedeMensajear && (
-                            <MensajeInscriptosDialog
-                                eventoId={evento.id}
-                                confirmados={inscriptos.length}
-                                pendientes={pendientes}
-                            />
-                        )}
-                        {puedeEditar && (
-                            <CancelarEventoDialog eventoId={evento.id} inscriptos={evento.inscriptos_count} />
-                        )}
-                        {puedeEliminar && (
-                            <ConfirmDelete
-                                url={`/eventos/${evento.id}`}
-                                titulo="¿Eliminar el evento?"
-                                descripcion="Solo se pueden eliminar eventos sin inscripciones. Si ya tiene inscriptos, cancelalo."
-                            >
-                                <Button variant="ghost" size="sm" className="text-destructive">
-                                    <Trash2 />
-                                    Eliminar
+                {(puedeRevisar || puedeTomarAsistencia || puedeMensajear || puedeEditar || puedeDuplicar || puedeEliminar) && (
+                    <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-wrap gap-2">
+                            {puedeRevisar && (
+                                <Button size="sm" variant={pendientes > 0 ? 'default' : 'outline'} asChild>
+                                    <Link href={`/eventos/${evento.id}/inscripciones`}>
+                                        <ClipboardList />
+                                        Revisar inscripciones
+                                        {pendientes > 0 && ` (${pendientes} pendiente${pendientes === 1 ? '' : 's'})`}
+                                    </Link>
                                 </Button>
-                            </ConfirmDelete>
-                        )}
+                            )}
+                            {puedeTomarAsistencia && (
+                                <Button size="sm" variant="outline" asChild>
+                                    <Link href={`/eventos/${evento.id}/asistencia`}>
+                                        <ClipboardCheck />
+                                        Tomar asistencia
+                                    </Link>
+                                </Button>
+                            )}
+                            {puedeMensajear && (
+                                <MensajeInscriptosDialog
+                                    eventoId={evento.id}
+                                    confirmados={inscriptos.length}
+                                    pendientes={pendientes}
+                                />
+                            )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {puedeEditar && (
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/eventos/${evento.id}/edit`}>
+                                        <Pencil />
+                                        Editar
+                                    </Link>
+                                </Button>
+                            )}
+                            {puedeDuplicar && (
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/eventos/create?duplicar=${evento.id}`}>
+                                        <Copy />
+                                        Duplicar
+                                    </Link>
+                                </Button>
+                            )}
+                            {puedeEditar && (
+                                <CancelarEventoDialog eventoId={evento.id} inscriptos={evento.inscriptos_count} />
+                            )}
+                            {puedeEliminar && (
+                                <ConfirmDelete
+                                    url={`/eventos/${evento.id}`}
+                                    titulo="¿Eliminar el evento?"
+                                    descripcion="Solo se pueden eliminar eventos sin inscripciones. Si ya tiene inscriptos, cancelalo."
+                                >
+                                    <Button variant="ghost" size="sm" className="text-destructive">
+                                        <Trash2 />
+                                        Eliminar
+                                    </Button>
+                                </ConfirmDelete>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -217,9 +238,10 @@ export default function Show({
                     </Alert>
                 )}
 
-                <Card className="py-4">
-                    <CardContent className="flex flex-col gap-4 px-5 sm:flex-row sm:items-center">
-                        <div className="flex flex-1 flex-col gap-2">
+                <Card className="py-5">
+                    <CardContent className="grid gap-6 px-5 md:grid-cols-2 md:gap-10">
+                        <div className="flex flex-col gap-2">
+                            <h2 className="font-semibold">Cupo</h2>
                             <div className="flex items-baseline justify-between text-sm">
                                 <span className="font-medium">
                                     {lugaresLibres === 0
@@ -227,11 +249,11 @@ export default function Show({
                                         : `Quedan ${lugaresLibres} ${lugaresLibres === 1 ? 'lugar' : 'lugares'}`}
                                 </span>
                                 <span className="text-muted-foreground">
-                                    {evento.inscriptos_count} / {evento.cupo}
+                                    {evento.inscriptos_count} de {evento.cupo}
                                 </span>
                             </div>
                             <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
-                            {puedeInscribirse && <CategoriaReglas categoria={evento.categoria} />}
+                            <CategoriaReglas categoria={evento.categoria} />
                             {evento.estado === 'publicado' && !yaPaso && evento.inscripcion_hasta && (
                                 <p className="text-sm text-muted-foreground">
                                     {inscripcionCerrada
@@ -241,98 +263,92 @@ export default function Show({
                             )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                            {puedeInscribirse && estaInscripto && (
-                                <>
-                                    {miInscripcion?.archivo && (
-                                        <Button variant="ghost" size="sm" asChild>
-                                            <a href={`/inscripciones/${miInscripcion.id}/archivo`}>
-                                                <FileText />
-                                                Mi documentación
-                                            </a>
-                                        </Button>
-                                    )}
-                                    {miInscripcion?.estado === 'pendiente' ? (
-                                        <EstadoInscripcionBadge estado="pendiente" />
-                                    ) : (
-                                        <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                                            <CircleCheck className="size-4" />
-                                            Estás inscripto
-                                        </span>
-                                    )}
-                                    {!yaPaso && evento.estado !== 'cancelado' && (
-                                        <ConfirmDelete
-                                            url={`/eventos/${evento.id}/inscripcion`}
-                                            titulo="¿Cancelar tu inscripción?"
-                                            descripcion="Vas a liberar tu lugar y otra persona lo puede ocupar."
-                                            textoBoton="Cancelar inscripción"
-                                            textoCancelar="Volver"
-                                        >
-                                            <Button variant="outline">Cancelar inscripción</Button>
-                                        </ConfirmDelete>
-                                    )}
-                                </>
-                            )}
+                        {puedeInscribirse && (
+                            <div className="flex flex-col gap-3 border-t pt-5 md:border-t-0 md:border-l md:pt-0 md:pl-10">
+                                <h2 className="font-semibold">Tu inscripción</h2>
 
-                            {puedeInscribirse && !estaInscripto && (
-                                <div className="flex flex-col items-stretch gap-1 sm:items-end">
-                                    {miInscripcion?.estado === 'rechazada' && (
-                                        <div className="flex flex-col gap-1 text-sm sm:items-end">
-                                            <EstadoInscripcionBadge estado="rechazada" />
-                                            {miInscripcion.motivo_rechazo && (
+                                {estaInscripto ? (
+                                    <>
+                                        {miInscripcion?.estado === 'pendiente' ? (
+                                            <div className="flex flex-col gap-1 text-sm">
+                                                <EstadoInscripcionBadge estado="pendiente" />
                                                 <span className="text-muted-foreground">
-                                                    Motivo: {miInscripcion.motivo_rechazo}
+                                                    El organizador tiene que revisarla. Te avisamos por mail.
                                                 </span>
+                                            </div>
+                                        ) : (
+                                            <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                                                <CircleCheck className="size-4" />
+                                                Estás inscripto
+                                            </span>
+                                        )}
+                                        <div className="flex flex-wrap gap-2">
+                                            {miInscripcion?.archivo && (
+                                                <Button variant="outline" size="sm" asChild>
+                                                    <a href={`/inscripciones/${miInscripcion.id}/archivo`}>
+                                                        <FileText />
+                                                        Mi documentación
+                                                    </a>
+                                                </Button>
                                             )}
-                                            <span className="text-xs text-muted-foreground">Podés volver a inscribirte.</span>
+                                            {!yaPaso && evento.estado !== 'cancelado' && (
+                                                <ConfirmDelete
+                                                    url={`/eventos/${evento.id}/inscripcion`}
+                                                    titulo="¿Cancelar tu inscripción?"
+                                                    descripcion="Vas a liberar tu lugar y otra persona lo puede ocupar."
+                                                    textoBoton="Cancelar inscripción"
+                                                    textoCancelar="Volver"
+                                                >
+                                                    <Button variant="outline" size="sm">
+                                                        Cancelar inscripción
+                                                    </Button>
+                                                </ConfirmDelete>
+                                            )}
                                         </div>
-                                    )}
-                                    {requiereDocumentacion && motivoSinInscripcion === null && (
-                                        <div className="flex flex-col gap-1.5">
-                                            <label htmlFor="archivo" className="text-sm font-medium">
-                                                Subí: {evento.categoria.documentacion_descripcion}
-                                            </label>
-                                            <ArchivoInput
-                                                id="archivo"
-                                                accept=".pdf,.jpg,.jpeg,.png"
-                                                onChange={(archivo) => inscripcion.setData('archivo', archivo)}
-                                                invalido={!!inscripcion.errors.archivo}
-                                            />
-                                            <span className="text-xs text-muted-foreground">PDF, JPG o PNG de hasta 5 MB.</span>
-                                            <InputError message={inscripcion.errors.archivo} />
-                                        </div>
-                                    )}
-                                    <Button
-                                        onClick={inscribirme}
-                                        disabled={motivoSinInscripcion !== null || inscripcion.processing}
-                                    >
-                                        {inscripcion.processing ? 'Enviando...' : 'Inscribirme'}
-                                    </Button>
-                                    {motivoSinInscripcion && (
-                                        <p className="text-sm text-muted-foreground">{motivoSinInscripcion}</p>
-                                    )}
-                                </div>
-                            )}
-
-                            {puedeRevisar && (
-                                <Button variant={pendientes > 0 ? 'default' : 'outline'} asChild>
-                                    <Link href={`/eventos/${evento.id}/inscripciones`}>
-                                        <ClipboardList />
-                                        Revisar inscripciones
-                                        {pendientes > 0 && ` (${pendientes} pendiente${pendientes === 1 ? '' : 's'})`}
-                                    </Link>
-                                </Button>
-                            )}
-
-                            {puedeTomarAsistencia && (
-                                <Button variant="outline" asChild>
-                                    <Link href={`/eventos/${evento.id}/asistencia`}>
-                                        <ClipboardCheck />
-                                        Tomar asistencia
-                                    </Link>
-                                </Button>
-                            )}
-                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        {miInscripcion?.estado === 'rechazada' && (
+                                            <div className="flex flex-col gap-1 text-sm">
+                                                <EstadoInscripcionBadge estado="rechazada" />
+                                                {miInscripcion.motivo_rechazo && (
+                                                    <span className="text-muted-foreground">
+                                                        Motivo: {miInscripcion.motivo_rechazo}
+                                                    </span>
+                                                )}
+                                                <span className="text-muted-foreground">Podés volver a inscribirte.</span>
+                                            </div>
+                                        )}
+                                        {motivoSinInscripcion ? (
+                                            <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                                                {motivoSinInscripcion}
+                                            </p>
+                                        ) : (
+                                            <>
+                                                {requiereDocumentacion && (
+                                                    <div className="flex flex-col gap-1.5">
+                                                        <label htmlFor="archivo" className="text-sm font-medium">
+                                                            Subí: {evento.categoria.documentacion_descripcion}
+                                                        </label>
+                                                        <ArchivoInput
+                                                            id="archivo"
+                                                            accept=".pdf,.jpg,.jpeg,.png"
+                                                            onChange={(archivo) => inscripcion.setData('archivo', archivo)}
+                                                            invalido={!!inscripcion.errors.archivo}
+                                                        />
+                                                        <span className="text-sm text-muted-foreground">PDF, JPG o PNG de hasta 5 MB.</span>
+                                                        <InputError message={inscripcion.errors.archivo} />
+                                                    </div>
+                                                )}
+                                                <Button onClick={inscribirme} disabled={inscripcion.processing} className="w-full sm:w-fit">
+                                                    {inscripcion.processing ? 'Enviando...' : 'Inscribirme'}
+                                                </Button>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
