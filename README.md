@@ -13,6 +13,7 @@ Sistema para gestionar las charlas, talleres y cursos de la Facultad de Ciencias
 
 ### Alumno
 
+- Resumen con sus próximos eventos, inscripciones esperando revisión y certificados para descargar.
 - Listado de eventos con pestañas (próximos, finalizados, todos), búsqueda, filtro por categoría y vista en tarjetas, tabla o calendario mensual.
 - Inscripción con control de cupo, fechas y repetidas. Si la categoría lo pide, se sube documentación y la inscripción queda pendiente hasta que el organizador la revise.
 - Cancelar la inscripción.
@@ -22,6 +23,7 @@ Sistema para gestionar las charlas, talleres y cursos de la Facultad de Ciencias
 
 ### Organizador
 
+- Resumen de sus eventos: próximos con el cupo ocupado, inscripciones para revisar y eventos finalizados sin asistencia cargada (el administrador lo ve de todos los eventos).
 - Alta, edición, duplicado, cancelación y eliminación de sus eventos (borrador o publicado, imagen, cupo, disertantes, fecha límite de inscripción, abierto al público o solo registrados).
 - Revisión de inscripciones: aceptar o rechazar con motivo, ver la documentación.
 - Toma de asistencia.

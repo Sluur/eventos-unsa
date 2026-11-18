@@ -6,6 +6,7 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\CarteleraController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CertificadoController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EncuestaController;
 use App\Http\Controllers\EstadisticaController;
@@ -30,7 +31,7 @@ Route::post('inscripciones/{inscripcion}/encuesta', [EncuestaController::class, 
 Route::get('inscripciones/{inscripcion}/certificado', [CertificadoController::class, 'show'])->name('inscripciones.certificado');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::redirect('dashboard', '/eventos')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
