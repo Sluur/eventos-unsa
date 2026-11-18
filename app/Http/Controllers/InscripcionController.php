@@ -107,27 +107,19 @@ class InscripcionController extends Controller
             ->first();
 
         if (!$inscripcion) {
-            return redirect()
-                ->route('eventos.show', $evento)
-                ->with('error', 'No estás inscripto en este evento.');
+            return back()->with('error', 'No estás inscripto en este evento.');
         }
 
         if ($evento->estado === 'cancelado') {
-            return redirect()
-                ->route('eventos.show', $evento)
-                ->with('error', 'El evento fue cancelado, no hace falta cancelar la inscripción.');
+            return back()->with('error', 'El evento fue cancelado, no hace falta cancelar la inscripción.');
         }
 
         if ($evento->yaPaso()) {
-            return redirect()
-                ->route('eventos.show', $evento)
-                ->with('error', 'No se puede cancelar la inscripción a un evento que ya pasó.');
+            return back()->with('error', 'No se puede cancelar la inscripción a un evento que ya pasó.');
         }
 
         $inscripcion->update(['estado' => 'cancelada']);
 
-        return redirect()
-            ->route('eventos.show', $evento)
-            ->with('success', 'Cancelaste tu inscripción.');
+        return back()->with('success', 'Cancelaste tu inscripción.');
     }
 }

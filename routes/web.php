@@ -10,6 +10,7 @@ use App\Http\Controllers\EventoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
 use App\Http\Controllers\MensajeEventoController;
+use App\Http\Controllers\MisInscripcionesController;
 use App\Http\Controllers\RevisionInscripcionController;
 use App\Http\Controllers\SeguirController;
 
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('mis-inscripciones', [MisInscripcionesController::class, 'index'])->name('mis-inscripciones');
     Route::resource('eventos', EventoController::class);
     Route::patch('eventos/{evento}/cancelar', [EventoController::class, 'cancelar'])->name('eventos.cancelar');
     Route::post('eventos/{evento}/inscripcion', [InscripcionController::class, 'store'])->name('eventos.inscripcion.store');
