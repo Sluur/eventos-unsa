@@ -1,84 +1,143 @@
-# Eventos UNSa
+# Eventos Exactas
 
-Sistema para gestionar los eventos de la facultad (charlas, talleres, congresos). Los organizadores publican eventos y los alumnos se inscriben; el sistema controla el cupo y registra la asistencia.
+Sistema para gestionar las charlas, talleres y cursos de la Facultad de Ciencias Exactas (UNSa). Los organizadores publican eventos, los alumnos y el público se inscriben, y el sistema controla el cupo, manda los mails, registra la asistencia y genera los certificados y reportes.
 
-## Qué se puede hacer por ahora
+## Funcionalidades
 
-- Listado de eventos con búsqueda, filtros por categoría y estado, orden y paginación.
-- Alta de charlas por parte del organizador: lugar, cupo, disertantes, guardar como borrador o publicar.
-- Detalle del evento con disertantes, lugar, organizador y cupo ocupado.
-- Inscripción y cancelación del alumno, con control de cupo, de inscripciones repetidas y de fechas.
-- Toma de asistencia por parte del organizador del evento.
-- ABM de categorías y lugares (administrador).
-- Roles y permisos: administrador, organizador y alumno.
+### Sin cuenta (público)
+
+- Portada con los próximos eventos, cómo inscribirse y datos de contacto.
+- Detalle público de cada evento.
+- Inscripción como invitado (nombre, apellido, email y DNI) en los eventos abiertos al público.
+- Encuesta y certificado de asistencia desde el enlace personal que llega por mail.
+
+### Alumno
+
+- Listado de eventos con pestañas (próximos, finalizados, todos), búsqueda, filtro por categoría y vista en tarjetas, tabla o calendario mensual.
+- Inscripción con control de cupo, fechas y repetidas. Si la categoría lo pide, se sube documentación y la inscripción queda pendiente hasta que el organizador la revise.
+- Cancelar la inscripción.
+- Mis inscripciones: próximas, pendientes, pasadas y canceladas o rechazadas (con el motivo).
+- Seguir categorías y disertantes para recibir un mail cuando se publica algo nuevo.
+- Encuesta de satisfacción y certificado de asistencia en PDF.
+
+### Organizador
+
+- Alta, edición, duplicado, cancelación y eliminación de sus eventos (borrador o publicado, imagen, cupo, disertantes, fecha límite de inscripción, abierto al público o solo registrados).
+- Revisión de inscripciones: aceptar o rechazar con motivo, ver la documentación.
+- Toma de asistencia.
+- Mensajes por mail a los inscriptos.
+- Carga de disertantes.
+- Reportes: listado de inscriptos (PDF y Excel), planilla de asistencia para firmar (PDF), exportación del listado de eventos con los filtros aplicados (Excel) y resumen por evento (PDF y Excel).
+- Resultados de la encuesta y porcentaje de no show en el detalle de cada evento.
+
+### Administrador
+
+- Todo lo del organizador, sobre todos los eventos.
+- Categorías (con sus reglas de inscripción: aprobación y documentación) y lugares.
+- Estadísticas de no show: tasa global, por categoría, eventos con más faltas y alumnos con 2 o más faltas.
+
+### Automático
+
+- Mails en cola: inscripción recibida, confirmada, aceptada o rechazada, evento modificado o cancelado, recordatorio, aviso a seguidores y enlace al certificado para invitados.
+- Recordatorio a los inscriptos de los eventos de las próximas 24 horas.
+- Los eventos publicados pasan solos a "finalizado" cuando terminan.
 
 ## Tecnologías
 
-- Laravel 13 (PHP 8.4)
-- React + TypeScript con Inertia
-- Tailwind CSS
-- Spatie Laravel Permission para roles y permisos
+- Laravel 13 (PHP 8.4) con Inertia
+- React + TypeScript, Tailwind CSS y componentes de shadcn/ui
 - MySQL / MariaDB
+- Spatie Laravel Permission (roles y permisos)
+- barryvdh/laravel-dompdf (PDF) y maatwebsite/excel (Excel)
+- Recharts (gráficos de estadísticas)
 
 ## Instalación
 
 Requisitos: PHP 8.4, Composer, Node.js LTS, Git y MySQL o MariaDB (por ejemplo con XAMPP).
 
-```bash
-git clone https://github.com/Sluur/eventos-unsa.git
-cd eventos-unsa
+1. Clonar e instalar dependencias:
 
-composer install
-npm install
+    ```bash
+    git clone https://github.com/Sluur/eventos-unsa.git
+    cd eventos-unsa
+    composer install
+    npm install
+    ```
 
-cp .env.example .env
-php artisan key:generate
-```
+    Si Composer pide PHP 8.4.1 o superior, usar `composer install --ignore-platform-req=php`.
 
-Crear la base de datos `eventos_unsa` (por ejemplo desde phpMyAdmin, con cotejamiento `utf8mb4_unicode_ci`), o desde la consola:
+2. Crear el `.env`:
 
-```bash
-mysql -u root -e "CREATE DATABASE eventos_unsa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-```
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-En el `.env` quedan los datos de conexión (los de XAMPP por defecto: usuario `root`, sin contraseña):
+3. Crear la base `eventos_unsa` (desde phpMyAdmin con cotejamiento `utf8mb4_unicode_ci`, o por consola):
 
-```
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=eventos_unsa
-DB_USERNAME=root
-DB_PASSWORD=
-```
+    ```bash
+    mysql -u root -e "CREATE DATABASE eventos_unsa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+    ```
 
-MySQL tiene que estar corriendo antes de levantar el proyecto.
+    El `.env.example` ya trae la conexión de XAMPP por defecto (usuario `root`, sin contraseña):
 
-Crear las tablas y cargar los datos de prueba:
+    ```
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=eventos_unsa
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
 
-```bash
-php artisan migrate:fresh --seed
-```
+4. Crear las tablas con los datos de demo y el enlace para las imágenes:
 
-Crear el enlace para que se vean las imágenes de los eventos:
+    ```bash
+    php artisan migrate:fresh --seed
+    php artisan storage:link
+    ```
 
-```bash
-php artisan storage:link
-```
+5. Levantar el servidor, Vite y la cola de mails en una sola terminal (MySQL tiene que estar corriendo):
 
-Levantar el servidor, Vite y las colas en una sola terminal:
-
-```bash
-php artisan dev
-```
+    ```bash
+    php artisan dev
+    ```
 
 El sistema queda en http://localhost:8000.
 
-> Si Composer pide PHP 8.4.1 o superior, usar `composer install --ignore-platform-req=php`.
+Para correr los tests: `php artisan test`.
+
+## Usuarios de demo
+
+Todos con contraseña `password`.
+
+| Rol | Nombre | Email |
+|---|---|---|
+| Administrador | Rodrigo Haro | rodrigo@eventos.test |
+| Organizador | Neo | organizador@eventos.test |
+| Alumno | Oriana Figueroa | oriana@eventos.test |
+| Alumno | Alejandro Haro | alejandro@eventos.test |
+| Alumno | Franco Castilla | franco@eventos.test |
+
+Los datos de demo (todos organizados por Neo) incluyen:
+
+| Evento | Para mostrar |
+|---|---|
+| Git y GitHub para trabajos en grupo | Abierto al público, con un solo lugar libre (cupo lleno) |
+| Primeros pasos con Docker | Empieza en menos de 24 horas (recordatorio) |
+| Cómo funciona Internet | Inscripción ya cerrada |
+| Curso de Python inicial | Documentación y aprobación: una pendiente, una aceptada y una rechazada |
+| Introducción a las APIs REST | Borrador, con un disertante que sigue Alejandro |
+| Seguridad informática básica | Evento cancelado |
+| Introducción a SQL | Finalizado con no show |
+| Taller de Linux desde cero | Finalizado, encuesta respondida (Alejandro) y sin responder (Franco) |
+| Primeros pasos con Arduino | Finalizado, con una invitada sin asistencia tomada |
+
+Oriana sigue la categoría Taller y tiene 2 faltas, por eso aparece en Estadísticas.
 
 ## Mails
 
-Los mails se mandan en cola, así que `php artisan dev` tiene que estar corriendo (levanta el worker de la cola).
+Los mails se mandan en cola, así que `php artisan dev` tiene que estar corriendo (levanta el worker). Si no, se pueden procesar a mano con `php artisan queue:work --stop-when-empty`.
 
 En desarrollo no salen de verdad: con `MAIL_MAILER=log` quedan escritos en `storage/logs/laravel.log`. Para seguirlos:
 
@@ -94,27 +153,22 @@ MAIL_HOST=sandbox.smtp.mailtrap.io
 MAIL_PORT=2525
 MAIL_USERNAME=usuario_de_mailtrap
 MAIL_PASSWORD=clave_de_mailtrap
-MAIL_FROM_ADDRESS="eventos@unsa.edu.ar"
+MAIL_FROM_ADDRESS="eventos@example.com"
 ```
 
 Después de tocar el `.env`, correr `php artisan config:clear` y reiniciar `php artisan dev`.
 
-## Usuarios de prueba
+## Tareas programadas
 
-Todos con contraseña `password`.
+Hay dos comandos que se programan cada hora en `routes/console.php`:
 
-| Rol | Nombre | Email |
-|---|---|---|
-| Administrador | Rodrigo Haro | rodrigo@eventos.test |
-| Organizador | Neo | organizador@eventos.test |
-| Alumno | Oriana Figueroa | oriana@eventos.test |
-| Alumno | Alejandro Haro | alejandro@eventos.test |
-| Alumno | Franco Castilla | franco@eventos.test |
+- `php artisan eventos:enviar-recordatorios`: manda el recordatorio a los confirmados de los eventos que empiezan en las próximas 24 horas (una sola vez por inscripción).
+- `php artisan eventos:finalizar`: pasa a "finalizado" los eventos publicados que ya terminaron.
 
-- **Administrador:** configura categorías y lugares y puede hacer todo.
-- **Organizador:** carga disertantes, crea charlas y toma asistencia.
-- **Alumno:** se inscribe a las charlas y cancela su inscripción.
+Se pueden correr a mano en cualquier momento. Para que corran solos en desarrollo, dejar abierta otra terminal con:
 
-Los disertantes se cargan desde su sección y no inician sesión.
+```bash
+php artisan schedule:work
+```
 
-Los datos de prueba incluyen cinco eventos organizados por Neo: una charla próxima con un solo lugar libre, una que ya pasó con la asistencia sin tomar, otra próxima con cupo amplio, una en borrador y un taller finalizado.
+En un servidor se agrega una sola tarea al cron que ejecute `php artisan schedule:run` cada minuto.
