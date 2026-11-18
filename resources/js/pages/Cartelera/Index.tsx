@@ -1,101 +1,63 @@
-import { Head, router } from '@inertiajs/react';
-import { CalendarX, Search } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { Award, CalendarX, MousePointerClick, UserCheck } from 'lucide-react';
 import EmptyState from '@/components/empty-state';
 import EventoTarjeta, { type EventoTarjetaData } from '@/components/evento-tarjeta';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-
-interface EventosPaginados {
-    data: EventoTarjetaData[];
-    current_page: number;
-    last_page: number;
-    total: number;
-    prev_page_url: string | null;
-    next_page_url: string | null;
-}
 
 interface Props {
-    eventos: EventosPaginados;
-    categorias: { id: number; nombre: string; color: string | null }[];
-    filtros: { buscar: string; categoria: string };
+    eventos: EventoTarjetaData[];
 }
 
-export default function Index({ eventos, categorias, filtros }: Props) {
-    const [buscar, setBuscar] = useState(filtros.buscar ?? '');
+const pasos = [
+    {
+        icono: MousePointerClick,
+        titulo: 'Elegí un evento',
+        texto: 'Mirá las charlas, talleres y cursos que se vienen en la facultad.',
+    },
+    {
+        icono: UserCheck,
+        titulo: 'Inscribite',
+        texto: 'Con tu cuenta o, si el evento es abierto, con tus datos. Te llega un mail de confirmación.',
+    },
+    {
+        icono: Award,
+        titulo: 'Recibí tu certificado',
+        texto: 'Después del evento descargás el certificado de asistencia en PDF.',
+    },
+];
 
-    const visitar = (cambios: Record<string, string> = {}) => {
-        router.get('/', { buscar, categoria: filtros.categoria, ...cambios }, { preserveState: true, preserveScroll: true });
-    };
-
-    const aplicar = (e: FormEvent) => {
-        e.preventDefault();
-        visitar();
-    };
-
+export default function Index({ eventos }: Props) {
     return (
         <>
-            <Head title="Cartelera" />
+            <Head title="Inicio" />
 
-            <section className="flex flex-col gap-4 border-b px-4 pt-8 pb-6 md:pt-10">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Eventos de la facultad</h1>
-                    <p className="mt-1 text-muted-foreground">Próximas charlas, talleres y cursos.</p>
-                </div>
-
-                <form onSubmit={aplicar} className="flex w-full max-w-xl gap-2">
-                    <div className="relative flex-1">
-                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            value={buscar}
-                            onChange={(e) => setBuscar(e.target.value)}
-                            placeholder="Buscar eventos..."
-                            className="pl-9"
-                        />
-                    </div>
-                    <Button type="submit">
-                        Buscar
-                    </Button>
-                </form>
-
-                <div className="flex flex-wrap items-center gap-1.5">
-                    <FiltroCategoria activo={filtros.categoria === ''} onClick={() => visitar({ categoria: '' })}>
-                        Todas
-                    </FiltroCategoria>
-                    {categorias.map((c) => (
-                        <FiltroCategoria
-                            key={c.id}
-                            activo={filtros.categoria === String(c.id)}
-                            onClick={() => visitar({ categoria: String(c.id) })}
-                        >
-                            <span
-                                className="size-2 rounded-full bg-muted-foreground"
-                                style={c.color ? { backgroundColor: c.color } : undefined}
-                            />
-                            {c.nombre}
-                        </FiltroCategoria>
-                    ))}
-                </div>
+            <section className="flex flex-col items-start gap-4 border-b px-4 py-12 md:py-16">
+                <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                    Charlas, talleres y cursos de la Facultad de Ciencias Exactas
+                </h1>
+                <p className="max-w-xl text-muted-foreground">
+                    Encontrá los eventos de la facultad, inscribite en pocos pasos y descargá tu certificado de asistencia.
+                </p>
+                <Button asChild size="lg" className="mt-2">
+                    <Link href="/login">Ver todos los eventos</Link>
+                </Button>
             </section>
 
-            <div className="flex flex-col gap-6 px-4 pt-6 pb-12">
-                <p className="text-sm text-muted-foreground tabular-nums">
-                    {eventos.total} {eventos.total === 1 ? 'evento' : 'eventos'}
-                </p>
+            <section className="flex flex-col gap-4 px-4 py-10">
+                <h2 className="text-xl font-semibold">Próximos eventos</h2>
 
-                {eventos.data.length === 0 ? (
+                {eventos.length === 0 ? (
                     <Card>
                         <EmptyState
                             icono={CalendarX}
-                            titulo="No hay eventos con esos filtros"
-                            descripcion="Probá con otra búsqueda o mirá todas las categorías."
+                            titulo="No hay eventos próximos"
+                            descripcion="Volvé a mirar en unos días."
                         />
                     </Card>
                 ) : (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {eventos.data.map((evento) => (
+                        {eventos.map((evento) => (
                             <EventoTarjeta
                                 key={evento.id}
                                 evento={evento}
@@ -105,46 +67,24 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         ))}
                     </div>
                 )}
+            </section>
 
-                {eventos.last_page > 1 && (
-                    <div className="flex items-center justify-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!eventos.prev_page_url}
-                            onClick={() => eventos.prev_page_url && router.get(eventos.prev_page_url)}
-                        >
-                            Anterior
-                        </Button>
-                        <span className="text-sm">
-                            Página {eventos.current_page} de {eventos.last_page}
-                        </span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!eventos.next_page_url}
-                            onClick={() => eventos.next_page_url && router.get(eventos.next_page_url)}
-                        >
-                            Siguiente
-                        </Button>
-                    </div>
-                )}
-            </div>
+            <section className="flex flex-col gap-4 border-t px-4 py-10">
+                <h2 className="text-xl font-semibold">Cómo funciona</h2>
+                <div className="grid gap-4 sm:grid-cols-3">
+                    {pasos.map((paso, i) => (
+                        <Card key={paso.titulo} className="gap-2 px-5 py-5">
+                            <div className="flex items-center gap-2">
+                                <paso.icono className="size-5 text-primary" />
+                                <span className="font-semibold">
+                                    {i + 1}. {paso.titulo}
+                                </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{paso.texto}</p>
+                        </Card>
+                    ))}
+                </div>
+            </section>
         </>
-    );
-}
-
-function FiltroCategoria({ activo, onClick, children }: { activo: boolean; onClick: () => void; children: React.ReactNode }) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={cn(
-                'inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
-                activo ? 'border-primary bg-primary text-primary-foreground' : 'bg-card hover:bg-accent',
-            )}
-        >
-            {children}
-        </button>
     );
 }

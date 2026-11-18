@@ -23,6 +23,7 @@ interface Evento {
     cupo: number;
     estado: EstadoEvento;
     imagen_url: string | null;
+    solo_registrados: boolean;
     inscriptos_count: number;
     categoria: { id: number; nombre: string; color: string | null };
     lugar: { id: number; nombre: string };

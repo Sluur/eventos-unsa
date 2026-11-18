@@ -4,6 +4,7 @@ import CupoBar from '@/components/cupo-bar';
 import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import EventoImagen from '@/components/evento-imagen';
 import FechaBloque from '@/components/fecha-bloque';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatearHora } from '@/lib/fechas';
 
@@ -14,6 +15,7 @@ export interface EventoTarjetaData {
     cupo: number;
     estado: EstadoEvento;
     imagen_url: string | null;
+    solo_registrados: boolean;
     inscriptos_count: number;
     categoria: { id: number; nombre: string; color: string | null };
     lugar: { id: number; nombre: string };
@@ -51,6 +53,11 @@ export default function EventoTarjeta({ evento, href, mostrarEstado = true }: Pr
                         <p className="truncate text-sm text-muted-foreground">
                             {evento.lugar.nombre}, {formatearHora(evento.fecha_inicio)} h
                         </p>
+                        {!evento.solo_registrados && (
+                            <Badge variant="secondary" className="mt-1 w-fit">
+                                Abierto al público
+                            </Badge>
+                        )}
                     </div>
                 </CardContent>
                 <div className="flex flex-col gap-1.5 border-t px-4 py-3">

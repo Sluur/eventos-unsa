@@ -16,6 +16,7 @@ Route::get('/', [CarteleraController::class, 'index'])->name('home');
 Route::get('cartelera/{evento}', [CarteleraController::class, 'show'])->name('cartelera.show');
 Route::post('cartelera/{evento}/inscripcion', [CarteleraController::class, 'inscribir'])->middleware('throttle:5,1')->name('cartelera.inscripcion');
 Route::get('cartelera/{evento}/ingresar', [CarteleraController::class, 'ingresar'])->middleware('auth')->name('cartelera.ingresar');
+Route::get('cartelera/{evento}/registrarse', [CarteleraController::class, 'registrarse'])->middleware('guest')->name('cartelera.registrarse');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::redirect('dashboard', '/eventos')->name('dashboard');

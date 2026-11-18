@@ -46,7 +46,7 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                     className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                     <ArrowLeft className="size-4" />
-                    Volver a la cartelera
+                    Volver al inicio
                 </Link>
 
                 <EventoImagen
@@ -173,16 +173,16 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                                     </p>
                                 </div>
                             ) : (
-                                <div className="flex flex-col gap-2">
-                                    <Button asChild>
-                                        <Link href={`/cartelera/${evento.id}/ingresar`}>Iniciá sesión para inscribirte</Link>
-                                    </Button>
-                                    <p className="text-center text-sm text-muted-foreground">
-                                        ¿No tenés cuenta?{' '}
-                                        <Link href="/register" className="font-medium text-primary hover:underline">
-                                            Registrate
-                                        </Link>
-                                    </p>
+                                <div className="flex flex-col gap-3">
+                                    <p className="text-sm text-muted-foreground">Este evento es para usuarios registrados.</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button variant="outline" asChild>
+                                            <Link href={`/cartelera/${evento.id}/ingresar`}>Ingresar</Link>
+                                        </Button>
+                                        <Button asChild>
+                                            <Link href={`/cartelera/${evento.id}/registrarse`}>Registrarse</Link>
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
                         </CardContent>

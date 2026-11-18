@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInscripcionInvitadoRequest;
 use App\Mail\InscripcionConfirmada;
 use App\Mail\InscripcionRecibida;
-use App\Models\Categoria;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
@@ -21,32 +20,18 @@ class CarteleraController extends Controller
             return redirect()->route('eventos.index');
         }
 
-        $buscar = trim($request->input('buscar', ''));
-        $categoria = $request->input('categoria', '');
-
         $eventos = Evento::with(['categoria:id,nombre,color', 'lugar:id,nombre'])
             ->withCount(['inscripciones as inscriptos_count' => function ($query) {
                 $query->activas();
             }])
             ->where('estado', 'publicado')
             ->where('fecha_inicio', '>=', now())
-            ->when($buscar !== '', function ($query) use ($buscar) {
-                $query->where('titulo', 'like', "%{$buscar}%");
-            })
-            ->when($request->filled('categoria'), function ($query) use ($categoria) {
-                $query->where('categoria_id', $categoria);
-            })
             ->orderBy('fecha_inicio')
-            ->paginate(12)
-            ->withQueryString();
+            ->limit(6)
+            ->get();
 
         return Inertia::render('Cartelera/Index', [
             'eventos' => $eventos,
-            'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre', 'color']),
-            'filtros' => [
-                'buscar' => $buscar,
-                'categoria' => $categoria,
-            ],
         ]);
     }
 
@@ -145,5 +130,12 @@ class CarteleraController extends Controller
     public function ingresar(Evento $evento)
     {
         return redirect()->route('eventos.show', $evento);
+    }
+
+    public function registrarse(Request $request, Evento $evento)
+    {
+        $request->session()->put('url.intended', route('eventos.show', $evento));
+
+        return redirect()->route('register');
     }
 }

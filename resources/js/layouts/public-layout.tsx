@@ -30,7 +30,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
             <footer className="border-t">
                 <div className="mx-auto max-w-6xl px-4 py-6 text-sm text-muted-foreground">
-                    Eventos de la facultad · Universidad Nacional de Salta
+                    Facultad de Ciencias Exactas · Universidad Nacional de Salta
                 </div>
             </footer>
         </div>
