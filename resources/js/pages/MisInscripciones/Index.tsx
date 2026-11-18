@@ -19,6 +19,7 @@ interface Inscripcion {
     id: number;
     estado: EstadoInscripcion;
     asistio: boolean;
+    encuesta_exists: boolean;
     motivo_rechazo: string | null;
     evento: {
         id: number;
@@ -127,9 +128,9 @@ export default function Index({ inscripciones, contadores, vista, categorias, di
                                         </div>
 
                                         <div className="flex flex-wrap gap-2 sm:justify-end">
-                                            {vista === 'pasadas' && inscripcion.asistio && (
-                                                <Button variant="outline" size="sm" disabled>
-                                                    Certificado (próximamente)
+                                            {vista === 'pasadas' && inscripcion.asistio && !inscripcion.encuesta_exists && (
+                                                <Button size="sm" asChild>
+                                                    <Link href={`/inscripciones/${inscripcion.id}/encuesta`}>Responder encuesta</Link>
                                                 </Button>
                                             )}
                                             <Button variant="outline" size="sm" asChild>

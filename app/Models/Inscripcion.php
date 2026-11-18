@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 
 class Inscripcion extends Model
 {
@@ -65,6 +66,27 @@ class Inscripcion extends Model
     public function avisar(Mailable $mail): void
     {
         Mail::to($this->emailDestino(), $this->nombreDestino())->queue($mail);
+    }
+
+    public function encuesta()
+    {
+        return $this->hasOne(Encuesta::class);
+    }
+
+    public function urlEncuesta(bool $firmada = false): string
+    {
+        return $firmada ? URL::signedRoute('encuestas.create', $this) : route('encuestas.create', $this);
+    }
+
+    public function urlCertificado(bool $firmada = false): string
+    {
+        return $firmada ? URL::signedRoute('inscripciones.certificado', $this) : route('inscripciones.certificado', $this);
+    }
+
+    public function puedeResponderEncuesta(): bool
+    {
+        return $this->asistio
+            && ($this->evento->estado === 'finalizado' || $this->evento->fecha_fin->isPast());
     }
 
     public function user()

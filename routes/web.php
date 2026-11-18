@@ -6,6 +6,7 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\CarteleraController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\DisertanteController;
+use App\Http\Controllers\EncuestaController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
@@ -19,6 +20,9 @@ Route::get('cartelera/{evento}', [CarteleraController::class, 'show'])->name('ca
 Route::post('cartelera/{evento}/inscripcion', [CarteleraController::class, 'inscribir'])->middleware('throttle:5,1')->name('cartelera.inscripcion');
 Route::get('cartelera/{evento}/ingresar', [CarteleraController::class, 'ingresar'])->middleware('auth')->name('cartelera.ingresar');
 Route::get('cartelera/{evento}/registrarse', [CarteleraController::class, 'registrarse'])->middleware('guest')->name('cartelera.registrarse');
+
+Route::get('inscripciones/{inscripcion}/encuesta', [EncuestaController::class, 'create'])->name('encuestas.create');
+Route::post('inscripciones/{inscripcion}/encuesta', [EncuestaController::class, 'store'])->middleware('throttle:10,1')->name('encuestas.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::redirect('dashboard', '/eventos')->name('dashboard');

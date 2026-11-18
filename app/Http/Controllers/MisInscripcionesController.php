@@ -41,6 +41,7 @@ class MisInscripcionesController extends Controller
         $inscripciones = $base->clone()
             ->where($filtros[$vista])
             ->with(['evento.categoria:id,nombre,color', 'evento.lugar:id,nombre'])
+            ->withExists('encuesta')
             ->get()
             ->sortBy(fn ($i) => $i->evento->fecha_inicio, descending: in_array($vista, ['pasadas', 'canceladas'], true))
             ->values();

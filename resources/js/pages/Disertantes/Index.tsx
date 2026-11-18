@@ -16,6 +16,7 @@ interface Disertante {
     email: string;
     eventos_count: number;
     seguidores_count: number;
+    puntaje_promedio: number | null;
 }
 
 interface Props {
@@ -52,6 +53,7 @@ export default function Index({ disertantes }: Props) {
                                     <TableHead className="hidden md:table-cell">Email</TableHead>
                                     <TableHead className="hidden md:table-cell">Eventos</TableHead>
                                     <TableHead className="hidden sm:table-cell">Seguidores</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Puntaje</TableHead>
                                     <TableHead className="pr-6 text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -70,6 +72,9 @@ export default function Index({ disertantes }: Props) {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="hidden tabular-nums sm:table-cell">{disertante.seguidores_count}</TableCell>
+                                        <TableCell className="hidden tabular-nums sm:table-cell">
+                                            {disertante.puntaje_promedio !== null ? `${disertante.puntaje_promedio} / 5` : '-'}
+                                        </TableCell>
                                         <TableCell className="pr-6">
                                             <div className="flex justify-end gap-1">
                                                 <Button variant="ghost" size="sm" asChild>

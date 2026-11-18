@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Categoria;
 use App\Models\Disertante;
+use App\Models\Encuesta;
 use App\Models\Evento;
 use App\Models\Inscripcion;
 use App\Models\Lugar;
@@ -114,6 +115,14 @@ class DemoCharlaSeeder extends Seeder
         ]);
         $linux->disertantes()->attach(Disertante::whereIn('email', ['cristian@eventos.test', 'diego@eventos.test'])->pluck('id'));
         $this->inscribir($linux, ['alejandro@eventos.test', 'franco@eventos.test'], asistio: true);
+
+        Encuesta::create([
+            'inscripcion_id' => Inscripcion::where('evento_id', $linux->id)
+                ->whereRelation('user', 'email', 'alejandro@eventos.test')
+                ->value('id'),
+            'puntaje' => 5,
+            'comentario' => 'Muy práctico, los ejercicios en la terminal ayudaron mucho.',
+        ]);
 
         $inicio = now()->addDays(10)->setTime(18, 0);
 

@@ -11,6 +11,7 @@ use App\Mail\EventoCancelado;
 use App\Mail\EventoModificado;
 use App\Models\Categoria;
 use App\Models\Disertante;
+use App\Models\Encuesta;
 use App\Models\Evento;
 use App\Models\Lugar;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
@@ -191,7 +192,8 @@ class EventoController extends Controller
 
         $miInscripcion = $evento->inscripciones()
             ->where('user_id', $usuario->id)
-            ->first(['id', 'estado', 'motivo_rechazo', 'archivo']);
+            ->withExists('encuesta')
+            ->first(['id', 'estado', 'motivo_rechazo', 'archivo', 'asistio']);
 
         $estaInscripto = $miInscripcion?->estaActiva() ?? false;
 
@@ -231,6 +233,7 @@ class EventoController extends Controller
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
             'yaPaso' => $evento->yaPaso(),
             'inscripcionCerrada' => $evento->inscripcionCerrada(),
+            'encuesta' => $puedeGestionar ? $this->resultadosEncuesta($evento) : null,
             'sigueCategoria' => $usuario->categoriasSeguidas()->whereKey($evento->categoria_id)->exists(),
             'disertantesSeguidos' => $usuario->disertantesSeguidos()
                 ->whereIn('disertantes.id', $evento->disertantes->pluck('id'))
@@ -384,6 +387,20 @@ class EventoController extends Controller
                 ->where('estado', $vista === 'borradores' ? 'borrador' : 'cancelado')
                 ->when(!$usuario->hasRole('admin'), fn ($q) => $q->where('organizador_id', $usuario->id)),
         };
+    }
+
+    private function resultadosEncuesta(Evento $evento): array
+    {
+        $respuestas = Encuesta::whereHas('inscripcion', fn ($q) => $q->where('evento_id', $evento->id))
+            ->latest()
+            ->get(['puntaje', 'comentario', 'created_at']);
+
+        return [
+            'promedio' => $respuestas->isEmpty() ? null : round($respuestas->avg('puntaje'), 1),
+            'cantidad' => $respuestas->count(),
+            'asistentes' => $evento->inscripciones()->where('asistio', true)->count(),
+            'comentarios' => $respuestas->whereNotNull('comentario')->values(),
+        ];
     }
 
     private function datosQueSeAvisan(Evento $evento): array

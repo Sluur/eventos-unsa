@@ -1,5 +1,5 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileText, Pencil, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, Star, FileText, Pencil, Trash2, Users } from 'lucide-react';
 import ArchivoInput from '@/components/archivo-input';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { capitalizar, formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -82,10 +83,23 @@ interface Props {
     }[];
     puedeInscribirse: boolean;
     estaInscripto: boolean;
-    miInscripcion: { id: number; estado: EstadoInscripcion; motivo_rechazo: string | null; archivo: string | null } | null;
+    miInscripcion: {
+        id: number;
+        estado: EstadoInscripcion;
+        motivo_rechazo: string | null;
+        archivo: string | null;
+        asistio: boolean;
+        encuesta_exists: boolean;
+    } | null;
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
     inscripcionCerrada: boolean;
+    encuesta: {
+        promedio: number | null;
+        cantidad: number;
+        asistentes: number;
+        comentarios: { puntaje: number; comentario: string; created_at: string }[];
+    } | null;
     sigueCategoria: boolean;
     disertantesSeguidos: number[];
 }
@@ -102,6 +116,7 @@ export default function Show({
     motivoSinInscripcion,
     yaPaso,
     inscripcionCerrada,
+    encuesta,
     sigueCategoria,
     disertantesSeguidos,
 }: Props) {
@@ -289,10 +304,15 @@ export default function Show({
                                         ) : (
                                             <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
                                                 <CircleCheck className="size-4" />
-                                                Estás inscripto
+                                                {yaPaso && miInscripcion?.asistio ? 'Asististe a este evento' : 'Estás inscripto'}
                                             </span>
                                         )}
                                         <div className="flex flex-wrap gap-2">
+                                            {yaPaso && miInscripcion?.asistio && !miInscripcion.encuesta_exists && (
+                                                <Button size="sm" asChild>
+                                                    <Link href={`/inscripciones/${miInscripcion.id}/encuesta`}>Responder encuesta</Link>
+                                                </Button>
+                                            )}
                                             {miInscripcion?.archivo && (
                                                 <Button variant="outline" size="sm" asChild>
                                                     <a href={`/inscripciones/${miInscripcion.id}/archivo`}>
@@ -456,6 +476,39 @@ export default function Show({
                     </Card>
                 )}
 
+                {encuesta && (yaPaso || encuesta.cantidad > 0) && (
+                    <section className="flex flex-col gap-4 border-t pt-6">
+                        <h2 className="text-lg font-semibold">Encuesta de satisfacción</h2>
+                        {encuesta.cantidad === 0 ? (
+                            <p className="text-sm text-muted-foreground">Todavía no hay respuestas.</p>
+                        ) : (
+                            <>
+                                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                    <span className="text-3xl font-bold tabular-nums">{encuesta.promedio}</span>
+                                    <Estrellas puntaje={Math.round(encuesta.promedio ?? 0)} />
+                                    <span className="text-sm text-muted-foreground">
+                                        {encuesta.cantidad} {encuesta.cantidad === 1 ? 'respuesta' : 'respuestas'} de {encuesta.asistentes}{' '}
+                                        {encuesta.asistentes === 1 ? 'asistente' : 'asistentes'}
+                                    </span>
+                                </div>
+                                {encuesta.comentarios.length > 0 && (
+                                    <ul className="flex flex-col divide-y">
+                                        {encuesta.comentarios.map((c, i) => (
+                                            <li key={i} className="flex flex-col gap-1 py-3 first:pt-0">
+                                                <div className="flex items-center gap-2">
+                                                    <Estrellas puntaje={c.puntaje} />
+                                                    <span className="text-sm text-muted-foreground">{formatearFecha(c.created_at)}</span>
+                                                </div>
+                                                <p className="text-sm whitespace-pre-line">{c.comentario}</p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </>
+                        )}
+                    </section>
+                )}
+
                 {puedeGestionar && (
                     <section className="flex flex-col gap-4 border-t pt-6">
                         <h2 className="text-lg font-semibold">Mensajes enviados</h2>
@@ -483,5 +536,15 @@ export default function Show({
                 )}
             </div>
         </>
+    );
+}
+
+function Estrellas({ puntaje }: { puntaje: number }) {
+    return (
+        <span className="flex" aria-label={`${puntaje} de 5 estrellas`}>
+            {[1, 2, 3, 4, 5].map((n) => (
+                <Star key={n} className={cn('size-4', n <= puntaje ? 'fill-acento text-acento' : 'text-muted-foreground')} />
+            ))}
+        </span>
     );
 }
