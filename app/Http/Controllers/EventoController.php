@@ -6,6 +6,7 @@ use App\Http\Requests\CancelarEventoRequest;
 use App\Http\Requests\StoreEventoRequest;
 use App\Http\Requests\UpdateEventoRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Mail\EventoCancelado;
 use App\Mail\EventoModificado;
 use App\Models\Categoria;
@@ -27,6 +28,8 @@ class EventoController extends Controller
         $orden = $request->input('orden', '');
         $direccion = $request->input('direccion', 'asc');
         $porPagina = (int) $request->input('por_pagina', 10);
+        $modo = $request->input('modo');
+        $mes = (string) $request->input('mes');
 
         $vistas = ['proximos', 'finalizados', 'todos'];
         if ($usuario->can('crear eventos')) {
@@ -88,8 +91,27 @@ class EventoController extends Controller
             ->paginate($porPagina)
             ->withQueryString();
 
+        $calendario = null;
+        if ($modo === 'calendario') {
+            $inicioMes = preg_match('/^\d{4}-\d{2}$/', $mes)
+                ? Carbon::createFromFormat('Y-m-d', "{$mes}-01")->startOfDay()
+                : now()->startOfMonth();
+
+            $calendario = [
+                'mes' => $inicioMes->format('Y-m'),
+                'eventos' => $this->filtrarVista($base->clone(), $vista, $usuario)
+                    ->select('eventos.*')
+                    ->selectRaw("{$esProximo} as proximo", [now()])
+                    ->with('categoria:id,nombre,color')
+                    ->whereBetween('fecha_inicio', [$inicioMes, $inicioMes->copy()->endOfMonth()])
+                    ->orderBy('fecha_inicio')
+                    ->get(),
+            ];
+        }
+
         return Inertia::render('Eventos/Index', [
             'eventos' => $eventos,
+            'calendario' => $calendario,
             'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
             'contadores' => $contadores,
             'filtros' => [

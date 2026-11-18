@@ -1,6 +1,7 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CalendarDays, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
+import CalendarioMes, { type EventoCalendario } from '@/components/calendario-mes';
 import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
@@ -14,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { estaAtenuado } from '@/lib/eventos';
 import { formatearFecha } from '@/lib/fechas';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
@@ -55,11 +57,12 @@ interface Filtros {
 interface Props {
     eventos: EventosPaginados;
     categorias: { id: number; nombre: string }[];
+    calendario: { mes: string; eventos: EventoCalendario[] } | null;
     contadores: Record<string, number>;
     filtros: Filtros;
 }
 
-type Modo = 'tarjetas' | 'tabla';
+type Modo = 'tarjetas' | 'tabla' | 'calendario';
 
 const pestanas = [
     { valor: 'proximos', titulo: 'Próximos' },
@@ -77,9 +80,6 @@ const vacios: Record<string, string> = {
     cancelados: 'No hay eventos cancelados',
 };
 
-const estaAtenuado = (evento: Evento) =>
-    evento.estado === 'finalizado' || evento.estado === 'cancelado' || (evento.estado === 'publicado' && !evento.proximo);
-
 // en "todos" el separador va donde termina el grupo de proximos
 const empiezaFinalizados = (eventos: Evento[], i: number, vista: string) =>
     vista === 'todos' && !eventos[i].proximo && (i === 0 || eventos[i - 1].proximo === 1);
@@ -89,11 +89,11 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eventos', href: '/eventos' }];
 // radix no acepta value vacio, uso 'todos'
 const TODOS = 'todos';
 
-export default function Index({ eventos, categorias, contadores, filtros }: Props) {
+export default function Index({ eventos, calendario, categorias, contadores, filtros }: Props) {
     const page = usePage();
     const permisos = (page.props as { permisos?: string[] }).permisos ?? [];
     const modoUrl = new URL(page.url, 'http://localhost').searchParams.get('modo');
-    const modo: Modo = modoUrl === 'tabla' ? 'tabla' : 'tarjetas';
+    const modo: Modo = modoUrl === 'tabla' || modoUrl === 'calendario' ? modoUrl : 'tarjetas';
     const vista = filtros.vista;
 
     const [buscar, setBuscar] = useState(filtros.buscar ?? '');
@@ -102,7 +102,8 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
     const direccion = filtros.direccion ?? 'asc';
 
     const visitar = (cambios: Record<string, string> = {}) => {
-        const datos = { buscar, categoria, vista, orden, direccion, modo, ...cambios };
+        const datos = { buscar, categoria, vista, orden, direccion, modo, mes: calendario?.mes ?? '', ...cambios };
+        if (datos.modo !== 'calendario') datos.mes = '';
         const conValor = Object.fromEntries(Object.entries(datos).filter(([, valor]) => valor !== ''));
 
         router.get('/eventos', conValor, { preserveState: true, preserveScroll: true, replace: true });
@@ -215,10 +216,15 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
                         <ToggleGroupItem value="tabla" aria-label="Ver como tabla" className="h-10">
                             <List />
                         </ToggleGroupItem>
+                        <ToggleGroupItem value="calendario" aria-label="Ver como calendario" className="h-10">
+                            <CalendarDays />
+                        </ToggleGroupItem>
                     </ToggleGroup>
                 </div>
 
-                {eventos.data.length === 0 ? (
+                {modo === 'calendario' && calendario ? (
+                    <CalendarioMes mes={calendario.mes} eventos={calendario.eventos} onCambiarMes={(mes) => visitar({ mes })} />
+                ) : eventos.data.length === 0 ? (
                     <Card>
                         <EmptyState
                             icono={CalendarX}
@@ -305,33 +311,35 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
                     </Card>
                 )}
 
-                <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-                    <p className="text-sm text-muted-foreground">
-                        Mostrando {eventos.from ?? 0} a {eventos.to ?? 0} de {eventos.total} eventos
-                    </p>
+                {modo !== 'calendario' && (
+                    <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
+                        <p className="text-sm text-muted-foreground">
+                            Mostrando {eventos.from ?? 0} a {eventos.to ?? 0} de {eventos.total} eventos
+                        </p>
 
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!eventos.prev_page_url}
-                            onClick={() => eventos.prev_page_url && router.get(eventos.prev_page_url)}
-                        >
-                            Anterior
-                        </Button>
-                        <span className="text-sm">
-                            Página {eventos.current_page} de {eventos.last_page}
-                        </span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={!eventos.next_page_url}
-                            onClick={() => eventos.next_page_url && router.get(eventos.next_page_url)}
-                        >
-                            Siguiente
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={!eventos.prev_page_url}
+                                onClick={() => eventos.prev_page_url && router.get(eventos.prev_page_url)}
+                            >
+                                Anterior
+                            </Button>
+                            <span className="text-sm">
+                                Página {eventos.current_page} de {eventos.last_page}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={!eventos.next_page_url}
+                                onClick={() => eventos.next_page_url && router.get(eventos.next_page_url)}
+                            >
+                                Siguiente
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </>
     );
