@@ -17,6 +17,10 @@ class CarteleraController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->user()) {
+            return redirect()->route('eventos.index');
+        }
+
         $buscar = trim($request->input('buscar', ''));
         $categoria = $request->input('categoria', '');
 
@@ -46,8 +50,12 @@ class CarteleraController extends Controller
         ]);
     }
 
-    public function show(Evento $evento)
+    public function show(Request $request, Evento $evento)
     {
+        if ($request->user()) {
+            return redirect()->route('eventos.show', $evento);
+        }
+
         abort_unless($evento->estado === 'publicado', 404);
 
         $evento->load([

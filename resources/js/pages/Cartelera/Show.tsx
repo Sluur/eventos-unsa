@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Clock } from 'lucide-react';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import CategoriaReglas, { type ReglasCategoria } from '@/components/categoria-reglas';
@@ -34,7 +34,6 @@ interface Props {
 }
 
 export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada }: Props) {
-    const { auth } = usePage().props;
     const libres = Math.max(0, evento.cupo - evento.inscriptos_count);
 
     return (
@@ -156,10 +155,6 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                                 <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
                                     {motivoSinInscripcion}
                                 </p>
-                            ) : auth.user ? (
-                                <Button asChild>
-                                    <Link href={`/eventos/${evento.id}`}>Inscribirme desde el panel</Link>
-                                </Button>
                             ) : !evento.solo_registrados ? (
                                 <div className="flex flex-col gap-4">
                                     <InscripcionInvitadoForm

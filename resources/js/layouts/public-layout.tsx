@@ -1,12 +1,10 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import AppLogo from '@/components/app-logo';
 import { Button } from '@/components/ui/button';
 import { useFlashToasts } from '@/hooks/use-flash-toasts';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
-    const { auth } = usePage().props;
-
     useFlashToasts();
 
     return (
@@ -18,20 +16,12 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     </Link>
 
                     <div className="ml-auto flex items-center gap-2">
-                        {auth.user ? (
-                            <Button asChild>
-                                <Link href="/eventos">Ir al panel</Link>
-                            </Button>
-                        ) : (
-                            <>
-                                <Button variant="ghost" asChild>
-                                    <Link href="/login">Ingresar</Link>
-                                </Button>
-                                <Button asChild>
-                                    <Link href="/register">Registrarse</Link>
-                                </Button>
-                            </>
-                        )}
+                        <Button variant="ghost" asChild>
+                            <Link href="/login">Ingresar</Link>
+                        </Button>
+                        <Button asChild>
+                            <Link href="/register">Registrarse</Link>
+                        </Button>
                     </div>
                 </div>
             </header>

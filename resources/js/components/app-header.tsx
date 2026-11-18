@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, House, MapPin, Menu, Mic, Tags } from 'lucide-react';
+import { CalendarDays, MapPin, Menu, Mic, Tags } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,7 +27,6 @@ type Props = {
 };
 
 const menu: { item: NavItem; permiso?: string }[] = [
-    { item: { title: 'Inicio', href: '/', icon: House } },
     { item: { title: 'Eventos', href: '/eventos', icon: CalendarDays }, permiso: 'listar eventos' },
     { item: { title: 'Categorías', href: '/categorias', icon: Tags }, permiso: 'gestionar categorias' },
     { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
@@ -42,8 +41,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
     const items = menu.filter((m) => !m.permiso || permisos.includes(m.permiso)).map((m) => m.item);
 
-    // inicio es la cartelera, no se marca como activo
-    const estaActivo = (href: NavItem['href']) => href !== '/' && isCurrentOrParentUrl(href);
+    const estaActivo = (href: NavItem['href']) => isCurrentOrParentUrl(href);
 
     return (
         <>
@@ -82,7 +80,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         </Sheet>
                     </div>
 
-                    <Link href="/" className="flex items-center">
+                    <Link href="/eventos" className="flex items-center">
                         <AppLogo />
                     </Link>
 
