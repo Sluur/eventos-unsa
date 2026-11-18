@@ -7,8 +7,9 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class EventosExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class EventosExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStrictNullComparison
 {
     public function __construct(private Collection $eventos)
     {

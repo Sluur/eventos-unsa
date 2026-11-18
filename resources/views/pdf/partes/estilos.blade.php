@@ -9,6 +9,6 @@
     table.datos { width: 100%; border-collapse: collapse; }
     table.datos th { background: #e6edf0; text-align: left; padding: 5px 6px; font-size: 10px; border-bottom: 1px solid #9fb3bc; }
     table.datos td { padding: 5px 6px; border-bottom: 1px solid #dfe5e8; }
-    .num { text-align: right; }
+    .num, table.datos th.num { text-align: right; }
     .vacio { color: #4b5761; padding: 12px 0; }
 </style>

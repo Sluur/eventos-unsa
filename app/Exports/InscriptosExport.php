@@ -6,8 +6,9 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class InscriptosExport implements FromCollection, WithHeadings, ShouldAutoSize
+class InscriptosExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStrictNullComparison
 {
     public function __construct(private Collection $filas)
     {
