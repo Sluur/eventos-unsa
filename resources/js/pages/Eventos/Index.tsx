@@ -1,6 +1,6 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
@@ -11,9 +11,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatearFecha } from '@/lib/fechas';
+import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -25,6 +27,7 @@ interface Evento {
     imagen_url: string | null;
     solo_registrados: boolean;
     inscriptos_count: number;
+    proximo: number;
     categoria: { id: number; nombre: string; color: string | null };
     lugar: { id: number; nombre: string };
 }
@@ -43,7 +46,7 @@ interface EventosPaginados {
 interface Filtros {
     buscar: string;
     categoria: string;
-    estado: string;
+    vista: string;
     orden: string;
     direccion: string;
     por_pagina: number;
@@ -52,27 +55,51 @@ interface Filtros {
 interface Props {
     eventos: EventosPaginados;
     categorias: { id: number; nombre: string }[];
+    contadores: Record<string, number>;
     filtros: Filtros;
 }
 
-type Vista = 'tarjetas' | 'tabla';
+type Modo = 'tarjetas' | 'tabla';
+
+const pestanas = [
+    { valor: 'proximos', titulo: 'Próximos' },
+    { valor: 'finalizados', titulo: 'Finalizados' },
+    { valor: 'todos', titulo: 'Todos' },
+    { valor: 'borradores', titulo: 'Borradores' },
+    { valor: 'cancelados', titulo: 'Cancelados' },
+];
+
+const vacios: Record<string, string> = {
+    proximos: 'No hay eventos próximos',
+    finalizados: 'Todavía no hay eventos finalizados',
+    todos: 'No hay eventos',
+    borradores: 'No tenés borradores',
+    cancelados: 'No hay eventos cancelados',
+};
+
+const estaAtenuado = (evento: Evento) =>
+    evento.estado === 'finalizado' || evento.estado === 'cancelado' || (evento.estado === 'publicado' && !evento.proximo);
+
+// en "todos" el separador va donde termina el grupo de proximos
+const empiezaFinalizados = (eventos: Evento[], i: number, vista: string) =>
+    vista === 'todos' && !eventos[i].proximo && (i === 0 || eventos[i - 1].proximo === 1);
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Eventos', href: '/eventos' }];
 
 // radix no acepta value vacio, uso 'todos'
 const TODOS = 'todos';
 
-export default function Index({ eventos, categorias, filtros }: Props) {
+export default function Index({ eventos, categorias, contadores, filtros }: Props) {
     const page = usePage();
     const permisos = (page.props as { permisos?: string[] }).permisos ?? [];
-    const vistaUrl = new URL(page.url, 'http://localhost').searchParams.get('vista');
-    const vista: Vista = vistaUrl === 'tabla' ? 'tabla' : 'tarjetas';
+    const modoUrl = new URL(page.url, 'http://localhost').searchParams.get('modo');
+    const modo: Modo = modoUrl === 'tabla' ? 'tabla' : 'tarjetas';
+    const vista = filtros.vista;
 
     const [buscar, setBuscar] = useState(filtros.buscar ?? '');
     const [categoria, setCategoria] = useState(filtros.categoria ?? '');
-    const [estado, setEstado] = useState(filtros.estado ?? '');
     const [porPagina, setPorPagina] = useState(filtros.por_pagina ?? 10);
-    const orden = filtros.orden ?? 'fecha_inicio';
+    const orden = filtros.orden ?? '';
     const direccion = filtros.direccion ?? 'asc';
 
     const visitar = (cambios: Record<string, string | number> = {}) => {
@@ -81,11 +108,11 @@ export default function Index({ eventos, categorias, filtros }: Props) {
             {
                 buscar,
                 categoria,
-                estado,
+                vista,
                 orden,
                 direccion,
                 por_pagina: porPagina,
-                vista,
+                modo,
                 ...cambios,
             },
             { preserveState: true, preserveScroll: true },
@@ -100,9 +127,8 @@ export default function Index({ eventos, categorias, filtros }: Props) {
     const limpiarFiltros = () => {
         setBuscar('');
         setCategoria('');
-        setEstado('');
         setPorPagina(10);
-        router.get('/eventos', { vista });
+        router.get('/eventos', { vista, modo });
     };
 
     const ordenarPor = (campo: string) => {
@@ -115,7 +141,7 @@ export default function Index({ eventos, categorias, filtros }: Props) {
         return direccion === 'asc' ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />;
     };
 
-    const hayFiltros = filtros.buscar !== '' || filtros.categoria !== '' || filtros.estado !== '';
+    const hayFiltros = filtros.buscar !== '' || filtros.categoria !== '';
 
     setLayoutProps({ breadcrumbs });
 
@@ -134,6 +160,19 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         </Button>
                     )}
                 </PageHeader>
+
+                <Tabs value={vista} onValueChange={(v) => visitar({ vista: v })}>
+                    <TabsList className="max-w-full justify-start overflow-x-auto">
+                        {pestanas
+                            .filter((p) => p.valor in contadores)
+                            .map((p) => (
+                                <TabsTrigger key={p.valor} value={p.valor} className="gap-1.5">
+                                    {p.titulo}
+                                    <span className="text-muted-foreground tabular-nums">{contadores[p.valor]}</span>
+                                </TabsTrigger>
+                            ))}
+                    </TabsList>
+                </Tabs>
 
                 <form onSubmit={aplicarFiltros} className="flex flex-col gap-3">
                     <div className="flex gap-2">
@@ -166,19 +205,6 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                             </SelectContent>
                         </Select>
 
-                        <Select value={estado || TODOS} onValueChange={(v) => setEstado(v === TODOS ? '' : v)}>
-                            <SelectTrigger className="min-w-36 flex-1 sm:w-40 sm:flex-none" aria-label="Estado">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={TODOS}>Todos los estados</SelectItem>
-                                <SelectItem value="publicado">Publicado</SelectItem>
-                                <SelectItem value="finalizado">Finalizado</SelectItem>
-                                <SelectItem value="borrador">Borrador</SelectItem>
-                                <SelectItem value="cancelado">Cancelado</SelectItem>
-                            </SelectContent>
-                        </Select>
-
                         <Select value={String(porPagina)} onValueChange={(v) => setPorPagina(Number(v))}>
                             <SelectTrigger className="min-w-36 flex-1 sm:w-36 sm:flex-none" aria-label="Por página">
                                 <SelectValue />
@@ -202,8 +228,8 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                         <ToggleGroup
                             type="single"
                             variant="outline"
-                            value={vista}
-                            onValueChange={(v) => v && visitar({ vista: v })}
+                            value={modo}
+                            onValueChange={(v) => v && visitar({ modo: v })}
                             className="ml-auto"
                         >
                             <ToggleGroupItem value="tarjetas" aria-label="Ver como tarjetas">
@@ -220,14 +246,21 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                     <Card>
                         <EmptyState
                             icono={CalendarX}
-                            titulo="No hay eventos con esos filtros"
-                            descripcion="Probá con otra búsqueda o limpiá los filtros."
+                            titulo={hayFiltros ? 'No hay eventos con esos filtros' : vacios[vista]}
+                            descripcion={hayFiltros ? 'Probá con otra búsqueda o limpiá los filtros.' : undefined}
                         />
                     </Card>
-                ) : vista === 'tarjetas' ? (
+                ) : modo === 'tarjetas' ? (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {eventos.data.map((evento) => (
-                            <EventoTarjeta key={evento.id} evento={evento} href={`/eventos/${evento.id}`} />
+                        {eventos.data.map((evento, i) => (
+                            <Fragment key={evento.id}>
+                                {empiezaFinalizados(eventos.data, i, vista) && (
+                                    <h2 className="border-b pt-2 pb-2 font-semibold text-muted-foreground sm:col-span-2 lg:col-span-3">
+                                        Finalizados
+                                    </h2>
+                                )}
+                                <EventoTarjeta evento={evento} href={`/eventos/${evento.id}`} atenuado={estaAtenuado(evento)} />
+                            </Fragment>
                         ))}
                     </div>
                 ) : (
@@ -255,32 +288,41 @@ export default function Index({ eventos, categorias, filtros }: Props) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {eventos.data.map((evento) => (
-                                    <TableRow key={evento.id}>
-                                        <TableCell className="pl-6">
-                                            <Link href={`/eventos/${evento.id}`} className="font-medium hover:text-primary">
-                                                {evento.titulo}
-                                            </Link>
-                                            <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} />
-                                        </TableCell>
-                                        <TableCell>{formatearFecha(evento.fecha_inicio)}</TableCell>
-                                        <TableCell className="hidden text-muted-foreground lg:table-cell">
-                                            {evento.lugar.nombre}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-xs">
-                                                {evento.inscriptos_count} / {evento.cupo}
-                                            </div>
-                                            <CupoBar
-                                                inscriptos={evento.inscriptos_count}
-                                                cupo={evento.cupo}
-                                                className="mt-1 h-1.5 w-20"
-                                            />
-                                        </TableCell>
-                                        <TableCell className="pr-6">
-                                            <EstadoBadge estado={evento.estado} />
-                                        </TableCell>
-                                    </TableRow>
+                                {eventos.data.map((evento, i) => (
+                                    <Fragment key={evento.id}>
+                                        {empiezaFinalizados(eventos.data, i, vista) && (
+                                            <TableRow className="hover:bg-transparent">
+                                                <TableCell colSpan={5} className="bg-muted pl-6 font-semibold text-muted-foreground">
+                                                    Finalizados
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                        <TableRow className={cn(estaAtenuado(evento) && 'bg-muted/50 text-muted-foreground')}>
+                                            <TableCell className="pl-6">
+                                                <Link href={`/eventos/${evento.id}`} className="font-medium hover:text-primary">
+                                                    {evento.titulo}
+                                                </Link>
+                                                <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} />
+                                            </TableCell>
+                                            <TableCell>{formatearFecha(evento.fecha_inicio)}</TableCell>
+                                            <TableCell className="hidden text-muted-foreground lg:table-cell">
+                                                {evento.lugar.nombre}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="text-xs">
+                                                    {evento.inscriptos_count} / {evento.cupo}
+                                                </div>
+                                                <CupoBar
+                                                    inscriptos={evento.inscriptos_count}
+                                                    cupo={evento.cupo}
+                                                    className="mt-1 h-1.5 w-20"
+                                                />
+                                            </TableCell>
+                                            <TableCell className="pr-6">
+                                                <EstadoBadge estado={evento.estado} />
+                                            </TableCell>
+                                        </TableRow>
+                                    </Fragment>
                                 ))}
                             </TableBody>
                         </Table>

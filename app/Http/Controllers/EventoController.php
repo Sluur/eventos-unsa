@@ -20,16 +20,26 @@ class EventoController extends Controller
     #[Middleware('permission:listar eventos')]
     public function index(Request $request)
     {
+        $usuario = $request->user();
         $buscar = trim($request->input('buscar', ''));
         $categoria = $request->input('categoria', '');
-        $estado = $request->input('estado', '');
-        $orden = $request->input('orden', 'fecha_inicio');
+        $vista = $request->input('vista', 'proximos');
+        $orden = $request->input('orden', '');
         $direccion = $request->input('direccion', 'asc');
         $porPagina = (int) $request->input('por_pagina', 10);
 
+        $vistas = ['proximos', 'finalizados', 'todos'];
+        if ($usuario->can('crear eventos')) {
+            $vistas[] = 'borradores';
+            $vistas[] = 'cancelados';
+        }
+
         // cualquiera puede tocar la url, por eso valido contra una lista
+        if (!in_array($vista, $vistas, true)) {
+            $vista = 'proximos';
+        }
         if (!in_array($orden, ['titulo', 'fecha_inicio', 'cupo'], true)) {
-            $orden = 'fecha_inicio';
+            $orden = '';
         }
         if (!in_array($direccion, ['asc', 'desc'], true)) {
             $direccion = 'asc';
@@ -38,41 +48,54 @@ class EventoController extends Controller
             $porPagina = 10;
         }
 
-        $eventos = Evento::with(['categoria', 'lugar'])
-            ->withCount(['inscripciones as inscriptos_count' => function ($query) {
-                $query->activas();
-            }])
-            ->when(!$request->user()->can('crear eventos'), function ($query) use ($request) {
-                $query->where(function ($query) use ($request) {
-                    $query->whereIn('estado', ['publicado', 'finalizado'])
-                        ->orWhere(function ($query) use ($request) {
-                            $query->where('estado', 'cancelado')
-                                ->whereHas('inscripciones', function ($query) use ($request) {
-                                    $query->where('user_id', $request->user()->id)->activas();
-                                });
-                        });
-                });
-            })
+        $base = Evento::query()
             ->when($buscar !== '', function ($query) use ($buscar) {
                 $query->where('titulo', 'like', "%{$buscar}%");
             })
             ->when($request->filled('categoria'), function ($query) use ($categoria) {
                 $query->where('categoria_id', $categoria);
+            });
+
+        $contadores = [];
+        foreach ($vistas as $nombre) {
+            $contadores[$nombre] = $this->filtrarVista($base->clone(), $nombre, $usuario)->count();
+        }
+
+        // proximo = publicado y todavia no termino, sirve para separar los grupos en "todos"
+        $esProximo = "case when estado = 'publicado' and fecha_fin >= ? then 1 else 0 end";
+
+        $eventos = $this->filtrarVista($base->clone(), $vista, $usuario)
+            ->select('eventos.*')
+            ->selectRaw("{$esProximo} as proximo", [now()])
+            ->with(['categoria', 'lugar'])
+            ->withCount(['inscripciones as inscriptos_count' => function ($query) {
+                $query->activas();
+            }])
+            ->when($vista === 'todos', function ($query) use ($esProximo) {
+                $query->orderByRaw("{$esProximo} desc", [now()]);
             })
-            ->when($request->filled('estado'), function ($query) use ($estado) {
-                $query->where('estado', $estado);
+            ->when($orden !== '', function ($query) use ($orden, $direccion) {
+                $query->orderBy($orden, $direccion);
+            }, function ($query) use ($vista) {
+                match ($vista) {
+                    'finalizados', 'cancelados' => $query->orderByDesc('fecha_inicio'),
+                    'todos' => $query
+                        ->orderByRaw("case when estado = 'publicado' and fecha_fin >= ? then fecha_inicio end asc", [now()])
+                        ->orderByDesc('fecha_inicio'),
+                    default => $query->orderBy('fecha_inicio'),
+                };
             })
-            ->orderBy($orden, $direccion)
             ->paginate($porPagina)
             ->withQueryString();
 
         return Inertia::render('Eventos/Index', [
             'eventos' => $eventos,
             'categorias' => Categoria::orderBy('nombre')->get(['id', 'nombre']),
+            'contadores' => $contadores,
             'filtros' => [
                 'buscar' => $buscar,
                 'categoria' => $categoria,
-                'estado' => $estado,
+                'vista' => $vista,
                 'orden' => $orden,
                 'direccion' => $direccion,
                 'por_pagina' => $porPagina,
@@ -322,6 +345,23 @@ class EventoController extends Controller
         return redirect()
             ->route('eventos.index')
             ->with('success', 'Evento eliminado correctamente.');
+    }
+
+    private function filtrarVista($query, string $vista, $usuario)
+    {
+        $proximos = fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '>=', now());
+        // los publicados que ya terminaron cuentan como finalizados aunque el comando no haya corrido
+        $finalizados = fn ($q) => $q->where('estado', 'finalizado')
+            ->orWhere(fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '<', now()));
+
+        return match ($vista) {
+            'proximos' => $query->where($proximos),
+            'finalizados' => $query->where($finalizados),
+            'todos' => $query->where(fn ($q) => $q->where($proximos)->orWhere($finalizados)),
+            'borradores', 'cancelados' => $query
+                ->where('estado', $vista === 'borradores' ? 'borrador' : 'cancelado')
+                ->when(!$usuario->hasRole('admin'), fn ($q) => $q->where('organizador_id', $usuario->id)),
+        };
     }
 
     private function datosQueSeAvisan(Evento $evento): array

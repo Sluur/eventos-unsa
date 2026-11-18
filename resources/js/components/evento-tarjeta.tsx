@@ -5,6 +5,7 @@ import EstadoBadge, { type EstadoEvento } from '@/components/estado-badge';
 import FechaBloque from '@/components/fecha-bloque';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatearHora } from '@/lib/fechas';
+import { cn } from '@/lib/utils';
 
 export interface EventoTarjetaData {
     id: number;
@@ -23,16 +24,22 @@ interface Props {
     evento: EventoTarjetaData;
     href: string;
     mostrarEstado?: boolean;
+    atenuado?: boolean;
 }
 
-export default function EventoTarjeta({ evento, href, mostrarEstado = true }: Props) {
+export default function EventoTarjeta({ evento, href, mostrarEstado = true, atenuado = false }: Props) {
     const libres = Math.max(0, evento.cupo - evento.inscriptos_count);
 
     return (
         <Link href={href} className="group rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
-            <Card className="h-full gap-0 overflow-hidden py-0 transition-colors group-hover:border-primary/50">
+            <Card
+                className={cn(
+                    'h-full gap-0 overflow-hidden py-0 transition-colors group-hover:border-primary/50',
+                    atenuado && 'bg-muted/50 text-muted-foreground',
+                )}
+            >
                 {evento.imagen_url && (
-                    <img src={evento.imagen_url} alt={evento.titulo} className="h-28 w-full border-b object-cover" />
+                    <img src={evento.imagen_url} alt={evento.titulo} className={cn('h-28 w-full border-b object-cover', atenuado && 'grayscale')} />
                 )}
                 <CardContent className="flex flex-1 items-start gap-4 px-4 py-4">
                     <FechaBloque fecha={evento.fecha_inicio} />
