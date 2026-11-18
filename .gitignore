@@ -31,3 +31,6 @@ yarn-error.log
 /CLAUDE.md
 /PLAN.md
 /.claude
+
+/capturas
+/scripts/capturas.mjs
