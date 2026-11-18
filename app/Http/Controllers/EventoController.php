@@ -304,6 +304,12 @@ class EventoController extends Controller
     {
         abort_unless($evento->puedeGestionar($request->user()), 403);
 
+        if ($evento->estado === 'finalizado') {
+            return redirect()
+                ->route('eventos.show', $evento)
+                ->with('error', 'No se puede eliminar un evento finalizado.');
+        }
+
         if ($evento->inscripciones()->exists()) {
             return redirect()
                 ->route('eventos.show', $evento)

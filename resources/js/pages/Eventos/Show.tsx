@@ -112,7 +112,7 @@ export default function Show({
         ['publicado', 'finalizado'].includes(evento.estado);
     const sePuedeEditar = !['finalizado', 'cancelado'].includes(evento.estado);
     const puedeEditar = puedeGestionar && permisos.includes('editar eventos') && sePuedeEditar;
-    const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos');
+    const puedeEliminar = puedeGestionar && permisos.includes('eliminar eventos') && evento.estado !== 'finalizado';
     const puedeDuplicar = permisos.includes('crear eventos');
     const puedeRevisar = puedeGestionar && permisos.includes('revisar inscripciones');
     const puedeMensajear = puedeGestionar && permisos.includes('editar eventos') && evento.estado !== 'borrador';
