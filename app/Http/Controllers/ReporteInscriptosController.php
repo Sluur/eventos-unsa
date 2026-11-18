@@ -50,6 +50,42 @@ class ReporteInscriptosController extends Controller
         );
     }
 
+    #[Middleware('permission:ver reportes')]
+    public function planilla(Request $request, Evento $evento)
+    {
+        abort_unless($evento->puedeGestionar($request->user()), 403);
+
+        $evento->load(['categoria', 'lugar', 'organizador']);
+
+        $filas = $evento->inscripciones()
+            ->with('user:id,name')
+            ->where('estado', 'confirmada')
+            ->get()
+            ->map(function ($inscripcion) {
+                if ($inscripcion->user) {
+                    // los usuarios tienen el nombre completo en un solo campo, tomo la ultima palabra como apellido
+                    $partes = explode(' ', trim($inscripcion->user->name));
+                    $apellido = array_pop($partes);
+                    $nombre = implode(' ', $partes);
+                } else {
+                    $apellido = $inscripcion->apellido_invitado;
+                    $nombre = $inscripcion->nombre_invitado;
+                }
+
+                return [
+                    'apellido' => $apellido,
+                    'nombre' => $nombre ? "{$apellido}, {$nombre}" : $apellido,
+                    'dni' => $inscripcion->dni_invitado ?? '',
+                ];
+            })
+            ->sortBy('apellido', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        return Pdf::loadView('pdf.planilla', ['evento' => $evento, 'filas' => $filas])
+            ->setPaper('a4', 'portrait')
+            ->download('planilla-asistencia-'.Str::slug($evento->titulo).'.pdf');
+    }
+
     private function estado(Request $request): ?string
     {
         $estado = (string) $request->input('estado');

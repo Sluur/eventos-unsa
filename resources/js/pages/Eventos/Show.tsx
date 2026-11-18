@@ -1,5 +1,5 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, Star, FileText, Pencil, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileDown, Star, FileText, Pencil, Trash2, Users } from 'lucide-react';
 import ArchivoInput from '@/components/archivo-input';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
@@ -131,6 +131,7 @@ export default function Show({
     const puedeDuplicar = permisos.includes('crear eventos');
     const puedeRevisar = puedeGestionar && permisos.includes('revisar inscripciones');
     const puedeMensajear = puedeGestionar && permisos.includes('editar eventos') && evento.estado !== 'borrador';
+    const puedeVerReportes = puedeGestionar && permisos.includes('ver reportes') && evento.estado !== 'borrador';
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Eventos', href: '/eventos' },
@@ -189,7 +190,7 @@ export default function Show({
                     </div>
                 </div>
 
-                {(puedeRevisar || puedeTomarAsistencia || puedeMensajear || puedeEditar || puedeDuplicar || puedeEliminar) && (
+                {(puedeRevisar || puedeTomarAsistencia || puedeMensajear || puedeVerReportes || puedeEditar || puedeDuplicar || puedeEliminar) && (
                     <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex flex-wrap gap-2">
                             {puedeRevisar && (
@@ -207,6 +208,14 @@ export default function Show({
                                         <ClipboardCheck />
                                         Tomar asistencia
                                     </Link>
+                                </Button>
+                            )}
+                            {puedeVerReportes && (
+                                <Button size="sm" variant="outline" asChild>
+                                    <a href={`/eventos/${evento.id}/planilla`}>
+                                        <FileDown />
+                                        Planilla de asistencia
+                                    </a>
                                 </Button>
                             )}
                             {puedeMensajear && (

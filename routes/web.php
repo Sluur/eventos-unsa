@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('eventos/{evento}/inscripciones', [RevisionInscripcionController::class, 'index'])->name('eventos.inscripciones');
     Route::get('eventos/{evento}/inscriptos/pdf', [ReporteInscriptosController::class, 'pdf'])->name('eventos.inscriptos.pdf');
     Route::get('eventos/{evento}/inscriptos/excel', [ReporteInscriptosController::class, 'excel'])->name('eventos.inscriptos.excel');
+    Route::get('eventos/{evento}/planilla', [ReporteInscriptosController::class, 'planilla'])->name('eventos.planilla');
     Route::patch('inscripciones/{inscripcion}/aceptar', [RevisionInscripcionController::class, 'aceptar'])->name('inscripciones.aceptar');
     Route::patch('inscripciones/{inscripcion}/rechazar', [RevisionInscripcionController::class, 'rechazar'])->name('inscripciones.rechazar');
     Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');
