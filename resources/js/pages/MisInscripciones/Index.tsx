@@ -117,7 +117,11 @@ export default function Index({ inscripciones, contadores, vista, categorias, di
                                                     )}
                                                     {vista === 'pasadas' && (
                                                         <span className="text-sm">
-                                                            {inscripcion.asistio ? 'Asististe' : 'Sin asistencia registrada'}
+                                                            {!inscripcion.asistio
+                                                                ? 'Sin asistencia registrada'
+                                                                : inscripcion.encuesta_exists
+                                                                  ? 'Asististe'
+                                                                  : 'Asististe. Para el certificado falta responder la encuesta.'}
                                                         </span>
                                                     )}
                                                 </div>
@@ -128,9 +132,9 @@ export default function Index({ inscripciones, contadores, vista, categorias, di
                                         </div>
 
                                         <div className="flex flex-wrap gap-2 sm:justify-end">
-                                            {vista === 'pasadas' && inscripcion.asistio && !inscripcion.encuesta_exists && (
+                                            {vista === 'pasadas' && inscripcion.asistio && (
                                                 <Button size="sm" asChild>
-                                                    <Link href={`/inscripciones/${inscripcion.id}/encuesta`}>Responder encuesta</Link>
+                                                    <a href={`/inscripciones/${inscripcion.id}/certificado`}>Descargar certificado</a>
                                                 </Button>
                                             )}
                                             <Button variant="outline" size="sm" asChild>

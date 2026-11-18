@@ -308,9 +308,9 @@ export default function Show({
                                             </span>
                                         )}
                                         <div className="flex flex-wrap gap-2">
-                                            {yaPaso && miInscripcion?.asistio && !miInscripcion.encuesta_exists && (
+                                            {yaPaso && miInscripcion?.asistio && (
                                                 <Button size="sm" asChild>
-                                                    <Link href={`/inscripciones/${miInscripcion.id}/encuesta`}>Responder encuesta</Link>
+                                                    <a href={`/inscripciones/${miInscripcion.id}/certificado`}>Descargar certificado</a>
                                                 </Button>
                                             )}
                                             {miInscripcion?.archivo && (

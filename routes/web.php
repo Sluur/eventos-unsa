@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\CarteleraController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EncuestaController;
 use App\Http\Controllers\EventoController;
@@ -23,6 +24,7 @@ Route::get('cartelera/{evento}/registrarse', [CarteleraController::class, 'regis
 
 Route::get('inscripciones/{inscripcion}/encuesta', [EncuestaController::class, 'create'])->name('encuestas.create');
 Route::post('inscripciones/{inscripcion}/encuesta', [EncuestaController::class, 'store'])->middleware('throttle:10,1')->name('encuestas.store');
+Route::get('inscripciones/{inscripcion}/certificado', [CertificadoController::class, 'show'])->name('inscripciones.certificado');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::redirect('dashboard', '/eventos')->name('dashboard');

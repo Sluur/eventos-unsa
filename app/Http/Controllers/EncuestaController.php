@@ -21,6 +21,7 @@ class EncuestaController extends Controller
             'nombre' => $inscripcion->nombreDestino(),
             'respondida' => $inscripcion->encuesta !== null,
             'urlGuardar' => $inscripcion->urlEncuesta($firmada),
+            'urlCertificado' => $inscripcion->urlCertificado($firmada),
         ]);
     }
 
@@ -35,7 +36,7 @@ class EncuestaController extends Controller
         $inscripcion->encuesta()->create($request->validated());
 
         return redirect($inscripcion->urlEncuesta($request->hasValidSignature()))
-            ->with('success', '¡Gracias por responder la encuesta!');
+            ->with('success', '¡Gracias por responder! Ya podés descargar tu certificado.');
     }
 
     private function autorizar(Request $request, Inscripcion $inscripcion): void

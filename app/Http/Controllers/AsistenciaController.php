@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GuardarAsistenciaRequest;
+use App\Mail\CertificadoDisponible;
 use App\Models\Evento;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Attributes\Controllers\Middleware;
@@ -36,6 +37,11 @@ class AsistenciaController extends Controller
 
         $presentes = $request->validated()['asistentes'] ?? [];
 
+        $invitadosQueYaEstaban = $evento->inscripciones()
+            ->whereNull('user_id')
+            ->where('asistio', true)
+            ->pluck('id');
+
         DB::transaction(function () use ($evento, $presentes) {
             $confirmadas = $evento->inscripciones()->where('estado', 'confirmada');
 
@@ -46,6 +52,14 @@ class AsistenciaController extends Controller
                 $evento->update(['estado' => 'finalizado']);
             }
         });
+
+        // los invitados no tienen cuenta, les llega el enlace al certificado por mail
+        $evento->inscripciones()
+            ->whereNull('user_id')
+            ->where('asistio', true)
+            ->whereNotIn('id', $invitadosQueYaEstaban)
+            ->get()
+            ->each(fn ($inscripcion) => $inscripcion->avisar(new CertificadoDisponible($inscripcion)));
 
         return redirect()
             ->route('eventos.show', $evento)
