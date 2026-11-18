@@ -10,12 +10,16 @@ export default function AuthSplitLayout({ children, title, description }: AuthLa
                     <AppLogo claro />
                 </Link>
                 <div className="max-w-md">
-                    <p className="text-3xl font-semibold">Eventos Exactas</p>
-                    <p className="mt-3 text-primary-foreground/80">
-                        Inscribite a las charlas, talleres y cursos de la Facultad de Ciencias Exactas y descargá tus certificados.
+                    <p className="text-3xl font-bold">Eventos Exactas</p>
+                    <p className="mt-3 text-primary-foreground/90">
+                        Sistema de inscripción a charlas, talleres y cursos de la Facultad de Ciencias Exactas.
                     </p>
                 </div>
-                <p className="text-sm text-primary-foreground/80">Universidad Nacional de Salta</p>
+                <p className="text-sm text-primary-foreground/90">
+                    Facultad de Ciencias Exactas, Universidad Nacional de Salta
+                    <br />
+                    Av. Bolivia 5150, Salta
+                </p>
             </div>
 
             <div className="flex items-center justify-center px-6 py-10">
