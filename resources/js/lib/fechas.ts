@@ -8,6 +8,7 @@ export const formatearFecha = (fecha: string) =>
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
+        hourCycle: 'h23',
     });
 
 export const formatearFechaLarga = (fecha: string) =>
@@ -18,6 +19,7 @@ export const formatearFechaLarga = (fecha: string) =>
         month: 'long',
         hour: '2-digit',
         minute: '2-digit',
+        hourCycle: 'h23',
     });
 
 export const formatearHora = (fecha: string) =>
@@ -25,6 +27,7 @@ export const formatearHora = (fecha: string) =>
         timeZone: 'UTC',
         hour: '2-digit',
         minute: '2-digit',
+        hourCycle: 'h23',
     });
 
 export const diaDelMes = (fecha: string) =>
@@ -34,3 +37,5 @@ export const mesCorto = (fecha: string) =>
     new Date(fecha)
         .toLocaleDateString('es-AR', { timeZone: 'UTC', month: 'short' })
         .replace('.', '');
+
+export const capitalizar = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);

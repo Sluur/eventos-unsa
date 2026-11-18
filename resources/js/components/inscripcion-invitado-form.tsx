@@ -1,6 +1,7 @@
 import { useForm, usePage } from '@inertiajs/react';
 import { CircleCheck } from 'lucide-react';
 import type { FormEvent } from 'react';
+import ArchivoInput from '@/components/archivo-input';
 import FormField from '@/components/form-field';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -66,12 +67,11 @@ export default function InscripcionInvitadoForm({ eventoId, documentacion }: Pro
 
             {documentacion && (
                 <FormField label={`Subí: ${documentacion}`} htmlFor="archivo" error={errors.archivo} ayuda="PDF, JPG o PNG de hasta 5 MB.">
-                    <Input
+                    <ArchivoInput
                         id="archivo"
-                        type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => setData('archivo', e.target.files?.[0] ?? null)}
-                        aria-invalid={!!errors.archivo}
+                        onChange={(archivo) => setData('archivo', archivo)}
+                        invalido={!!errors.archivo}
                     />
                 </FormField>
             )}

@@ -1,6 +1,7 @@
 import type { InertiaFormProps } from '@inertiajs/react';
 import { ImageIcon, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import ArchivoInput from '@/components/archivo-input';
 import CategoriaReglas, { type ReglasCategoria } from '@/components/categoria-reglas';
 import DisertantesSelect, { type DisertanteOpcion } from '@/components/disertantes-select';
 import FormField from '@/components/form-field';
@@ -145,13 +146,12 @@ export default function EventoForm({
                         Sin imagen
                     </div>
                 )}
-                <Input
+                <ArchivoInput
                     key={inputKey}
                     id="imagen"
-                    type="file"
                     accept="image/jpeg,image/png,image/webp"
-                    onChange={(e) => setData('imagen', e.target.files?.[0] ?? null)}
-                    aria-invalid={!!errors.imagen}
+                    onChange={(archivo) => setData('imagen', archivo)}
+                    invalido={!!errors.imagen}
                 />
             </FormField>
 
