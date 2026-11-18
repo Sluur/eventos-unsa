@@ -61,7 +61,6 @@ export default function CalendarioMes({ mes, eventos, onCambiarMes }: Props) {
     const [anio, numero] = mes.split('-').map(Number);
     const primerDia = new Date(Date.UTC(anio, numero - 1, 1));
     const diasDelMes = new Date(Date.UTC(anio, numero, 0)).getUTCDate();
-    // la semana empieza el lunes
     const huecos = (primerDia.getUTCDay() + 6) % 7;
     const hoyTexto = hoy();
 

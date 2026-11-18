@@ -100,7 +100,6 @@ class ReporteController extends Controller
                 'cupo' => $evento->cupo,
                 'inscriptos' => $evento->inscriptos,
                 'asistentes' => $evento->asistentes,
-                // en los que todavia no pasaron no tiene sentido hablar de asistencia
                 'porcentaje' => $evento->yaPaso() && $evento->inscriptos > 0
                     ? (int) round($evento->asistentes * 100 / $evento->inscriptos)
                     : null,

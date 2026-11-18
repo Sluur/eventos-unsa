@@ -1,6 +1,4 @@
-import { AppContent } from '@/components/app-content';
 import { AppHeader } from '@/components/app-header';
-import { AppShell } from '@/components/app-shell';
 import type { AppLayoutProps } from '@/types';
 
 export default function AppHeaderLayout({
@@ -8,9 +6,11 @@ export default function AppHeaderLayout({
     breadcrumbs,
 }: AppLayoutProps) {
     return (
-        <AppShell variant="header">
+        <div className="flex min-h-screen w-full flex-col">
             <AppHeader breadcrumbs={breadcrumbs} />
-            <AppContent variant="header">{children}</AppContent>
-        </AppShell>
+            <main className="mx-auto flex h-full w-full max-w-6xl flex-1 flex-col">
+                {children}
+            </main>
+        </div>
     );
 }

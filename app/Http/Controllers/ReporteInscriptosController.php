@@ -63,7 +63,7 @@ class ReporteInscriptosController extends Controller
             ->get()
             ->map(function ($inscripcion) {
                 if ($inscripcion->user) {
-                    // los usuarios tienen el nombre completo en un solo campo, tomo la ultima palabra como apellido
+                    // el nombre viene en un solo campo, tomo la ultima palabra como apellido
                     $partes = explode(' ', trim($inscripcion->user->name));
                     $apellido = array_pop($partes);
                     $nombre = implode(' ', $partes);

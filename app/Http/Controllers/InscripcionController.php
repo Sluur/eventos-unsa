@@ -82,6 +82,7 @@ class InscripcionController extends Controller
         return redirect()->route('eventos.show', $evento)->with('success', $mensaje);
     }
 
+    #[Middleware('permission:listar eventos')]
     public function archivo(Request $request, Inscripcion $inscripcion)
     {
         $usuario = $request->user();
