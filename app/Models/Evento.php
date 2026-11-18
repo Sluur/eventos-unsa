@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Mail\EventoPublicado;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class Evento extends Model
@@ -130,6 +132,19 @@ class Evento extends Model
     public function sePuedeEditar(): bool
     {
         return !in_array($this->estado, ['finalizado', 'cancelado'], true);
+    }
+
+    public function avisarSeguidores(): void
+    {
+        $disertantes = $this->disertantes()->pluck('disertantes.id');
+
+        User::where('id', '!=', $this->organizador_id)
+            ->where(function ($query) use ($disertantes) {
+                $query->whereHas('categoriasSeguidas', fn ($q) => $q->whereKey($this->categoria_id))
+                    ->orWhereHas('disertantesSeguidos', fn ($q) => $q->whereIn('disertantes.id', $disertantes));
+            })
+            ->get()
+            ->each(fn ($usuario) => Mail::to($usuario)->queue(new EventoPublicado($this, $usuario)));
     }
 
     public function puedeGestionar(User $usuario): bool

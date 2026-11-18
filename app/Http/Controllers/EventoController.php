@@ -126,6 +126,10 @@ class EventoController extends Controller
 
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
 
+        if ($evento->estado === 'publicado') {
+            $evento->avisarSeguidores();
+        }
+
         $mensaje = $evento->estado === 'publicado'
             ? 'Evento publicado correctamente.'
             : 'Evento guardado como borrador.';
@@ -226,6 +230,7 @@ class EventoController extends Controller
 
         $datos = $request->validated();
         $antes = $this->datosQueSeAvisan($evento);
+        $estabaPublicado = $evento->estado === 'publicado';
 
         $evento->update([
             'titulo' => $datos['titulo'],
@@ -249,6 +254,10 @@ class EventoController extends Controller
         }
 
         $evento->disertantes()->sync($datos['disertantes'] ?? []);
+
+        if (!$estabaPublicado && $evento->estado === 'publicado') {
+            $evento->avisarSeguidores();
+        }
 
         $ahora = $this->datosQueSeAvisan($evento->refresh());
         $cambios = [];
