@@ -27,6 +27,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'tomar asistencia',
             'revisar inscripciones',
             'descargar reportes',
+            'ver reportes',
             'ver dashboard',
         ];
 
@@ -49,6 +50,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'tomar asistencia',
             'revisar inscripciones',
             'descargar reportes',
+            'ver reportes',
         ]);
 
         $alumno->givePermissionTo([

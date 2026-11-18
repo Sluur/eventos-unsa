@@ -13,6 +13,7 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
 use App\Http\Controllers\MensajeEventoController;
 use App\Http\Controllers\MisInscripcionesController;
+use App\Http\Controllers\ReporteInscriptosController;
 use App\Http\Controllers\RevisionInscripcionController;
 use App\Http\Controllers\SeguirController;
 
@@ -38,6 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('eventos/{evento}/inscripcion', [InscripcionController::class, 'destroy'])->name('eventos.inscripcion.destroy');
     Route::post('eventos/{evento}/mensajes', [MensajeEventoController::class, 'store'])->name('eventos.mensajes.store');
     Route::get('eventos/{evento}/inscripciones', [RevisionInscripcionController::class, 'index'])->name('eventos.inscripciones');
+    Route::get('eventos/{evento}/inscriptos/pdf', [ReporteInscriptosController::class, 'pdf'])->name('eventos.inscriptos.pdf');
+    Route::get('eventos/{evento}/inscriptos/excel', [ReporteInscriptosController::class, 'excel'])->name('eventos.inscriptos.excel');
     Route::patch('inscripciones/{inscripcion}/aceptar', [RevisionInscripcionController::class, 'aceptar'])->name('inscripciones.aceptar');
     Route::patch('inscripciones/{inscripcion}/rechazar', [RevisionInscripcionController::class, 'rechazar'])->name('inscripciones.rechazar');
     Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');

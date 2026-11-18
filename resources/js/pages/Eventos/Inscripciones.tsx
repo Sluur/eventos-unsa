@@ -1,5 +1,6 @@
-import { Head, router, setLayoutProps } from '@inertiajs/react';
-import { Check, FileText, Inbox } from 'lucide-react';
+import { Head, router, setLayoutProps, usePage } from '@inertiajs/react';
+import { Check, FileDown, FileSpreadsheet, FileText, Inbox } from 'lucide-react';
+import { useState } from 'react';
 import EmptyState from '@/components/empty-state';
 import type { EstadoInscripcion } from '@/components/estado-inscripcion-badge';
 import InscriptoNombre, { nombreInscripto } from '@/components/inscripto-nombre';
@@ -49,6 +50,9 @@ export default function Inscripciones({ evento, inscripciones, requiereDocumenta
 
     const de = (estado: EstadoInscripcion) => inscripciones.filter((i) => i.estado === estado);
     const ocupados = de('pendiente').length + de('confirmada').length;
+    const [pestania, setPestania] = useState<EstadoInscripcion>(de('pendiente').length > 0 ? 'pendiente' : 'confirmada');
+    const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
+    const puedeExportar = permisos.includes('ver reportes');
 
     const aceptar = (id: number) => {
         router.patch(`/inscripciones/${id}/aceptar`, {}, { preserveScroll: true });
@@ -66,17 +70,35 @@ export default function Inscripciones({ evento, inscripciones, requiereDocumenta
                     descripcion={`${evento.titulo} · ${ocupados} de ${evento.cupo} lugares ocupados (las pendientes reservan lugar)`}
                 />
 
-                <Tabs defaultValue={de('pendiente').length > 0 ? 'pendiente' : 'confirmada'}>
-                    <TabsList className="h-auto flex-wrap">
-                        {pestanias.map((p) => (
-                            <TabsTrigger key={p.estado} value={p.estado} className="gap-1.5">
-                                {p.titulo}
-                                <Badge variant="secondary" className="px-1.5 tabular-nums">
-                                    {de(p.estado).length}
-                                </Badge>
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
+                <Tabs value={pestania} onValueChange={(v) => setPestania(v as EstadoInscripcion)}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <TabsList className="h-auto flex-wrap">
+                            {pestanias.map((p) => (
+                                <TabsTrigger key={p.estado} value={p.estado} className="gap-1.5">
+                                    {p.titulo}
+                                    <Badge variant="secondary" className="px-1.5 tabular-nums">
+                                        {de(p.estado).length}
+                                    </Badge>
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                        {puedeExportar && (
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" asChild>
+                                    <a href={`/eventos/${evento.id}/inscriptos/pdf?estado=${pestania}`}>
+                                        <FileDown />
+                                        PDF
+                                    </a>
+                                </Button>
+                                <Button variant="outline" size="sm" asChild>
+                                    <a href={`/eventos/${evento.id}/inscriptos/excel?estado=${pestania}`}>
+                                        <FileSpreadsheet />
+                                        Excel
+                                    </a>
+                                </Button>
+                            </div>
+                        )}
+                    </div>
 
                     {pestanias.map((p) => (
                         <TabsContent key={p.estado} value={p.estado}>
