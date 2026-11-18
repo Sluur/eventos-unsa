@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('disertantes/{disertante}/seguir', [SeguirController::class, 'dejarDisertante'])->name('disertantes.dejar');
     Route::resource('categorias', CategoriaController::class)->except(['show']);
     Route::resource('lugares', LugarController::class)->parameters(['lugares' => 'lugar'])->except(['show']);
+    Route::patch('disertantes/{disertante}/activo', [DisertanteController::class, 'alternarActivo'])->name('disertantes.activo');
     Route::resource('disertantes', DisertanteController::class)->except(['show']);
 });
 

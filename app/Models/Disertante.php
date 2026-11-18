@@ -9,7 +9,14 @@ class Disertante extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'apellido', 'email', 'biografia'];
+    protected $fillable = ['nombre', 'apellido', 'email', 'biografia', 'activo'];
+
+    protected function casts(): array
+    {
+        return [
+            'activo' => 'boolean',
+        ];
+    }
 
     public function eventos()
     {

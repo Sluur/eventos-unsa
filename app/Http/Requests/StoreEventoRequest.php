@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Lugar;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class StoreEventoRequest extends FormRequest
@@ -27,7 +28,7 @@ class StoreEventoRequest extends FormRequest
             'solo_registrados' => ['boolean'],
             'estado' => ['required', 'in:borrador,publicado'],
             'disertantes' => ['array'],
-            'disertantes.*' => ['integer', 'exists:disertantes,id'],
+            'disertantes.*' => ['integer', Rule::exists('disertantes', 'id')->where('activo', true)],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
@@ -84,6 +85,7 @@ class StoreEventoRequest extends FormRequest
             'min' => 'El campo :attribute tiene que ser al menos :min.',
             'exists' => 'El :attribute seleccionado no existe.',
             'categoria_id.exists' => 'La categoría seleccionada no existe.',
+            'disertantes.*.exists' => 'El disertante elegido no existe o está inactivo.',
             'categoria_id.required' => 'Elegí una categoría.',
             'in' => 'El :attribute no es válido.',
             'array' => 'El campo :attribute no es válido.',

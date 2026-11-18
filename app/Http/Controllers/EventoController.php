@@ -81,12 +81,12 @@ class EventoController extends Controller
     public function create(Request $request)
     {
         $original = $request->filled('duplicar')
-            ? Evento::with('disertantes:id')->find($request->integer('duplicar'))
+            ? Evento::with('disertantes:id,activo')->find($request->integer('duplicar'))
             : null;
 
         return Inertia::render('Eventos/Create', [
             'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
-            'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+            'disertantes' => Disertante::where('activo', true)->orderBy('apellido')->get(['id', 'nombre', 'apellido']),
             'categorias' => $this->categoriasParaFormulario(),
             'copia' => $original ? [
                 'titulo' => $original->titulo.' (copia)',
@@ -95,7 +95,7 @@ class EventoController extends Controller
                 'lugar_id' => (string) $original->lugar_id,
                 'cupo' => (string) $original->cupo,
                 'solo_registrados' => $original->solo_registrados,
-                'disertantes' => $original->disertantes->pluck('id'),
+                'disertantes' => $original->disertantes->where('activo', true)->pluck('id')->values(),
                 'original' => $original->titulo,
             ] : null,
         ]);
@@ -212,7 +212,10 @@ class EventoController extends Controller
         return Inertia::render('Eventos/Edit', [
             'evento' => $evento,
             'lugares' => Lugar::orderBy('nombre')->get(['id', 'nombre', 'capacidad']),
-            'disertantes' => Disertante::orderBy('apellido')->get(['id', 'nombre', 'apellido']),
+            'disertantes' => Disertante::where('activo', true)
+                ->orWhereIn('id', $evento->disertantes->pluck('id'))
+                ->orderBy('apellido')
+                ->get(['id', 'nombre', 'apellido']),
             'categorias' => $this->categoriasParaFormulario(),
         ]);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class UpdateEventoRequest extends StoreEventoRequest
@@ -11,6 +12,13 @@ class UpdateEventoRequest extends StoreEventoRequest
         $reglas = parent::rules();
         $reglas['quitar_imagen'] = ['boolean'];
         $evento = $this->route('evento');
+
+        // un disertante inactivo que ya estaba en el evento se puede mantener
+        $reglas['disertantes.*'] = [
+            'integer',
+            Rule::exists('disertantes', 'id')->where(fn ($q) => $q->where('activo', true)
+                ->orWhereIn('id', $evento->disertantes()->pluck('disertantes.id'))),
+        ];
 
         // si no se toco la fecha se puede guardar aunque ya haya pasado
         if ($this->input('fecha_inicio') === $evento->fecha_inicio->format('Y-m-d\TH:i')) {
