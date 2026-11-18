@@ -21,8 +21,8 @@ class EventoController extends Controller
     public function index(Request $request)
     {
         $usuario = $request->user();
-        $buscar = trim($request->input('buscar', ''));
-        $categoria = $request->input('categoria', '');
+        $buscar = trim((string) $request->input('buscar'));
+        $categoria = (string) $request->input('categoria');
         $vista = $request->input('vista', 'proximos');
         $orden = $request->input('orden', '');
         $direccion = $request->input('direccion', 'asc');

@@ -1,6 +1,6 @@
 import { Head, Link, router, setLayoutProps, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, ArrowUpDown, CalendarX, LayoutGrid, List, Plus, Search } from 'lucide-react';
-import { Fragment, useState, type FormEvent } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import CupoBar from '@/components/cupo-bar';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import EmptyState from '@/components/empty-state';
@@ -98,37 +98,33 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
 
     const [buscar, setBuscar] = useState(filtros.buscar ?? '');
     const [categoria, setCategoria] = useState(filtros.categoria ?? '');
-    const [porPagina, setPorPagina] = useState(filtros.por_pagina ?? 10);
     const orden = filtros.orden ?? '';
     const direccion = filtros.direccion ?? 'asc';
 
-    const visitar = (cambios: Record<string, string | number> = {}) => {
-        router.get(
-            '/eventos',
-            {
-                buscar,
-                categoria,
-                vista,
-                orden,
-                direccion,
-                por_pagina: porPagina,
-                modo,
-                ...cambios,
-            },
-            { preserveState: true, preserveScroll: true },
-        );
+    const visitar = (cambios: Record<string, string> = {}) => {
+        const datos = { buscar, categoria, vista, orden, direccion, modo, ...cambios };
+        const conValor = Object.fromEntries(Object.entries(datos).filter(([, valor]) => valor !== ''));
+
+        router.get('/eventos', conValor, { preserveState: true, preserveScroll: true, replace: true });
     };
 
-    const aplicarFiltros = (e: FormEvent) => {
-        e.preventDefault();
-        visitar();
+    // espero a que termine de escribir para no buscar con cada letra
+    useEffect(() => {
+        if (buscar.trim() === filtros.buscar) return;
+        const espera = setTimeout(() => visitar({ buscar: buscar.trim() }), 400);
+        return () => clearTimeout(espera);
+    }, [buscar]);
+
+    const elegirCategoria = (valor: string) => {
+        const nueva = valor === TODOS ? '' : valor;
+        setCategoria(nueva);
+        visitar({ categoria: nueva });
     };
 
     const limpiarFiltros = () => {
         setBuscar('');
         setCategoria('');
-        setPorPagina(10);
-        router.get('/eventos', { vista, modo });
+        router.get('/eventos', { vista, modo }, { preserveState: true, preserveScroll: true, replace: true });
     };
 
     const ordenarPor = (campo: string) => {
@@ -141,7 +137,7 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
         return direccion === 'asc' ? <ArrowUp className="size-3.5" /> : <ArrowDown className="size-3.5" />;
     };
 
-    const hayFiltros = filtros.buscar !== '' || filtros.categoria !== '';
+    const hayFiltros = !!filtros.buscar || !!filtros.categoria;
 
     setLayoutProps({ breadcrumbs });
 
@@ -174,73 +170,53 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
                     </TabsList>
                 </Tabs>
 
-                <form onSubmit={aplicarFiltros} className="flex flex-col gap-3">
-                    <div className="flex gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                value={buscar}
-                                onChange={(e) => setBuscar(e.target.value)}
-                                placeholder="Buscar por título..."
-                                className="h-10 pl-9"
-                            />
-                        </div>
-                        <Button type="submit" className="h-10">
-                            Buscar
-                        </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative w-full sm:flex-1">
+                        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            value={buscar}
+                            onChange={(e) => setBuscar(e.target.value)}
+                            placeholder="Buscar por título..."
+                            className="h-10 pl-9"
+                            aria-label="Buscar por título"
+                        />
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Select value={categoria || TODOS} onValueChange={(v) => setCategoria(v === TODOS ? '' : v)}>
-                            <SelectTrigger className="w-full sm:w-48" aria-label="Categoría">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={TODOS}>Todas las categorías</SelectItem>
-                                {categorias.map((c) => (
-                                    <SelectItem key={c.id} value={String(c.id)}>
-                                        {c.nombre}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <Select value={categoria || TODOS} onValueChange={elegirCategoria}>
+                        <SelectTrigger className="h-10 flex-1 sm:w-52 sm:flex-none" aria-label="Categoría">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={TODOS}>Todas las categorías</SelectItem>
+                            {categorias.map((c) => (
+                                <SelectItem key={c.id} value={String(c.id)}>
+                                    {c.nombre}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                        <Select value={String(porPagina)} onValueChange={(v) => setPorPagina(Number(v))}>
-                            <SelectTrigger className="min-w-36 flex-1 sm:w-36 sm:flex-none" aria-label="Por página">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">5 por página</SelectItem>
-                                <SelectItem value="10">10 por página</SelectItem>
-                                <SelectItem value="20">20 por página</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Button type="submit" variant="secondary">
-                            Filtrar
+                    {hayFiltros && (
+                        <Button type="button" variant="ghost" onClick={limpiarFiltros}>
+                            Limpiar
                         </Button>
-                        {hayFiltros && (
-                            <Button type="button" variant="ghost" onClick={limpiarFiltros}>
-                                Limpiar
-                            </Button>
-                        )}
+                    )}
 
-                        <ToggleGroup
-                            type="single"
-                            variant="outline"
-                            value={modo}
-                            onValueChange={(v) => v && visitar({ modo: v })}
-                            className="ml-auto"
-                        >
-                            <ToggleGroupItem value="tarjetas" aria-label="Ver como tarjetas">
-                                <LayoutGrid />
-                            </ToggleGroupItem>
-                            <ToggleGroupItem value="tabla" aria-label="Ver como tabla">
-                                <List />
-                            </ToggleGroupItem>
-                        </ToggleGroup>
-                    </div>
-                </form>
+                    <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={modo}
+                        onValueChange={(v) => v && visitar({ modo: v })}
+                    >
+                        <ToggleGroupItem value="tarjetas" aria-label="Ver como tarjetas" className="h-10">
+                            <LayoutGrid />
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="tabla" aria-label="Ver como tabla" className="h-10">
+                            <List />
+                        </ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
 
                 {eventos.data.length === 0 ? (
                     <Card>
