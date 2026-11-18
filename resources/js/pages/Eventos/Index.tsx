@@ -158,11 +158,11 @@ export default function Index({ eventos, categorias, contadores, filtros }: Prop
                 </PageHeader>
 
                 <Tabs value={vista} onValueChange={(v) => visitar({ vista: v })}>
-                    <TabsList className="max-w-full justify-start overflow-x-auto">
+                    <TabsList className="flex-wrap justify-start group-data-[orientation=horizontal]/tabs:h-auto">
                         {pestanas
                             .filter((p) => p.valor in contadores)
                             .map((p) => (
-                                <TabsTrigger key={p.valor} value={p.valor} className="gap-1.5">
+                                <TabsTrigger key={p.valor} value={p.valor} className="flex-none gap-1.5">
                                     {p.titulo}
                                     <span className="text-muted-foreground tabular-nums">{contadores[p.valor]}</span>
                                 </TabsTrigger>
