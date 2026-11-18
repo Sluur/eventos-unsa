@@ -11,6 +11,7 @@ use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
 use App\Http\Controllers\MensajeEventoController;
 use App\Http\Controllers\RevisionInscripcionController;
+use App\Http\Controllers\SeguirController;
 
 Route::get('/', [CarteleraController::class, 'index'])->name('home');
 Route::get('cartelera/{evento}', [CarteleraController::class, 'show'])->name('cartelera.show');
@@ -34,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::get('inscripciones/{inscripcion}/archivo', [InscripcionController::class, 'archivo'])->name('inscripciones.archivo');
     Route::get('eventos/{evento}/asistencia', [AsistenciaController::class, 'edit'])->name('eventos.asistencia.edit');
     Route::put('eventos/{evento}/asistencia', [AsistenciaController::class, 'update'])->name('eventos.asistencia.update');
+    Route::post('categorias/{categoria}/seguir', [SeguirController::class, 'seguirCategoria'])->name('categorias.seguir');
+    Route::delete('categorias/{categoria}/seguir', [SeguirController::class, 'dejarCategoria'])->name('categorias.dejar');
+    Route::post('disertantes/{disertante}/seguir', [SeguirController::class, 'seguirDisertante'])->name('disertantes.seguir');
+    Route::delete('disertantes/{disertante}/seguir', [SeguirController::class, 'dejarDisertante'])->name('disertantes.dejar');
     Route::resource('categorias', CategoriaController::class)->except(['show']);
     Route::resource('lugares', LugarController::class)->parameters(['lugares' => 'lugar'])->except(['show']);
     Route::resource('disertantes', DisertanteController::class)->except(['show']);

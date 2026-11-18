@@ -14,7 +14,7 @@ class DisertanteController extends Controller
     #[Middleware('permission:gestionar disertantes')]
     public function index()
     {
-        $disertantes = Disertante::withCount('eventos')
+        $disertantes = Disertante::withCount(['eventos', 'seguidores'])
             ->orderBy('apellido')
             ->orderBy('nombre')
             ->get();

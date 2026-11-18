@@ -182,6 +182,10 @@ class EventoController extends Controller
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),
             'yaPaso' => $evento->yaPaso(),
             'inscripcionCerrada' => $evento->inscripcionCerrada(),
+            'sigueCategoria' => $usuario->categoriasSeguidas()->whereKey($evento->categoria_id)->exists(),
+            'disertantesSeguidos' => $usuario->disertantesSeguidos()
+                ->whereIn('disertantes.id', $evento->disertantes->pluck('id'))
+                ->pluck('disertantes.id'),
         ]);
     }
 

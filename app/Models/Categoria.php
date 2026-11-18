@@ -30,4 +30,10 @@ class Categoria extends Model
     {
         return $this->hasMany(Evento::class);
     }
+
+    public function seguidores()
+    {
+        return $this->belongsToMany(User::class, 'categoria_user')
+            ->withTimestamps();
+    }
 }

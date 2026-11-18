@@ -17,6 +17,7 @@ interface Categoria {
     requiere_documentacion: boolean;
     documentacion_descripcion: string | null;
     color: string | null;
+    seguidores_count: number;
 }
 
 interface Props {
@@ -52,6 +53,7 @@ export default function Index({ categorias }: Props) {
                                     <TableHead className="pl-6">Nombre</TableHead>
                                     <TableHead className="hidden md:table-cell">Descripción</TableHead>
                                     <TableHead className="hidden sm:table-cell">Inscripción</TableHead>
+                                    <TableHead className="hidden sm:table-cell">Seguidores</TableHead>
                                     <TableHead className="pr-6 text-right">Acciones</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -73,6 +75,7 @@ export default function Index({ categorias }: Props) {
                                         <TableCell className="hidden sm:table-cell">
                                             <CategoriaReglas categoria={categoria} />
                                         </TableCell>
+                                        <TableCell className="hidden tabular-nums sm:table-cell">{categoria.seguidores_count}</TableCell>
                                         <TableCell className="pr-6">
                                             <div className="flex justify-end gap-1">
                                                 <Button variant="ghost" size="sm" asChild>

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             LugarSeeder::class,
             DisertanteSeeder::class,
             DemoCharlaSeeder::class,
+            SeguidoresSeeder::class,
         ]);
     }
 }

@@ -16,4 +16,10 @@ class Disertante extends Model
         return $this->belongsToMany(Evento::class, 'disertante_evento')
             ->withTimestamps();
     }
+
+    public function seguidores()
+    {
+        return $this->belongsToMany(User::class, 'disertante_user')
+            ->withTimestamps();
+    }
 }

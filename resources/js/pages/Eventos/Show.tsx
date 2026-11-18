@@ -14,6 +14,7 @@ import EventoDato from '@/components/evento-dato';
 import FechaBloque from '@/components/fecha-bloque';
 import InputError from '@/components/input-error';
 import InscriptoNombre, { emailInscripto } from '@/components/inscripto-nombre';
+import SeguirBoton from '@/components/seguir-boton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -85,6 +86,8 @@ interface Props {
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
     inscripcionCerrada: boolean;
+    sigueCategoria: boolean;
+    disertantesSeguidos: number[];
 }
 
 export default function Show({
@@ -99,6 +102,8 @@ export default function Show({
     motivoSinInscripcion,
     yaPaso,
     inscripcionCerrada,
+    sigueCategoria,
+    disertantesSeguidos,
 }: Props) {
     const permisos = (usePage().props as { permisos?: string[] }).permisos ?? [];
     const puedeTomarAsistencia =
@@ -159,6 +164,11 @@ export default function Show({
                         <div className="flex flex-wrap items-center gap-2">
                             <CategoriaEtiqueta nombre={evento.categoria.nombre} color={evento.categoria.color} className="text-sm" />
                             <EstadoBadge estado={evento.estado} />
+                            <SeguirBoton
+                                url={`/categorias/${evento.categoria.id}/seguir`}
+                                siguiendo={sigueCategoria}
+                                texto="Seguir categoría"
+                            />
                         </div>
                         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{evento.titulo}</h1>
                     </div>
@@ -384,11 +394,17 @@ export default function Show({
                         ) : (
                             <ul className="flex flex-col divide-y text-sm">
                                 {evento.disertantes.map((d) => (
-                                    <li key={d.id} className="py-3 first:pt-0">
-                                        <div className="font-medium">
-                                            {d.nombre} {d.apellido}
+                                    <li key={d.id} className="flex items-start justify-between gap-3 py-3 first:pt-0">
+                                        <div>
+                                            <div className="font-medium">
+                                                {d.nombre} {d.apellido}
+                                            </div>
+                                            {d.biografia && <div className="text-muted-foreground">{d.biografia}</div>}
                                         </div>
-                                        {d.biografia && <div className="text-muted-foreground">{d.biografia}</div>}
+                                        <SeguirBoton
+                                            url={`/disertantes/${d.id}/seguir`}
+                                            siguiendo={disertantesSeguidos.includes(d.id)}
+                                        />
                                     </li>
                                 ))}
                             </ul>

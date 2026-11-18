@@ -13,7 +13,7 @@ class CategoriaController extends Controller
     #[Middleware('permission:gestionar categorias')]
     public function index()
     {
-        $categorias = Categoria::orderBy('nombre')->get();
+        $categorias = Categoria::withCount('seguidores')->orderBy('nombre')->get();
 
         return Inertia::render('Categorias/Index', [
             'categorias' => $categorias,
