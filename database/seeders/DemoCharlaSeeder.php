@@ -66,7 +66,8 @@ class DemoCharlaSeeder extends Seeder
             'organizador_id' => $organizador->id,
         ]);
         $sql->disertantes()->attach(Disertante::where('email', 'carlos@eventos.test')->pluck('id'));
-        $this->inscribir($sql, ['oriana@eventos.test', 'alejandro@eventos.test', 'franco@eventos.test']);
+        $this->inscribir($sql, ['oriana@eventos.test', 'franco@eventos.test']);
+        $this->inscribir($sql, ['alejandro@eventos.test'], asistio: true);
 
         $inicio = now()->addDays(14)->setTime(17, 0);
 
@@ -123,6 +124,23 @@ class DemoCharlaSeeder extends Seeder
             'puntaje' => 5,
             'comentario' => 'Muy práctico, los ejercicios en la terminal ayudaron mucho.',
         ]);
+
+        $inicio = now()->subDays(40)->setTime(17, 0);
+
+        $arduino = Evento::create([
+            'titulo' => 'Primeros pasos con Arduino',
+            'descripcion' => 'Armamos circuitos simples y programamos sensores con una placa Arduino.',
+            'fecha_inicio' => $inicio,
+            'fecha_fin' => (clone $inicio)->addHours(2),
+            'cupo' => 12,
+            'estado' => 'finalizado',
+            'categoria_id' => $taller,
+            'lugar_id' => Lugar::where('nombre', 'Laboratorio de Informática 1')->value('id'),
+            'organizador_id' => $organizador->id,
+        ]);
+        $arduino->disertantes()->attach(Disertante::where('email', 'cristian@eventos.test')->pluck('id'));
+        $this->inscribir($arduino, ['alejandro@eventos.test', 'franco@eventos.test'], asistio: true);
+        $this->inscribir($arduino, ['oriana@eventos.test']);
 
         $inicio = now()->addDays(10)->setTime(18, 0);
 

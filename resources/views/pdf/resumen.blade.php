@@ -24,6 +24,7 @@
                     <th class="num">Inscriptos</th>
                     <th class="num">Asistentes</th>
                     <th class="num">% asistencia</th>
+                    <th class="num">% no show</th>
                     <th class="num">Puntaje</th>
                 </tr>
             </thead>
@@ -37,6 +38,7 @@
                         <td class="num">{{ $fila['inscriptos'] }}</td>
                         <td class="num">{{ $fila['asistentes'] }}</td>
                         <td class="num">{{ $fila['porcentaje'] !== null ? $fila['porcentaje'].'%' : '-' }}</td>
+                        <td class="num">{{ $fila['no_show'] !== null ? $fila['no_show'].'%' : '-' }}</td>
                         <td class="num">{{ $fila['puntaje'] ?? '-' }}</td>
                     </tr>
                 @endforeach
@@ -45,12 +47,13 @@
                     <td class="num">{{ $totales['inscriptos'] }}</td>
                     <td class="num">{{ $totales['asistentes'] }}</td>
                     <td class="num">{{ $totales['porcentaje'] !== null ? $totales['porcentaje'].'%' : '-' }}</td>
+                    <td class="num">{{ $totales['no_show'] !== null ? $totales['no_show'].'%' : '-' }}</td>
                     <td class="num">{{ $totales['puntaje'] ?? '-' }}</td>
                 </tr>
             </tbody>
         </table>
         <p class="filtros" style="margin-top: 8px;">
-            El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron.
+            El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron. El % de no show, solo para eventos finalizados.
         </p>
     @endif
 </body>

@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\DisertanteController;
 use App\Http\Controllers\EncuestaController;
+use App\Http\Controllers\EstadisticaController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\InscripcionController;
 use App\Http\Controllers\LugarController;
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('eventos/{evento}/inscriptos/pdf', [ReporteInscriptosController::class, 'pdf'])->name('eventos.inscriptos.pdf');
     Route::get('eventos/{evento}/inscriptos/excel', [ReporteInscriptosController::class, 'excel'])->name('eventos.inscriptos.excel');
     Route::get('eventos/{evento}/planilla', [ReporteInscriptosController::class, 'planilla'])->name('eventos.planilla');
+    Route::get('estadisticas', [EstadisticaController::class, 'index'])->name('estadisticas');
     Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
     Route::get('reportes/pdf', [ReporteController::class, 'pdf'])->name('reportes.pdf');
     Route::get('reportes/excel', [ReporteController::class, 'excel'])->name('reportes.excel');

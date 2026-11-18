@@ -94,6 +94,7 @@ interface Props {
     motivoSinInscripcion: string | null;
     yaPaso: boolean;
     inscripcionCerrada: boolean;
+    asistencia: { confirmados: number; asistentes: number; no_show: number; porcentaje: number | null } | null;
     encuesta: {
         promedio: number | null;
         cantidad: number;
@@ -116,6 +117,7 @@ export default function Show({
     motivoSinInscripcion,
     yaPaso,
     inscripcionCerrada,
+    asistencia,
     encuesta,
     sigueCategoria,
     disertantesSeguidos,
@@ -287,6 +289,26 @@ export default function Show({
                                 </span>
                             </div>
                             <CupoBar inscriptos={evento.inscriptos_count} cupo={evento.cupo} />
+                            {asistencia && (
+                                <dl className="mt-1 grid grid-cols-3 gap-2 rounded-md bg-muted px-3 py-2 text-sm">
+                                    <div>
+                                        <dt className="text-muted-foreground">Asistentes</dt>
+                                        <dd className="font-semibold tabular-nums">
+                                            {asistencia.asistentes} de {asistencia.confirmados}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-muted-foreground">No show</dt>
+                                        <dd className="font-semibold tabular-nums">{asistencia.no_show}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-muted-foreground">% no show</dt>
+                                        <dd className="font-semibold tabular-nums">
+                                            {asistencia.porcentaje === null ? '-' : `${asistencia.porcentaje}%`}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            )}
                             <CategoriaReglas categoria={evento.categoria} />
                             {evento.estado === 'publicado' && !yaPaso && evento.inscripcion_hasta && (
                                 <p className="text-sm text-muted-foreground">

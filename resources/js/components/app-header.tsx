@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, FileBarChart, MapPin, Menu, Mic, Tags, Ticket } from 'lucide-react';
+import { CalendarDays, ChartColumn, FileBarChart, MapPin, Menu, Mic, Tags, Ticket } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,6 +33,7 @@ const menu: { item: NavItem; permiso?: string }[] = [
     { item: { title: 'Lugares', href: '/lugares', icon: MapPin }, permiso: 'gestionar lugares' },
     { item: { title: 'Disertantes', href: '/disertantes', icon: Mic }, permiso: 'gestionar disertantes' },
     { item: { title: 'Reportes', href: '/reportes', icon: FileBarChart }, permiso: 'ver reportes' },
+    { item: { title: 'Estadísticas', href: '/estadisticas', icon: ChartColumn }, permiso: 'ver dashboard' },
 ];
 
 export function AppHeader({ breadcrumbs = [] }: Props) {

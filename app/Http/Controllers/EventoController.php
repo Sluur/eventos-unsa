@@ -185,6 +185,7 @@ class EventoController extends Controller
             'yaPaso' => $evento->yaPaso(),
             'inscripcionCerrada' => $evento->inscripcionCerrada(),
             'encuesta' => $puedeGestionar ? $this->resultadosEncuesta($evento) : null,
+            'asistencia' => $puedeGestionar && $evento->estado === 'finalizado' ? $this->asistencia($evento) : null,
             'sigueCategoria' => $usuario->categoriasSeguidas()->whereKey($evento->categoria_id)->exists(),
             'disertantesSeguidos' => $usuario->disertantesSeguidos()
                 ->whereIn('disertantes.id', $evento->disertantes->pluck('id'))
@@ -356,6 +357,19 @@ class EventoController extends Controller
                 $query->activas();
             }])
             ->ordenListado($filtros);
+    }
+
+    private function asistencia(Evento $evento): array
+    {
+        $confirmados = $evento->inscripciones()->where('estado', 'confirmada')->count();
+        $asistentes = $evento->inscripciones()->where('estado', 'confirmada')->where('asistio', true)->count();
+
+        return [
+            'confirmados' => $confirmados,
+            'asistentes' => $asistentes,
+            'no_show' => $confirmados - $asistentes,
+            'porcentaje' => $confirmados > 0 ? (int) round(($confirmados - $asistentes) * 100 / $confirmados) : null,
+        ];
     }
 
     private function resultadosEncuesta(Evento $evento): array

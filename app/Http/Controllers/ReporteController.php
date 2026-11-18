@@ -104,6 +104,9 @@ class ReporteController extends Controller
                 'porcentaje' => $evento->yaPaso() && $evento->inscriptos > 0
                     ? (int) round($evento->asistentes * 100 / $evento->inscriptos)
                     : null,
+                'no_show' => $evento->estado === 'finalizado' && $evento->inscriptos > 0
+                    ? (int) round(($evento->inscriptos - $evento->asistentes) * 100 / $evento->inscriptos)
+                    : null,
                 'puntaje' => $evento->puntaje !== null ? (float) $evento->puntaje : null,
             ]);
     }
@@ -112,12 +115,17 @@ class ReporteController extends Controller
     {
         $pasados = $filas->whereNotNull('porcentaje');
         $inscriptosPasados = $pasados->sum('inscriptos');
+        $finalizados = $filas->whereNotNull('no_show');
+        $inscriptosFinalizados = $finalizados->sum('inscriptos');
 
         return [
             'eventos' => $filas->count(),
             'inscriptos' => $filas->sum('inscriptos'),
             'asistentes' => $filas->sum('asistentes'),
             'porcentaje' => $inscriptosPasados > 0 ? (int) round($pasados->sum('asistentes') * 100 / $inscriptosPasados) : null,
+            'no_show' => $inscriptosFinalizados > 0
+                ? (int) round(($inscriptosFinalizados - $finalizados->sum('asistentes')) * 100 / $inscriptosFinalizados)
+                : null,
             'puntaje' => $filas->whereNotNull('puntaje')->isEmpty() ? null : round($filas->whereNotNull('puntaje')->avg('puntaje'), 1),
         ];
     }

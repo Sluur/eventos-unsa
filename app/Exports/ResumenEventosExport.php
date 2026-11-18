@@ -24,6 +24,7 @@ class ResumenEventosExport implements FromCollection, WithHeadings, ShouldAutoSi
             $fila['inscriptos'],
             $fila['asistentes'],
             $fila['porcentaje'] !== null ? $fila['porcentaje'].'%' : '-',
+            $fila['no_show'] !== null ? $fila['no_show'].'%' : '-',
             $fila['puntaje'] ?? '-',
         ]);
 
@@ -35,12 +36,13 @@ class ResumenEventosExport implements FromCollection, WithHeadings, ShouldAutoSi
             $this->totales['inscriptos'],
             $this->totales['asistentes'],
             $this->totales['porcentaje'] !== null ? $this->totales['porcentaje'].'%' : '-',
+            $this->totales['no_show'] !== null ? $this->totales['no_show'].'%' : '-',
             $this->totales['puntaje'] ?? '-',
         ]);
     }
 
     public function headings(): array
     {
-        return ['Evento', 'Categoría', 'Fecha', 'Cupo', 'Inscriptos', 'Asistentes', '% asistencia', 'Puntaje promedio'];
+        return ['Evento', 'Categoría', 'Fecha', 'Cupo', 'Inscriptos', 'Asistentes', '% asistencia', '% no show', 'Puntaje promedio'];
     }
 }
