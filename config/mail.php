@@ -115,4 +115,7 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    // si está definida, todos los mails se mandan solo a esta dirección (para pruebas)
+    'always_to' => env('MAIL_ALWAYS_TO'),
+
 ];
