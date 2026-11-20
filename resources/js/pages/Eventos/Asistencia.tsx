@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatearFecha } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Evento {
@@ -32,16 +33,6 @@ interface Props {
     evento: Evento;
     inscriptos: Inscripto[];
 }
-
-const formatearFecha = (fecha: string) =>
-    new Date(fecha).toLocaleString('es-AR', {
-        timeZone: 'UTC',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
 
 export default function Asistencia({ evento, inscriptos }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
