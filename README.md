@@ -30,13 +30,13 @@ Sistema para gestionar las charlas, talleres y cursos de la Facultad de Ciencias
 - Mensajes por mail a los inscriptos.
 - Carga de disertantes.
 - Reportes: listado de inscriptos (PDF y Excel), planilla de asistencia para firmar (PDF), exportación del listado de eventos con los filtros aplicados (Excel) y resumen por evento (PDF y Excel).
-- Resultados de la encuesta y porcentaje de no show en el detalle de cada evento.
+- Comentarios de la encuesta y porcentaje de inscriptos que no asistió en el detalle de cada evento.
 
 ### Administrador
 
 - Todo lo del organizador, sobre todos los eventos.
 - Categorías (con sus reglas de inscripción: aprobación y documentación) y lugares.
-- Estadísticas de no show: tasa global, por categoría, eventos con más faltas y alumnos con 2 o más faltas.
+- Estadísticas de inasistencia: porcentaje global que no asistió, por categoría, eventos con más faltas y alumnos con 2 o más faltas.
 
 ### Automático
 
@@ -131,7 +131,7 @@ Los datos de demo (todos organizados por Neo) incluyen:
 | Curso de Python inicial | Documentación y aprobación: una pendiente, una aceptada y una rechazada |
 | Introducción a las APIs REST | Borrador, con un disertante que sigue Alejandro |
 | Seguridad informática básica | Evento cancelado |
-| Introducción a SQL | Finalizado con no show |
+| Introducción a SQL | Finalizado, con inscriptos que no asistieron |
 | Taller de Linux desde cero | Finalizado, encuesta respondida (Alejandro) y sin responder (Franco) |
 | Primeros pasos con Arduino | Finalizado, con una invitada sin asistencia tomada |
 

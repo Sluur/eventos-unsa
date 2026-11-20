@@ -1,6 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Star } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import type { FormEvent } from 'react';
 import CategoriaEtiqueta from '@/components/categoria-etiqueta';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { capitalizar, formatearFechaLarga } from '@/lib/fechas';
-import { cn } from '@/lib/utils';
 
 interface Props {
     evento: {
@@ -24,12 +22,8 @@ interface Props {
     urlCertificado?: string;
 }
 
-const textos = ['', 'Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'];
-
 export default function Responder({ evento, nombre, respondida, urlGuardar, urlCertificado }: Props) {
-    const { data, setData, post, processing, errors } = useForm({ puntaje: 0, comentario: '' });
-    const [resaltado, setResaltado] = useState(0);
-    const mostrado = resaltado || data.puntaje;
+    const { data, setData, post, processing, errors } = useForm({ comentario: '' });
 
     const enviar = (e: FormEvent) => {
         e.preventDefault();
@@ -70,44 +64,17 @@ export default function Responder({ evento, nombre, respondida, urlGuardar, urlC
                                 <div>
                                     <h2 className="text-lg font-semibold">Encuesta de satisfacción</h2>
                                     <p className="text-muted-foreground">
-                                        Respondela para descargar tu certificado de asistencia. Son dos preguntas.
+                                        Respondela para descargar tu certificado de asistencia.
                                     </p>
                                 </div>
 
-                                <fieldset className="flex flex-col gap-2">
-                                    <legend className="mb-2 text-sm font-medium">¿Cómo calificás el evento?</legend>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex" onMouseLeave={() => setResaltado(0)}>
-                                            {[1, 2, 3, 4, 5].map((n) => (
-                                                <button
-                                                    key={n}
-                                                    type="button"
-                                                    onClick={() => setData('puntaje', n)}
-                                                    onMouseEnter={() => setResaltado(n)}
-                                                    aria-label={`${n} ${n === 1 ? 'estrella' : 'estrellas'}`}
-                                                    aria-pressed={data.puntaje === n}
-                                                    className="rounded p-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                                                >
-                                                    <Star
-                                                        className={cn(
-                                                            'size-8',
-                                                            n <= mostrado ? 'fill-acento text-acento' : 'text-muted-foreground',
-                                                        )}
-                                                    />
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <span className="text-sm text-muted-foreground">{textos[mostrado]}</span>
-                                    </div>
-                                    <InputError message={errors.puntaje} />
-                                </fieldset>
-
                                 <div className="flex flex-col gap-2">
-                                    <Label htmlFor="comentario">Comentario (opcional)</Label>
+                                    <Label htmlFor="comentario">¿Qué te pareció el evento?</Label>
                                     <Textarea
                                         id="comentario"
                                         rows={4}
                                         maxLength={500}
+                                        required
                                         value={data.comentario}
                                         onChange={(e) => setData('comentario', e.target.value)}
                                         placeholder="Qué te gustó, qué cambiarías..."

@@ -14,15 +14,13 @@ class StoreEncuestaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'puntaje' => ['required', 'integer', 'between:1,5'],
-            'comentario' => ['nullable', 'string', 'max:500'],
+            'comentario' => ['required', 'string', 'max:500'],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'puntaje' => 'puntaje',
             'comentario' => 'comentario',
         ];
     }
@@ -30,8 +28,7 @@ class StoreEncuestaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'puntaje.required' => 'Elegí un puntaje de 1 a 5 estrellas.',
-            'puntaje.between' => 'Elegí un puntaje de 1 a 5 estrellas.',
+            'comentario.required' => 'Contanos qué te pareció el evento.',
             'comentario.max' => 'El comentario puede tener hasta 500 caracteres.',
         ];
     }

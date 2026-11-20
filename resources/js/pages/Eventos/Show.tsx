@@ -1,5 +1,5 @@
 import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileDown, Star, FileText, Pencil, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Ban, CircleCheck, ClipboardCheck, ClipboardList, Copy, FileDown, FileText, Pencil, Trash2, Users } from 'lucide-react';
 import ArchivoInput from '@/components/archivo-input';
 import CancelarEventoDialog from '@/components/cancelar-evento-dialog';
 import CategoriaReglas from '@/components/categoria-reglas';
@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { capitalizar, formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
-import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -99,7 +98,7 @@ interface Props {
         promedio: number | null;
         cantidad: number;
         asistentes: number;
-        comentarios: { puntaje: number; comentario: string; created_at: string }[];
+        comentarios: { comentario: string; created_at: string }[];
     } | null;
     sigueCategoria: boolean;
     disertantesSeguidos: number[];
@@ -298,11 +297,11 @@ export default function Show({
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt className="text-muted-foreground">No show</dt>
+                                        <dt className="text-muted-foreground">No asistieron</dt>
                                         <dd className="font-semibold tabular-nums">{asistencia.no_show}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-muted-foreground">% no show</dt>
+                                        <dt className="text-muted-foreground">% no asistió</dt>
                                         <dd className="font-semibold tabular-nums">
                                             {asistencia.porcentaje === null ? '-' : `${asistencia.porcentaje}%`}
                                         </dd>
@@ -514,22 +513,15 @@ export default function Show({
                             <p className="text-sm text-muted-foreground">Todavía no hay respuestas.</p>
                         ) : (
                             <>
-                                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                    <span className="text-3xl font-bold tabular-nums">{encuesta.promedio}</span>
-                                    <Estrellas puntaje={Math.round(encuesta.promedio ?? 0)} />
-                                    <span className="text-sm text-muted-foreground">
-                                        {encuesta.cantidad} {encuesta.cantidad === 1 ? 'respuesta' : 'respuestas'} de {encuesta.asistentes}{' '}
-                                        {encuesta.asistentes === 1 ? 'asistente' : 'asistentes'}
-                                    </span>
-                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    {encuesta.cantidad} {encuesta.cantidad === 1 ? 'respuesta' : 'respuestas'} de {encuesta.asistentes}{' '}
+                                    {encuesta.asistentes === 1 ? 'asistente' : 'asistentes'}
+                                </p>
                                 {encuesta.comentarios.length > 0 && (
                                     <ul className="flex flex-col divide-y">
                                         {encuesta.comentarios.map((c, i) => (
                                             <li key={i} className="flex flex-col gap-1 py-3 first:pt-0">
-                                                <div className="flex items-center gap-2">
-                                                    <Estrellas puntaje={c.puntaje} />
-                                                    <span className="text-sm text-muted-foreground">{formatearFecha(c.created_at)}</span>
-                                                </div>
+                                                <span className="text-sm text-muted-foreground">{formatearFecha(c.created_at)}</span>
                                                 <p className="text-sm whitespace-pre-line">{c.comentario}</p>
                                             </li>
                                         ))}
@@ -567,15 +559,5 @@ export default function Show({
                 )}
             </div>
         </>
-    );
-}
-
-function Estrellas({ puntaje }: { puntaje: number }) {
-    return (
-        <span className="flex" aria-label={`${puntaje} de 5 estrellas`}>
-            {[1, 2, 3, 4, 5].map((n) => (
-                <Star key={n} className={cn('size-4', n <= puntaje ? 'fill-acento text-acento' : 'text-muted-foreground')} />
-            ))}
-        </span>
     );
 }

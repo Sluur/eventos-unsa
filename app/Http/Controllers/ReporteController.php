@@ -71,11 +71,6 @@ class ReporteController extends Controller
 
     private function filas(array $filtros, $usuario)
     {
-        $puntaje = Encuesta::query()
-            ->join('inscripciones', 'inscripciones.id', '=', 'encuestas.inscripcion_id')
-            ->whereColumn('inscripciones.evento_id', 'eventos.id')
-            ->selectRaw('round(avg(encuestas.puntaje), 1)');
-
         return Evento::query()
             ->with('categoria:id,nombre')
             ->whereIn('estado', ['publicado', 'finalizado'])
@@ -89,7 +84,6 @@ class ReporteController extends Controller
                 'inscripciones as inscriptos' => fn ($q) => $q->where('estado', 'confirmada'),
                 'inscripciones as asistentes' => fn ($q) => $q->where('estado', 'confirmada')->where('asistio', true),
             ])
-            ->addSelect(['puntaje' => $puntaje])
             ->orderBy('fecha_inicio')
             ->get()
             ->map(fn ($evento) => [
@@ -106,7 +100,6 @@ class ReporteController extends Controller
                 'no_show' => $evento->estado === 'finalizado' && $evento->inscriptos > 0
                     ? (int) round(($evento->inscriptos - $evento->asistentes) * 100 / $evento->inscriptos)
                     : null,
-                'puntaje' => $evento->puntaje !== null ? (float) $evento->puntaje : null,
             ]);
     }
 
@@ -125,7 +118,6 @@ class ReporteController extends Controller
             'no_show' => $inscriptosFinalizados > 0
                 ? (int) round(($inscriptosFinalizados - $finalizados->sum('asistentes')) * 100 / $inscriptosFinalizados)
                 : null,
-            'puntaje' => $filas->whereNotNull('puntaje')->isEmpty() ? null : round($filas->whereNotNull('puntaje')->avg('puntaje'), 1),
         ];
     }
 

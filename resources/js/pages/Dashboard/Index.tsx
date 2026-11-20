@@ -170,7 +170,7 @@ function Gestion({ tarjetas, proximos, pendientes, sinAsistencia, esAdmin }: Pro
 
                     {esAdmin && (
                         <p className="text-sm text-muted-foreground">
-                            La tasa de no show y los alumnos con faltas están en{' '}
+                            El % de inscriptos que no asistió y los alumnos con faltas están en{' '}
                             <Link href="/estadisticas" className="font-medium text-primary hover:underline">
                                 Estadísticas
                             </Link>

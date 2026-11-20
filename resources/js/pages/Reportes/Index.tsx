@@ -19,12 +19,11 @@ interface Fila {
     asistentes: number;
     porcentaje: number | null;
     no_show: number | null;
-    puntaje: number | null;
 }
 
 interface Props {
     filas: Fila[];
-    totales: { eventos: number; inscriptos: number; asistentes: number; porcentaje: number | null; no_show: number | null; puntaje: number | null };
+    totales: { eventos: number; inscriptos: number; asistentes: number; porcentaje: number | null; no_show: number | null };
     categorias: { id: number; nombre: string }[];
     filtros: { desde: string; hasta: string; categoria: string };
 }
@@ -128,8 +127,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                                     <TableHead className="text-right">Inscriptos</TableHead>
                                     <TableHead className="text-right">Asistentes</TableHead>
                                     <TableHead className="text-right">% asistencia</TableHead>
-                                    <TableHead className="text-right">% no show</TableHead>
-                                    <TableHead className="pr-6 text-right">Puntaje</TableHead>
+                                    <TableHead className="pr-6 text-right">% no asistió</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -146,8 +144,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                                         <TableCell className="text-right tabular-nums">{f.inscriptos}</TableCell>
                                         <TableCell className="text-right tabular-nums">{f.asistentes}</TableCell>
                                         <TableCell className="text-right tabular-nums">{porcentaje(f.porcentaje)}</TableCell>
-                                        <TableCell className="text-right tabular-nums">{porcentaje(f.no_show)}</TableCell>
-                                        <TableCell className="pr-6 text-right tabular-nums">{f.puntaje ?? '-'}</TableCell>
+                                        <TableCell className="pr-6 text-right tabular-nums">{porcentaje(f.no_show)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -160,8 +157,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                                     <TableCell className="text-right font-semibold tabular-nums">{totales.inscriptos}</TableCell>
                                     <TableCell className="text-right font-semibold tabular-nums">{totales.asistentes}</TableCell>
                                     <TableCell className="text-right font-semibold tabular-nums">{porcentaje(totales.porcentaje)}</TableCell>
-                                    <TableCell className="text-right font-semibold tabular-nums">{porcentaje(totales.no_show)}</TableCell>
-                                    <TableCell className="pr-6 text-right font-semibold tabular-nums">{totales.puntaje ?? '-'}</TableCell>
+                                    <TableCell className="pr-6 text-right font-semibold tabular-nums">{porcentaje(totales.no_show)}</TableCell>
                                 </TableRow>
                             </TableFooter>
                         </Table>
@@ -169,7 +165,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                 </Card>
 
                 <p className="text-sm text-muted-foreground">
-                    El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron; el % de no show, solo para los finalizados. No incluye borradores
+                    El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron; el % que no asistió, solo para los finalizados. No incluye borradores
                     ni eventos cancelados.
                 </p>
             </div>

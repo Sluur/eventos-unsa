@@ -9,7 +9,7 @@ class Encuesta extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['inscripcion_id', 'puntaje', 'comentario'];
+    protected $fillable = ['inscripcion_id', 'comentario'];
 
     public function inscripcion()
     {

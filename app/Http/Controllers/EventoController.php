@@ -379,10 +379,9 @@ class EventoController extends Controller
     {
         $respuestas = Encuesta::whereHas('inscripcion', fn ($q) => $q->where('evento_id', $evento->id))
             ->latest()
-            ->get(['puntaje', 'comentario', 'created_at']);
+            ->get(['comentario', 'created_at']);
 
         return [
-            'promedio' => $respuestas->isEmpty() ? null : round($respuestas->avg('puntaje'), 1),
             'cantidad' => $respuestas->count(),
             'asistentes' => $evento->inscripciones()->where('asistio', true)->count(),
             'comentarios' => $respuestas->whereNotNull('comentario')->values(),

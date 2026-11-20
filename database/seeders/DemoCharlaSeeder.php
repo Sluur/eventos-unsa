@@ -125,7 +125,6 @@ class DemoCharlaSeeder extends Seeder
             'inscripcion_id' => Inscripcion::where('evento_id', $linux->id)
                 ->whereRelation('user', 'email', 'alejandro@eventos.test')
                 ->value('id'),
-            'puntaje' => 5,
             'comentario' => 'Muy práctico, los ejercicios en la terminal ayudaron mucho.',
         ]);
 

@@ -77,7 +77,7 @@ class CertificadoTest extends TestCase
         $franco = $this->usuario('franco@eventos.test');
         $inscripcion = $this->inscripcion('Taller de Linux desde cero', 'franco@eventos.test');
 
-        $this->actingAs($franco)->post("/inscripciones/{$inscripcion->id}/encuesta", ['puntaje' => 4])
+        $this->actingAs($franco)->post("/inscripciones/{$inscripcion->id}/encuesta", ['comentario' => 'Me sirvió mucho.'])
             ->assertSessionHas('success');
 
         $this->actingAs($franco)->get("/inscripciones/{$inscripcion->id}/certificado")
@@ -99,9 +99,9 @@ class CertificadoTest extends TestCase
     {
         $inscripcion = $this->invitada();
 
-        $this->post($inscripcion->urlEncuesta(firmada: true), ['puntaje' => 5, 'comentario' => 'Muy bueno.'])
+        $this->post($inscripcion->urlEncuesta(firmada: true), ['comentario' => 'Muy bueno.'])
             ->assertSessionHas('success');
-        $this->assertSame(5, $inscripcion->encuesta()->value('puntaje'));
+        $this->assertSame('Muy bueno.', $inscripcion->encuesta()->value('comentario'));
 
         $this->get($inscripcion->urlCertificado(firmada: true))
             ->assertOk()
@@ -122,7 +122,7 @@ class CertificadoTest extends TestCase
     public function test_url_firmada_alterada_da_403()
     {
         $inscripcion = $this->invitada();
-        $inscripcion->encuesta()->create(['puntaje' => 5]);
+        $inscripcion->encuesta()->create(['comentario' => 'Muy bueno.']);
         $otra = Inscripcion::whereRelation('evento', 'titulo', 'Primeros pasos con Arduino')
             ->whereRelation('user', 'email', 'alejandro@eventos.test')
             ->firstOrFail();
@@ -139,10 +139,20 @@ class CertificadoTest extends TestCase
         $alejandro = $this->usuario('alejandro@eventos.test');
         $inscripcion = $this->inscripcion('Taller de Linux desde cero', 'alejandro@eventos.test');
 
-        $this->actingAs($alejandro)->post("/inscripciones/{$inscripcion->id}/encuesta", ['puntaje' => 1, 'comentario' => 'Cambio de opinión.'])
+        $this->actingAs($alejandro)->post("/inscripciones/{$inscripcion->id}/encuesta", ['comentario' => 'Cambio de opinión.'])
             ->assertSessionHas('error', 'Ya respondiste la encuesta de este evento.');
 
         $this->assertSame(1, $inscripcion->encuesta()->count());
-        $this->assertSame(5, $inscripcion->encuesta()->value('puntaje'));
+        $this->assertSame('Muy práctico, los ejercicios en la terminal ayudaron mucho.', $inscripcion->encuesta()->value('comentario'));
+    }
+
+    public function test_la_encuesta_pide_un_comentario()
+    {
+        $franco = $this->usuario('franco@eventos.test');
+        $inscripcion = $this->inscripcion('Taller de Linux desde cero', 'franco@eventos.test');
+
+        $this->actingAs($franco)->post("/inscripciones/{$inscripcion->id}/encuesta", ['comentario' => ''])
+            ->assertSessionHasErrors(['comentario' => 'Contanos qué te pareció el evento.']);
+        $this->assertFalse($inscripcion->encuesta()->exists());
     }
 }

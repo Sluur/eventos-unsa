@@ -22,7 +22,7 @@ class EstadisticaController extends Controller
             [$desde, $hasta] = [$hasta, $desde];
         }
 
-        // no show = inscripcion confirmada en un evento finalizado que no tiene asistencia
+        // no asistio = inscripcion confirmada en un evento finalizado que no tiene asistencia
         $eventos = Evento::query()
             ->with('categoria:id,nombre,color')
             ->where('estado', 'finalizado')
