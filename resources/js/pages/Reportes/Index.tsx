@@ -127,7 +127,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                                     <TableHead className="text-right">Inscriptos</TableHead>
                                     <TableHead className="text-right">Asistentes</TableHead>
                                     <TableHead className="text-right">% asistencia</TableHead>
-                                    <TableHead className="pr-6 text-right">% no asistió</TableHead>
+                                    <TableHead className="pr-6 text-right">% faltas</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -165,7 +165,7 @@ export default function Index({ filas, totales, categorias, filtros }: Props) {
                 </Card>
 
                 <p className="text-sm text-muted-foreground">
-                    El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron; el % que no asistió, solo para los finalizados. No incluye borradores
+                    El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron; el de faltas, solo para los finalizados. No incluye borradores
                     ni eventos cancelados.
                 </p>
             </div>

@@ -54,7 +54,7 @@ class InscripcionInvitadoTest extends TestCase
         $git = $this->git();
 
         // ya está la invitada del seeder con ese email
-        $this->post("/cartelera/{$git->id}/inscripcion", $this->datos(['email' => 'lucia.gomez@example.com']))
+        $this->post("/cartelera/{$git->id}/inscripcion", $this->datos(['email' => 'lucia@eventos.test']))
             ->assertSessionHasErrors('email');
         $this->post("/cartelera/{$git->id}/inscripcion", $this->datos(['dni' => '41234567']))
             ->assertSessionHasErrors('dni');

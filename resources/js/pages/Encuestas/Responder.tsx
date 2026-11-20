@@ -69,7 +69,7 @@ export default function Responder({ evento, nombre, respondida, urlGuardar, urlC
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <Label htmlFor="comentario">¿Qué te pareció el evento?</Label>
+                                    <Label htmlFor="comentario">Comentario</Label>
                                     <Textarea
                                         id="comentario"
                                         rows={4}

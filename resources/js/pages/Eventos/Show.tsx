@@ -301,7 +301,7 @@ export default function Show({
                                         <dd className="font-semibold tabular-nums">{asistencia.no_show}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-muted-foreground">% no asistió</dt>
+                                        <dt className="text-muted-foreground">% faltas</dt>
                                         <dd className="font-semibold tabular-nums">
                                             {asistencia.porcentaje === null ? '-' : `${asistencia.porcentaje}%`}
                                         </dd>

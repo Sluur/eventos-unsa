@@ -24,7 +24,7 @@
                     <th class="num">Inscriptos</th>
                     <th class="num">Asistentes</th>
                     <th class="num">% asistencia</th>
-                    <th class="num">% no asistió</th>
+                    <th class="num">% faltas</th>
                 </tr>
             </thead>
             <tbody>
@@ -50,7 +50,7 @@
             </tbody>
         </table>
         <p class="filtros" style="margin-top: 8px;">
-            El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron. El % que no asistió, solo para eventos finalizados.
+            El % de asistencia se calcula sobre los inscriptos confirmados y solo para eventos que ya terminaron. El de faltas, solo para eventos finalizados.
         </p>
     @endif
 </body>

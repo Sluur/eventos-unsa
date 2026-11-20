@@ -28,7 +28,7 @@ class StoreEncuestaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'comentario.required' => 'Contanos qué te pareció el evento.',
+            'comentario.required' => 'Escribí un comentario.',
             'comentario.max' => 'El comentario puede tener hasta 500 caracteres.',
         ];
     }

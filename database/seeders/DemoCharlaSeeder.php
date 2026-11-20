@@ -40,8 +40,8 @@ class DemoCharlaSeeder extends Seeder
         $this->inscribir($git, ['franco@eventos.test']);
 
         foreach ([
-            ['Lucía', 'Gómez', 'lucia.gomez@example.com', '40123456'],
-            ['Martín', 'Ríos', 'martin.rios@example.com', '41234567'],
+            ['Lucía', 'Gómez', 'lucia@eventos.test', '40123456'],
+            ['Martín', 'Ríos', 'martin@eventos.test', '41234567'],
         ] as [$nombre, $apellido, $email, $dni]) {
             Inscripcion::create([
                 'evento_id' => $git->id,
@@ -150,7 +150,7 @@ class DemoCharlaSeeder extends Seeder
             'evento_id' => $arduino->id,
             'nombre_invitado' => 'Sofía',
             'apellido_invitado' => 'Paz',
-            'email_invitado' => 'sofia.paz@example.com',
+            'email_invitado' => 'sofia@eventos.test',
             'dni_invitado' => '42345678',
             'estado' => 'confirmada',
             'asistio' => false,

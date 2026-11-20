@@ -41,6 +41,6 @@ class ResumenEventosExport implements FromCollection, WithHeadings, ShouldAutoSi
 
     public function headings(): array
     {
-        return ['Evento', 'Categoría', 'Fecha', 'Cupo', 'Inscriptos', 'Asistentes', '% asistencia', '% no asistió'];
+        return ['Evento', 'Categoría', 'Fecha', 'Cupo', 'Inscriptos', 'Asistentes', '% asistencia', '% faltas'];
     }
 }

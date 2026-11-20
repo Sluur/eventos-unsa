@@ -156,7 +156,7 @@ class MailsTest extends TestCase
 
         // franco y los dos invitados
         Mail::assertQueued(EventoCancelado::class, 3);
-        Mail::assertQueued(EventoCancelado::class, fn ($mail) => $mail->hasTo('lucia.gomez@example.com'));
+        Mail::assertQueued(EventoCancelado::class, fn ($mail) => $mail->hasTo('lucia@eventos.test'));
 
         $inscripcion = $git->inscripciones()->whereNull('user_id')->first();
         (new EventoCancelado($inscripcion))->assertSeeInHtml('Se corta la luz en todo el edificio.');

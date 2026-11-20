@@ -19,7 +19,7 @@ interface Props {
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Estadísticas', href: '/estadisticas' }];
 
 const configGrafico = {
-    tasa: { label: '% no asistió', color: 'var(--primary)' },
+    tasa: { label: '% faltas', color: 'var(--primary)' },
 } satisfies ChartConfig;
 
 const porcentaje = (valor: number | null) => (valor === null ? '-' : `${valor}%`);
@@ -32,7 +32,7 @@ export default function Index({ resumen, porCategoria, eventos, alumnos, filtros
     };
 
     const tarjetas = [
-        { titulo: '% que no asistió', valor: porcentaje(resumen.tasa), detalle: `${resumen.no_show} de ${resumen.inscriptos} confirmados no fueron` },
+        { titulo: 'No asistieron', valor: porcentaje(resumen.tasa), detalle: `${resumen.no_show} de ${resumen.inscriptos} confirmados no fueron` },
         { titulo: 'Eventos realizados', valor: resumen.eventos, detalle: 'Finalizados en el período' },
         { titulo: 'Inscriptos', valor: resumen.inscriptos, detalle: 'Confirmados en esos eventos' },
         { titulo: 'Asistentes', valor: resumen.asistentes, detalle: 'Con asistencia registrada' },
@@ -45,7 +45,7 @@ export default function Index({ resumen, porCategoria, eventos, alumnos, filtros
             <div className="flex flex-col gap-6 px-4 py-6 md:py-10">
                 <PageHeader
                     titulo="Estadísticas"
-                    descripcion="No asistió: inscriptos confirmados que no fueron a un evento ya finalizado."
+                    descripcion="Inscriptos que no fueron a eventos finalizados."
                 />
 
                 <div className="flex flex-wrap items-end gap-3">
@@ -92,7 +92,7 @@ export default function Index({ resumen, porCategoria, eventos, alumnos, filtros
                         <div className="grid gap-6 lg:grid-cols-2">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>No asistieron, por categoría</CardTitle>
+                                    <CardTitle>Por categoría</CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex flex-col gap-4">
                                     <ChartContainer config={configGrafico} className="aspect-auto h-56 w-full">
@@ -131,7 +131,7 @@ export default function Index({ resumen, porCategoria, eventos, alumnos, filtros
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Eventos con más inscriptos que no asistieron</CardTitle>
+                                    <CardTitle>Eventos con más faltas</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     {eventos.length === 0 ? (

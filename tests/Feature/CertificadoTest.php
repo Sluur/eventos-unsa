@@ -34,7 +34,7 @@ class CertificadoTest extends TestCase
 
     private function invitada(): Inscripcion
     {
-        $inscripcion = Inscripcion::where('email_invitado', 'sofia.paz@example.com')->firstOrFail();
+        $inscripcion = Inscripcion::where('email_invitado', 'sofia@eventos.test')->firstOrFail();
         $inscripcion->update(['asistio' => true]);
 
         return $inscripcion;
@@ -152,7 +152,7 @@ class CertificadoTest extends TestCase
         $inscripcion = $this->inscripcion('Taller de Linux desde cero', 'franco@eventos.test');
 
         $this->actingAs($franco)->post("/inscripciones/{$inscripcion->id}/encuesta", ['comentario' => ''])
-            ->assertSessionHasErrors(['comentario' => 'Contanos qué te pareció el evento.']);
+            ->assertSessionHasErrors(['comentario' => 'Escribí un comentario.']);
         $this->assertFalse($inscripcion->encuesta()->exists());
     }
 }
