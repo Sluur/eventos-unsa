@@ -21,7 +21,6 @@ class Evento extends Model
         'titulo',
         'descripcion',
         'fecha_inicio',
-        'fecha_fin',
         'inscripcion_hasta',
         'cupo',
         'solo_registrados',
@@ -36,7 +35,6 @@ class Evento extends Model
     {
         return [
             'fecha_inicio' => 'datetime',
-            'fecha_fin' => 'datetime',
             'inscripcion_hasta' => 'datetime',
             'solo_registrados' => 'boolean',
         ];
@@ -143,10 +141,10 @@ class Evento extends Model
 
     public function scopeEnVista(Builder $query, string $vista, User $usuario): void
     {
-        $proximos = fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '>=', now());
-        // los publicados que ya terminaron cuentan como finalizados aunque el comando no haya corrido
+        $proximos = fn ($q) => $q->where('estado', 'publicado')->where('fecha_inicio', '>=', now());
+        // los publicados que ya empezaron cuentan como finalizados aunque el comando no haya corrido
         $finalizados = fn ($q) => $q->where('estado', 'finalizado')
-            ->orWhere(fn ($q) => $q->where('estado', 'publicado')->where('fecha_fin', '<', now()));
+            ->orWhere(fn ($q) => $q->where('estado', 'publicado')->where('fecha_inicio', '<', now()));
 
         match ($vista) {
             'proximos' => $query->where($proximos),
@@ -160,15 +158,15 @@ class Evento extends Model
 
     public function scopeConProximo(Builder $query): void
     {
-        // proximo = publicado y todavia no termino, sirve para separar los grupos en "todos"
+        // proximo = publicado y todavia no empezo, sirve para separar los grupos en "todos"
         $query->select('eventos.*')
-            ->selectRaw("case when estado = 'publicado' and fecha_fin >= ? then 1 else 0 end as proximo", [now()]);
+            ->selectRaw("case when estado = 'publicado' and fecha_inicio >= ? then 1 else 0 end as proximo", [now()]);
     }
 
     public function scopeOrdenListado(Builder $query, array $filtros): void
     {
         $query->when($filtros['vista'] === 'todos', function ($q) {
-            $q->orderByRaw("case when estado = 'publicado' and fecha_fin >= ? then 1 else 0 end desc", [now()]);
+            $q->orderByRaw("case when estado = 'publicado' and fecha_inicio >= ? then 1 else 0 end desc", [now()]);
         });
 
         if ($filtros['orden'] !== '') {
@@ -180,7 +178,7 @@ class Evento extends Model
         match ($filtros['vista']) {
             'finalizados', 'cancelados' => $query->orderByDesc('fecha_inicio'),
             'todos' => $query
-                ->orderByRaw("case when estado = 'publicado' and fecha_fin >= ? then fecha_inicio end asc", [now()])
+                ->orderByRaw("case when estado = 'publicado' and fecha_inicio >= ? then fecha_inicio end asc", [now()])
                 ->orderByDesc('fecha_inicio'),
             default => $query->orderBy('fecha_inicio'),
         };

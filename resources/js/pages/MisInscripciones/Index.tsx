@@ -25,7 +25,6 @@ interface Inscripcion {
         id: number;
         titulo: string;
         fecha_inicio: string;
-        fecha_fin: string;
         estado: EstadoEvento;
         categoria: { id: number; nombre: string; color: string | null };
         lugar: { id: number; nombre: string };

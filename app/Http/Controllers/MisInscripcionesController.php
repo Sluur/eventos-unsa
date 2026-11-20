@@ -23,12 +23,12 @@ class MisInscripcionesController extends Controller
 
         $filtros = [
             'proximas' => fn ($q) => $q->where('estado', 'confirmada')
-                ->whereHas('evento', fn ($e) => $e->where('estado', 'publicado')->where('fecha_fin', '>=', now())),
+                ->whereHas('evento', fn ($e) => $e->where('estado', 'publicado')->where('fecha_inicio', '>=', now())),
             'pendientes' => fn ($q) => $q->where('estado', 'pendiente')
                 ->whereHas('evento', fn ($e) => $e->where('estado', '!=', 'cancelado')),
             'pasadas' => fn ($q) => $q->where('estado', 'confirmada')
                 ->whereHas('evento', fn ($e) => $e->where('estado', 'finalizado')
-                    ->orWhere(fn ($e) => $e->where('estado', 'publicado')->where('fecha_fin', '<', now()))),
+                    ->orWhere(fn ($e) => $e->where('estado', 'publicado')->where('fecha_inicio', '<', now()))),
             'canceladas' => fn ($q) => $q->whereIn('estado', ['cancelada', 'rechazada'])
                 ->orWhereHas('evento', fn ($e) => $e->where('estado', 'cancelado')),
         ];

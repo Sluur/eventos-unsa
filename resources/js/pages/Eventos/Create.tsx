@@ -35,7 +35,6 @@ export default function Create({ categorias, lugares, disertantes, copia }: Prop
         titulo: copia?.titulo ?? '',
         descripcion: copia?.descripcion ?? '',
         fecha_inicio: '',
-        fecha_fin: '',
         inscripcion_hasta: '',
         categoria_id: copia?.categoria_id ?? '',
         lugar_id: copia?.lugar_id ?? '',

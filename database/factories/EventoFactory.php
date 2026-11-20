@@ -13,7 +13,6 @@ class EventoFactory extends Factory
     {
         $inicio = fake()->dateTimeBetween('-2 months', '+2 months');
         $inicio->setTime(fake()->numberBetween(9, 19), 0);
-        $fin = (clone $inicio)->modify('+2 hours');
 
         return [
             'titulo' => fake()->randomElement([
@@ -37,7 +36,6 @@ class EventoFactory extends Factory
                 'Actividad organizada junto al Centro de Estudiantes.',
             ]),
             'fecha_inicio' => $inicio,
-            'fecha_fin' => $fin,
             'cupo' => fake()->randomElement([20, 30, 50, 80, 100]),
             'estado' => $inicio < now() ? 'finalizado' : 'publicado',
             'categoria_id' => Categoria::inRandomOrder()->value('id'),

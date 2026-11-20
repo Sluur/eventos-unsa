@@ -40,7 +40,7 @@ class DashboardController extends Controller
                 'inscripciones as pendientes_count' => fn ($q) => $q->where('estado', 'pendiente'),
             ])
             ->where('estado', 'publicado')
-            ->where('fecha_fin', '>=', now())
+            ->where('fecha_inicio', '>=', now())
             ->orderBy('fecha_inicio')
             ->get();
 

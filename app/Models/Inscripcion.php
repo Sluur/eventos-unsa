@@ -86,7 +86,7 @@ class Inscripcion extends Model
     public function puedeResponderEncuesta(): bool
     {
         return $this->asistio
-            && ($this->evento->estado === 'finalizado' || $this->evento->fecha_fin->isPast());
+            && ($this->evento->estado === 'finalizado' || $this->evento->fecha_inicio->isPast());
     }
 
     public function user()

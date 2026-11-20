@@ -8,14 +8,13 @@ import FechaBloque from '@/components/fecha-bloque';
 import InscripcionInvitadoForm from '@/components/inscripcion-invitado-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { capitalizar, formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { capitalizar, formatearFechaLarga } from '@/lib/fechas';
 
 export interface EventoPublico {
     id: number;
     titulo: string;
     descripcion: string;
     fecha_inicio: string;
-    fecha_fin: string;
     inscripcion_hasta: string | null;
     cupo: number;
     solo_registrados: boolean;
@@ -73,7 +72,6 @@ export default function Show({ evento, motivoSinInscripcion, inscripcionCerrada 
                             <div className="grid gap-4 text-sm sm:grid-cols-2">
                                 <EventoDato titulo="Cuándo">
                                     <span>{capitalizar(formatearFechaLarga(evento.fecha_inicio))}</span>
-                                    <span className="text-muted-foreground">Hasta las {formatearHora(evento.fecha_fin)}</span>
                                 </EventoDato>
                                 <EventoDato titulo="Dónde">
                                     <span>{evento.lugar.nombre}</span>

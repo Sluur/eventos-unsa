@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { capitalizar, formatearFecha, formatearFechaLarga, formatearHora } from '@/lib/fechas';
+import { capitalizar, formatearFecha, formatearFechaLarga } from '@/lib/fechas';
 import type { BreadcrumbItem } from '@/types';
 
 interface Disertante {
@@ -35,7 +35,6 @@ interface Evento {
     titulo: string;
     descripcion: string;
     fecha_inicio: string;
-    fecha_fin: string;
     inscripcion_hasta: string | null;
     cupo: number;
     solo_registrados: boolean;
@@ -395,6 +394,7 @@ export default function Show({
                                                             accept=".pdf,.jpg,.jpeg,.png"
                                                             onChange={(archivo) => inscripcion.setData('archivo', archivo)}
                                                             invalido={!!inscripcion.errors.archivo}
+                                                            maxMb={5}
                                                         />
                                                         <span className="text-sm text-muted-foreground">PDF, JPG o PNG de hasta 5 MB.</span>
                                                         <InputError message={inscripcion.errors.archivo} />
@@ -420,7 +420,6 @@ export default function Show({
                         <div className="grid gap-4 text-sm sm:grid-cols-2">
                             <EventoDato titulo="Cuándo">
                                 <span>{capitalizar(formatearFechaLarga(evento.fecha_inicio))}</span>
-                                <span className="text-muted-foreground">Hasta las {formatearHora(evento.fecha_fin)}</span>
                             </EventoDato>
                             <EventoDato titulo="Dónde">
                                 <span>{evento.lugar.nombre}</span>

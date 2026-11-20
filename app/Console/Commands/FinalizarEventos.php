@@ -14,7 +14,7 @@ class FinalizarEventos extends Command
     public function handle(): int
     {
         $cantidad = Evento::where('estado', 'publicado')
-            ->where('fecha_fin', '<', now())
+            ->where('fecha_inicio', '<', now())
             ->update(['estado' => 'finalizado']);
 
         $this->info("Eventos finalizados: {$cantidad}");

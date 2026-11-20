@@ -16,7 +16,6 @@ interface Evento {
     id: number;
     titulo: string;
     fecha_inicio: string;
-    fecha_fin: string;
     estado: string;
 }
 

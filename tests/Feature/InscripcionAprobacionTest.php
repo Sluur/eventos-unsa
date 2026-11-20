@@ -34,7 +34,6 @@ class InscripcionAprobacionTest extends TestCase
             'titulo' => "Evento de {$categoria}",
             'descripcion' => 'Prueba',
             'fecha_inicio' => now()->addDays(5),
-            'fecha_fin' => now()->addDays(5)->addHours(2),
             'cupo' => $cupo,
             'estado' => 'publicado',
             'categoria_id' => Categoria::where('nombre', $categoria)->value('id'),

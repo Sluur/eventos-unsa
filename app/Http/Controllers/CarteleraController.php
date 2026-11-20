@@ -54,7 +54,7 @@ class CarteleraController extends Controller
 
         return Inertia::render('Cartelera/Show', [
             'evento' => $evento->only([
-                'id', 'titulo', 'descripcion', 'fecha_inicio', 'fecha_fin', 'inscripcion_hasta', 'cupo',
+                'id', 'titulo', 'descripcion', 'fecha_inicio', 'inscripcion_hasta', 'cupo',
                 'solo_registrados', 'imagen_url', 'inscriptos_count', 'categoria', 'lugar', 'disertantes',
             ]),
             'motivoSinInscripcion' => $evento->motivoSinInscripcion($evento->inscriptos_count),

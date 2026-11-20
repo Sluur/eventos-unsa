@@ -25,7 +25,7 @@ class AsistenciaController extends Controller
             ->values();
 
         return Inertia::render('Eventos/Asistencia', [
-            'evento' => $evento->only(['id', 'titulo', 'fecha_inicio', 'fecha_fin', 'estado']),
+            'evento' => $evento->only(['id', 'titulo', 'fecha_inicio', 'estado']),
             'inscriptos' => $inscriptos,
         ]);
     }
@@ -48,7 +48,7 @@ class AsistenciaController extends Controller
             (clone $confirmadas)->update(['asistio' => false]);
             (clone $confirmadas)->whereIn('id', $presentes)->update(['asistio' => true]);
 
-            if ($evento->estado === 'publicado' && $evento->fecha_fin->isPast()) {
+            if ($evento->estado === 'publicado' && $evento->fecha_inicio->isPast()) {
                 $evento->update(['estado' => 'finalizado']);
             }
         });

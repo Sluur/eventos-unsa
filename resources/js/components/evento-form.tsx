@@ -29,7 +29,6 @@ export type EventoFormData = {
     titulo: string;
     descripcion: string;
     fecha_inicio: string;
-    fecha_fin: string;
     inscripcion_hasta: string;
     categoria_id: string;
     lugar_id: string;
@@ -152,6 +151,7 @@ export default function EventoForm({
                     accept="image/jpeg,image/png,image/webp"
                     onChange={(archivo) => setData('imagen', archivo)}
                     invalido={!!errors.imagen}
+                    maxMb={2}
                 />
             </FormField>
 
@@ -165,7 +165,7 @@ export default function EventoForm({
                 />
             </FormField>
 
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid items-start gap-5 sm:grid-cols-2">
                 <FormField label="Inicio" htmlFor="fecha_inicio" error={errors.fecha_inicio}>
                     <Input
                         id="fecha_inicio"
@@ -176,33 +176,22 @@ export default function EventoForm({
                     />
                 </FormField>
 
-                <FormField label="Fin" htmlFor="fecha_fin" error={errors.fecha_fin}>
+                <FormField
+                    label="Inscripción hasta (opcional)"
+                    htmlFor="inscripcion_hasta"
+                    error={errors.inscripcion_hasta}
+                    ayuda="Si la dejás vacía, se pueden inscribir hasta que empiece el evento."
+                >
                     <Input
-                        id="fecha_fin"
+                        id="inscripcion_hasta"
                         type="datetime-local"
-                        value={data.fecha_fin}
-                        onChange={(e) => setData('fecha_fin', e.target.value)}
-                        aria-invalid={!!errors.fecha_fin}
+                        value={data.inscripcion_hasta}
+                        max={data.fecha_inicio || undefined}
+                        onChange={(e) => setData('inscripcion_hasta', e.target.value)}
+                        aria-invalid={!!errors.inscripcion_hasta}
                     />
                 </FormField>
             </div>
-
-            <FormField
-                label="Inscripción hasta (opcional)"
-                htmlFor="inscripcion_hasta"
-                error={errors.inscripcion_hasta}
-                ayuda="Si la dejás vacía, se pueden inscribir hasta que empiece el evento."
-            >
-                <Input
-                    id="inscripcion_hasta"
-                    type="datetime-local"
-                    value={data.inscripcion_hasta}
-                    max={data.fecha_inicio || undefined}
-                    onChange={(e) => setData('inscripcion_hasta', e.target.value)}
-                    aria-invalid={!!errors.inscripcion_hasta}
-                    className="sm:w-1/2"
-                />
-            </FormField>
 
             <div className="grid gap-5 sm:grid-cols-2">
                 <FormField label="Lugar" htmlFor="lugar_id" error={errors.lugar_id}>

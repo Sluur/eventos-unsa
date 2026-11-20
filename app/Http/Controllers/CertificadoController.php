@@ -26,12 +26,10 @@ class CertificadoController extends Controller
         }
 
         $evento = $inscripcion->evento->load(['categoria', 'lugar', 'disertantes', 'organizador']);
-        $horas = round($evento->fecha_inicio->diffInMinutes($evento->fecha_fin) / 60, 1);
 
         $pdf = Pdf::loadView('pdf.certificado', [
             'nombre' => $inscripcion->nombreDestino(),
             'evento' => $evento,
-            'horas' => $horas,
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('certificado-'.Str::slug($evento->titulo).'.pdf');

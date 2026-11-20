@@ -22,7 +22,7 @@
         <tr>
             <td>
                 <strong>Fecha:</strong> {{ $evento->fecha_inicio->format('d/m/Y') }},
-                de {{ $evento->fecha_inicio->format('H:i') }} a {{ $evento->fecha_fin->format('H:i') }}
+                {{ $evento->fecha_inicio->format('H:i') }} h
             </td>
             <td><strong>Organiza:</strong> {{ $evento->organizador->name }}</td>
         </tr>

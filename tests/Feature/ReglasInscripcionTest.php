@@ -31,7 +31,6 @@ class ReglasInscripcionTest extends TestCase
             'titulo' => 'Evento de prueba',
             'descripcion' => 'Descripción',
             'fecha_inicio' => now()->addDays(5)->format('Y-m-d\TH:i'),
-            'fecha_fin' => now()->addDays(5)->addHours(2)->format('Y-m-d\TH:i'),
             'categoria_id' => Categoria::where('nombre', 'Charla')->value('id'),
             'lugar_id' => Lugar::where('nombre', 'Aula Magna')->value('id'),
             'cupo' => 20,

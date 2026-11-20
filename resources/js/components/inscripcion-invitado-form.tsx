@@ -72,6 +72,7 @@ export default function InscripcionInvitadoForm({ eventoId, documentacion }: Pro
                         accept=".pdf,.jpg,.jpeg,.png"
                         onChange={(archivo) => setData('archivo', archivo)}
                         invalido={!!errors.archivo}
+                        maxMb={5}
                     />
                 </FormField>
             )}

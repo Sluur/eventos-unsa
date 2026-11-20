@@ -80,7 +80,6 @@ class InscripcionInvitadoTest extends TestCase
             'titulo' => 'Curso abierto',
             'descripcion' => 'Prueba',
             'fecha_inicio' => now()->addDays(5),
-            'fecha_fin' => now()->addDays(5)->addHours(2),
             'cupo' => 10,
             'solo_registrados' => false,
             'estado' => 'publicado',

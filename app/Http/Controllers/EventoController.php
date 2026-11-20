@@ -110,7 +110,6 @@ class EventoController extends Controller
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
             'fecha_inicio' => $datos['fecha_inicio'],
-            'fecha_fin' => $datos['fecha_fin'],
             'inscripcion_hasta' => $datos['inscripcion_hasta'] ?? null,
             'lugar_id' => $datos['lugar_id'],
             'cupo' => $datos['cupo'],
@@ -239,7 +238,6 @@ class EventoController extends Controller
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
             'fecha_inicio' => $datos['fecha_inicio'],
-            'fecha_fin' => $datos['fecha_fin'],
             'inscripcion_hasta' => $datos['inscripcion_hasta'] ?? null,
             'categoria_id' => $datos['categoria_id'],
             'lugar_id' => $datos['lugar_id'],
@@ -392,7 +390,6 @@ class EventoController extends Controller
     {
         return [
             'Inicio' => $evento->fecha_inicio->format('d/m/Y H:i'),
-            'Fin' => $evento->fecha_fin->format('d/m/Y H:i'),
             'Lugar' => $evento->lugar()->value('nombre'),
         ];
     }

@@ -39,8 +39,7 @@
                 @if ($evento->disertantes->isNotEmpty())
                     a cargo de {{ $evento->disertantes->map(fn ($d) => "{$d->nombre} {$d->apellido}")->join(', ', ' y ') }},
                 @endif
-                que se realizó el {{ $fecha($evento->fecha_inicio) }} en {{ $evento->lugar->nombre }},
-                con una duración de {{ str_replace('.', ',', $horas) }} {{ $horas == 1 ? 'hora' : 'horas' }}.
+                que se realizó el {{ $fecha($evento->fecha_inicio) }} en {{ $evento->lugar->nombre }}.
             </p>
 
             <table class="pie">
