@@ -25,6 +25,7 @@ class DemoCharlaSeeder extends Seeder
         $git = Evento::create([
             'titulo' => 'Git y GitHub para trabajos en grupo',
             'descripcion' => 'Ramas, commits y pull requests para trabajar ordenados en equipo.',
+            'imagen' => $this->imagen('git'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'inscripcion_hasta' => (clone $inicio)->subDay(),
@@ -57,6 +58,7 @@ class DemoCharlaSeeder extends Seeder
         $sql = Evento::create([
             'titulo' => 'Introducción a SQL',
             'descripcion' => 'Consultas básicas para leer y filtrar datos de una base relacional.',
+            'imagen' => $this->imagen('sql'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'cupo' => 30,
@@ -74,6 +76,7 @@ class DemoCharlaSeeder extends Seeder
         $redes = Evento::create([
             'titulo' => 'Cómo funciona Internet',
             'descripcion' => 'Un recorrido simple por redes, direcciones IP y DNS. No hace falta saber nada previo.',
+            'imagen' => $this->imagen('redes'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'inscripcion_hasta' => now()->subDay()->setTime(23, 59),
@@ -106,6 +109,7 @@ class DemoCharlaSeeder extends Seeder
         $linux = Evento::create([
             'titulo' => 'Taller de Linux desde cero',
             'descripcion' => 'Instalamos Linux y practicamos los comandos básicos de la terminal.',
+            'imagen' => $this->imagen('linux'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(3),
             'cupo' => 20,
@@ -130,6 +134,7 @@ class DemoCharlaSeeder extends Seeder
         $arduino = Evento::create([
             'titulo' => 'Primeros pasos con Arduino',
             'descripcion' => 'Armamos circuitos simples y programamos sensores con una placa Arduino.',
+            'imagen' => $this->imagen('arduino'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'cupo' => 12,
@@ -175,6 +180,7 @@ class DemoCharlaSeeder extends Seeder
         $docker = Evento::create([
             'titulo' => 'Primeros pasos con Docker',
             'descripcion' => 'Contenedores e imágenes explicados con ejemplos simples.',
+            'imagen' => $this->imagen('docker'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(2),
             'cupo' => 25,
@@ -191,6 +197,7 @@ class DemoCharlaSeeder extends Seeder
         $python = Evento::create([
             'titulo' => 'Curso de Python inicial',
             'descripcion' => 'Cuatro encuentros para aprender lo básico de Python con ejercicios prácticos.',
+            'imagen' => $this->imagen('python'),
             'fecha_inicio' => $inicio,
             'fecha_fin' => (clone $inicio)->addHours(3),
             'cupo' => 15,
@@ -224,6 +231,14 @@ class DemoCharlaSeeder extends Seeder
                 'archivo' => $archivo,
             ]);
         }
+    }
+
+    private function imagen(string $nombre): string
+    {
+        $destino = "eventos/{$nombre}.jpg";
+        Storage::disk('public')->put($destino, file_get_contents(__DIR__."/imagenes/{$nombre}.jpg"));
+
+        return $destino;
     }
 
     private function pdfDeEjemplo(string $nombre): string
