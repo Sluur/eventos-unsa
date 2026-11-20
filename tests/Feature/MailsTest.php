@@ -142,6 +142,7 @@ class MailsTest extends TestCase
             'lugar_id' => $evento->lugar_id,
             'cupo' => $evento->cupo,
             'estado' => $evento->estado,
+            'disertantes' => $evento->disertantes()->pluck('disertantes.id')->all(),
         ], $cambios);
     }
 

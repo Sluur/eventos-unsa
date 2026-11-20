@@ -26,7 +26,7 @@ class StoreEventoRequest extends FormRequest
             'cupo' => ['required', 'integer', 'min:1'],
             'solo_registrados' => ['boolean'],
             'estado' => ['required', 'in:borrador,publicado'],
-            'disertantes' => ['array'],
+            'disertantes' => ['required', 'array', 'min:1'],
             'disertantes.*' => ['integer', Rule::exists('disertantes', 'id')->where('activo', true)],
             'imagen' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
@@ -83,6 +83,8 @@ class StoreEventoRequest extends FormRequest
             'exists' => 'El :attribute seleccionado no existe.',
             'categoria_id.exists' => 'La categoría seleccionada no existe.',
             'disertantes.*.exists' => 'El disertante elegido no existe o está inactivo.',
+            'disertantes.required' => 'Elegí al menos un disertante.',
+            'disertantes.min' => 'Elegí al menos un disertante.',
             'categoria_id.required' => 'Elegí una categoría.',
             'in' => 'El :attribute no es válido.',
             'array' => 'El campo :attribute no es válido.',

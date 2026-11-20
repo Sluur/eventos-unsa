@@ -44,6 +44,17 @@ class GestionEventosTest extends TestCase
         ], $cambios);
     }
 
+    public function test_el_evento_necesita_al_menos_un_disertante()
+    {
+        $evento = $this->evento('Cómo funciona Internet');
+
+        $this->actingAs($this->usuario('organizador@eventos.test'))
+            ->put("/eventos/{$evento->id}", $this->datos($evento, ['disertantes' => []]))
+            ->assertSessionHasErrors(['disertantes' => 'Elegí al menos un disertante.']);
+
+        $this->assertTrue($evento->disertantes()->exists());
+    }
+
     public function test_el_organizador_edita_su_evento()
     {
         $evento = $this->evento('Cómo funciona Internet');

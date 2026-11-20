@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Categoria;
+use App\Models\Disertante;
 use App\Models\Evento;
 use App\Models\Lugar;
 use App\Models\User;
@@ -35,6 +36,7 @@ class ReglasInscripcionTest extends TestCase
             'lugar_id' => Lugar::where('nombre', 'Aula Magna')->value('id'),
             'cupo' => 20,
             'estado' => 'publicado',
+            'disertantes' => [Disertante::where('email', 'diego@eventos.test')->value('id')],
         ], $cambios);
     }
 
